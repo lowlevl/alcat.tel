@@ -1,0 +1,2 @@
+# Ignore NixOS built symlink
+/result
