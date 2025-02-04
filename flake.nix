@@ -18,10 +18,6 @@
 
         modules = [
           (nixpkgs + "/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix")
-
-          ./modules/common.nix
-          ./modules/remote.nix
-
           ./configurations/installer.nix
         ];
       };
@@ -32,9 +28,6 @@
         system = "x86_64-linux";
 
         modules = [
-          ./modules/common.nix
-          ./modules/remote.nix
-
           ./configurations/hermes.nix
         ];
       };
