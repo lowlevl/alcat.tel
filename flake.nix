@@ -15,22 +15,18 @@
     nixosConfigurations = {
       # --
 
-      installer = nixpkgs.lib.nixosSystem {
+      iso = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit self; };
 
-        modules = [
-          ./confs/installer.nix
-        ];
+        modules = [ ./confs/iso.nix ];
       };
 
       bagley = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit self; };
 
-        modules = [
-          ./confs/bagley.nix
-        ];
+        modules = [ ./confs/bagley.nix ];
       };
 
       # --
