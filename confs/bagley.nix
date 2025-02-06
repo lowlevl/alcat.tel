@@ -1,6 +1,7 @@
 #- The messaging and voice server.
 
 { self
+, pkgs
 , ...
 }: {
   imports = [
@@ -11,6 +12,8 @@
   ];
 
   networking.hostName = "bagley";
+
+  environment.systemPackages = [ pkgs.yate ];
 
   disko.devices.disk.main = {
     type = "disk";
