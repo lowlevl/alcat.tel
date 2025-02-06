@@ -6,8 +6,8 @@
   imports = [
     self.inputs.disko.nixosModules.default
 
-    ../modules/base.nix
-    ../modules/remote.nix
+    ../common/base.nix
+    ../common/remote.nix
   ];
 
   networking.hostName = "bagley";

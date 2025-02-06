@@ -19,7 +19,7 @@
         system = "x86_64-linux";
         specialArgs = { inherit self; };
 
-        modules = [ ./confs/iso.nix ];
+        modules = [ ./confs/iso/configuration.nix ];
       };
 
       bagley = nixpkgs.lib.nixosSystem {
