@@ -3,32 +3,33 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, ... }@input: {
+  outputs = { self, nixpkgs, disko, ... }: {
     formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
 
     nixosConfigurations = {
       # --
 
-      # The installer configuration.
       installer = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit input; };
         system = "x86_64-linux";
+        specialArgs = { inherit self; };
 
         modules = [
-          (nixpkgs + "/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix")
-          ./configurations/installer.nix
+          ./confs/installer.nix
         ];
       };
 
-      # The hermes's server configuration.
-      hermes = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit input; };
+      bagley = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit self; };
 
         modules = [
-          ./configurations/hermes.nix
+          ./confs/bagley.nix
         ];
       };
 

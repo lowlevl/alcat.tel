@@ -5,7 +5,14 @@ let
   keys = import ./keys.nix { };
 in
 {
-  users.users.technician.openssh.authorizedKeys.keys = keys;
+  users = {
+    users.technician = {
+      isNormalUser = true;
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = keys;
+    };
+  };
 
   services.openssh = {
     enable = true;

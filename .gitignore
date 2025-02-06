@@ -1,2 +1,5 @@
 # Ignore NixOS built symlink
 /result
+
+# Test disk for QEMU
+/disk.img

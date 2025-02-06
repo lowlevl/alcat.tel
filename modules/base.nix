@@ -18,14 +18,9 @@
 
   # Hardening
   networking.firewall.enable = true;
+  users.mutableUsers = false;
+
   security.sudo.wheelNeedsPassword = false;
 
-  # Common users
-  users.mutableUsers = false;
-  users = {
-    users.technician = {
-      isNormalUser = true;
-      extraGroups = [ "wheel" ];
-    };
-  };
+  system.stateVersion = "24.11"; # Update carefully - https://mynixos.com/nixpkgs/option/system.stateVersion
 }
