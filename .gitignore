@@ -1,5 +1,6 @@
-# Ignore NixOS built symlink
+# NixOS symlinks
 /result
+/result-*
 
-# Test disk for QEMU
-/disk.img
+# Images and drives
+*.qcow2
