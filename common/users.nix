@@ -1,6 +1,6 @@
 # - User related settings
 {...}: {
-  users.technician = {
+  users.users.technician = {
     isNormalUser = true;
     extraGroups = ["wheel"];
 

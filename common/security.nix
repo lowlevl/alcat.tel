@@ -6,5 +6,5 @@
 
   #- Firewall-related settings
   networking.firewall.enable = true;
-  service.openssh.openFirewall = true;
+  services.openssh.openFirewall = true;
 }
