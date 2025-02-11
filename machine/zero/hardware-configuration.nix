@@ -1,24 +1,19 @@
-#- The messaging and voice server.
-
-{ self
-, pkgs
-, ...
-}: {
+{...}: let
+  disk = "/dev/sda";
+  ram = "4G";
+in {
   imports = [
-    self.inputs.disko.nixosModules.default
-
-    ../common/base.nix
-    ../common/remote.nix
+    "${
+      builtins.fetchTarball
+      "https://github.com/nix-community/disko/archive/refs/tags/v1.11.0.tar.gz"
+    }/module.nix"
   ];
 
-  networking.hostName = "bagley";
-
-  environment.systemPackages = [ pkgs.yate ];
-
-  disko.devices.disk.main = {
+  disko.devices.disk.primary = {
     type = "disk";
-    device = "/dev/sda";
+    device = "${disk}";
     imageSize = "16G"; # Set an image size for disko debugging
+
     content = {
       type = "gpt";
       partitions = {
@@ -28,10 +23,8 @@
         };
 
         swap = {
-          size = "4G";
-          content = {
-            type = "swap";
-          };
+          size = "${ram}";
+          content = {type = "swap";};
         };
 
         root = {
