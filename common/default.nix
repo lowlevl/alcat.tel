@@ -7,4 +7,6 @@
     ./users.nix
     ./ssh.nix
   ];
+
+  networking.domain = "alcat.tel";
 }
