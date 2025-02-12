@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
     ./security.nix
 
@@ -9,4 +9,6 @@
   ];
 
   networking.domain = "alcat.tel";
+
+  environment.systemPackages = with pkgs; [nano];
 }
