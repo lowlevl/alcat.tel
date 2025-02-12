@@ -1,12 +1,10 @@
 let
   disk = "/dev/sda";
-  ram = "4G";
 in {
   disko.devices = {
     disk.primary = {
       type = "disk";
       device = "${disk}";
-      imageSize = "16G"; # Set an image size for disko debugging
 
       content = {
         type = "gpt";
@@ -17,7 +15,7 @@ in {
           };
 
           swap = {
-            size = "${ram}";
+            size = "6G";
             content = {type = "swap";};
           };
 
