@@ -11,7 +11,11 @@ all:
 fmt:
 	nix fmt	
 
+link@%: $(MACHINEDIR)/%
+	ln -s $(MACHINEDIR)/$* configuration.nix
+
 build-vm@%: $(MACHINEDIR)/%
 	$(_BUILD) -I nixos-config=$(MACHINEDIR)/$* -A vm
+
 
 .PHONY: fmt build-vm@%

@@ -3,4 +3,7 @@
 /result-*
 
 # Images and drives
-*.qcow2
+/*.qcow2
+
+# Machine configuration symlink
+/configuration.nix

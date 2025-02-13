@@ -6,3 +6,21 @@ Some fun with classic "Télécommunication" infrastructure.
 - https://search.nixos.org/
 - https://chengeric.com/homelab/
 - https://bef.github.io/yate-cookbook/
+
+### Installation on the machine
+
+_On this guide, this applies to the machine named `zero` but will work on other machines, replacing this term where required._
+
+On a freshly booted installer, clone the repository to the local directory
+
+```
+$ git clone https://github.com/lowlevl/alcat.tel.git
+```
+
+then enter a shell with `disko` installed and partition the disk from the configuration
+
+```
+$ nix-shell -p disko
+$ sudo disko --mode disko alcat.tel/machine/zero/disk-config.nix
+```
+
