@@ -11,6 +11,8 @@ Some fun with classic "Télécommunication" infrastructure.
 
 _On this guide, this applies to the machine named `zero` but will work on other machines, replacing this term where required._
 
+#### Partitionning the disk
+
 On a freshly booted installer, clone the repository to the local directory
 
 ```
@@ -23,4 +25,8 @@ then enter a shell with `disko` installed and partition the disk from the config
 $ nix-shell -p disko
 $ sudo disko --mode disko alcat.tel/machine/zero/disk-config.nix
 ```
+
+#### Installing NixOS on the disk
+
+
 
