@@ -10,5 +10,10 @@
 
   networking.domain = "alcat.tel";
 
-  environment.systemPackages = with pkgs; [neovim git btop tree];
+  environment.systemPackages = with pkgs; [
+    (pkgs.callPackage ../pkgs/pull-switch.nix {})
+
+    neovim
+    btop
+  ];
 }
