@@ -13,7 +13,5 @@ in
     ${beep}
 
     sudo nixos-rebuild switch --fast --no-flake
-    ${beep} -f 420 -l 250 \
-    	-n -f 440 -l 500 \
-	-n -f 880 -l 250
+    ${beep} -f 420 -l 250 -n -f 440 -l 500 -n -f 880 -l 250
   ''

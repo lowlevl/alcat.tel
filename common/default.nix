@@ -3,9 +3,10 @@
     ./security.nix
 
     ./locale.nix
-
     ./users.nix
     ./ssh.nix
+
+    ./beep.nix
   ];
 
   networking.domain = "alcat.tel";
