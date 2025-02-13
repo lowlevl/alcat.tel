@@ -10,5 +10,5 @@
 
   networking.domain = "alcat.tel";
 
-  environment.systemPackages = with pkgs; [nano];
+  environment.systemPackages = with pkgs; [neovim git btop tree];
 }

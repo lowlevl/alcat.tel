@@ -28,5 +28,11 @@ $ sudo disko --mode disko alcat.tel/machine/zero/disk-config.nix
 
 #### Installing NixOS on the disk
 
+Move the configuration to the newly partionned disk, link the configuration and trigger the `nixos-install` script
 
+```
+$ sudo mv alcat.tel /mnt/etc/nixos
+$ cd /mnt/etc/nixos && make link@zero
+$ sudo nixos-install --no-root-passwd
+```
 
