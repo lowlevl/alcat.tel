@@ -4,8 +4,17 @@
 
   services.openssh = {
     enable = true;
-    openFirewall = true;
+    startWhenNeeded = true;
 
+    banner = ''
+        ┓        ┓
+      ┏┓┃┏┏┓╋ ╋┏┓┃
+      ┗┻┗┗┗┻┗•┗┗ ┗
+
+      [!!] This realm is the property of `alcat.tel`.
+    '';
+
+    openFirewall = true;
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
