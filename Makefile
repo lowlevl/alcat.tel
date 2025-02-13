@@ -1,21 +1,19 @@
-NIXBLD=nix-build
+NIXARGS='<nixpkgs/nixos>' -I nixpkgs=$(NIXPKGS)
 
 NIXPKGS=channel:nixos-24.11
 MACHINEDIR=./machine
-
-_BUILD=$(NIXBLD) '<nixpkgs/nixos>' -I nixpkgs=$(NIXPKGS)
 
 all:
 	#-- Nothing to be done by default.
 
 fmt:
-	nix fmt	
+	nix-shell $(NIXARGS) -p alejandra --run 'alejandra .'
 
 link@%: $(MACHINEDIR)/%
 	ln -s $(MACHINEDIR)/$* configuration.nix
 
 build-vm@%: $(MACHINEDIR)/%
-	$(_BUILD) -I nixos-config=$(MACHINEDIR)/$* -A vm
+	nix-build $(NIXARGS) -I nixos-config=$(MACHINEDIR)/$* -A vm
 
 
 .PHONY: fmt build-vm@%
