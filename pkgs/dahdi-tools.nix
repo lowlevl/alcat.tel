@@ -15,7 +15,8 @@ in
     };
 
     hardeningDisable = [];
-    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.perl];
+    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.man pkgs.asciidoc];
+    buildInputs = [pkgs.perl];
 
     configureFlags = [
       "--with-dahdi=${dahdi}/usr"
@@ -23,6 +24,10 @@ in
     makeFlags = [
       "OUTPATH=$(out)"
     ];
+
+    postBuild = ''
+      make docs
+    '';
 
     meta = {
       description = "A set of tools for the DAHDI kernel drivers.";

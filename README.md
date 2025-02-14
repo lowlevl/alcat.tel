@@ -6,6 +6,7 @@ Some fun with classic "Télécommunication" infrastructure.
 - https://search.nixos.org/
 - https://chengeric.com/homelab/
 - https://bef.github.io/yate-cookbook/
+- https://ryantm.github.io/nixpkgs/stdenv/stdenv/
 
 ### Installation on the machine
 
