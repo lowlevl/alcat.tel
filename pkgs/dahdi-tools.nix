@@ -19,7 +19,7 @@ in
     ];
 
     hardeningDisable = [];
-    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.man pkgs.asciidoc pkgs.makeWrapper];
+    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.newt pkgs.man pkgs.asciidoc pkgs.makeWrapper];
     buildInputs = [pkgs.perl];
 
     configureFlags = [
