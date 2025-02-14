@@ -1,5 +1,10 @@
-{config, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   dahdi = config.boot.kernelPackages.callPackage ../../pkgs/dahdi.nix {};
+  dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools.nix {};
 in {
   imports = [
     ./hardware-configuration.nix
@@ -14,6 +19,8 @@ in {
 
   boot.extraModulePackages = [dahdi];
   boot.kernelModules = ["wctdm"];
+
+  environment.systemPackages = [dahdi-tools];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
