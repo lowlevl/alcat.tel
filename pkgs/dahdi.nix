@@ -52,6 +52,10 @@ in
       patchShebangs --build "${sourceRoot}"
     '';
 
+    patches = [
+      ./dahdi-00-add-back-support-for-tdm410-and-tdm800.patch
+    ];
+
     hardeningDisable = ["pic"];
     nativeBuildInputs = kernel.moduleBuildDependencies ++ [pkgs.perl];
 
