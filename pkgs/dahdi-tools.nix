@@ -15,7 +15,7 @@ in
     };
 
     hardeningDisable = [];
-    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.man pkgs.asciidoc];
+    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.man pkgs.asciidoc pkgs.makeWrapper];
     buildInputs = [pkgs.perl];
 
     configureFlags = [
@@ -28,6 +28,18 @@ in
     postBuild = ''
       make docs
     '';
+    postFixup = let
+      programs = [
+        "dahdi_genconf"
+        "dahdi_hardware"
+        "dahdi_registration"
+        "lsdahdi"
+        "twinstar"
+        "xpp_blink"
+        "xpp_sync"
+      ];
+    in
+      builtins.concatStringsSep "\n" (builtins.map (program: ''wrapProgram "$out/bin/${program}" --prefix PERL5LIB : "$out/share/perl5"'') programs);
 
     meta = {
       description = "A set of tools for the DAHDI kernel drivers.";
