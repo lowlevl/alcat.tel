@@ -18,7 +18,7 @@ in {
   networking.hostName = "zero";
 
   boot.extraModulePackages = [dahdi];
-  boot.kernelModules = ["wctdm"];
+  boot.kernelModules = ["wctdm24xxp"];
 
   environment.systemPackages = [dahdi-tools pkgs.pciutils];
 
