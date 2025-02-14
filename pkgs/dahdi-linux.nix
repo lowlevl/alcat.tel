@@ -27,7 +27,7 @@
   };
 in
   stdenv.mkDerivation rec {
-    pname = "dahdi";
+    pname = "dahdi-linux";
     version = "3.4.0";
 
     sourceRoot = "source";
@@ -53,7 +53,7 @@ in
     '';
 
     patches = [
-      ./dahdi-00-add-back-support-for-tdm410-and-tdm800.patch
+      ./dahdi-linux-00-revert-tdm410-tdm800-disable.patch
     ];
 
     hardeningDisable = ["pic"];

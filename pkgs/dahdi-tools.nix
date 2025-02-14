@@ -3,7 +3,7 @@
   lib,
   pkgs,
 }: let
-  dahdi = pkgs.linuxPackages.callPackage ./dahdi.nix {};
+  dahdi-linux = pkgs.linuxPackages.callPackage ./dahdi-linux.nix {};
 in
   stdenv.mkDerivation rec {
     pname = "dahdi-tools";
@@ -15,7 +15,7 @@ in
     };
 
     patches = [
-      ./dahdi-tools-00-add-tools.patch
+      ./dahdi-tools-00-add-fxstest.patch
     ];
 
     hardeningDisable = [];
@@ -23,7 +23,7 @@ in
     buildInputs = [pkgs.perl];
 
     configureFlags = [
-      "--with-dahdi=${dahdi}/usr"
+      "--with-dahdi=${dahdi-linux}/usr"
     ];
     makeFlags = [
       "OUTPATH=$(out)"
