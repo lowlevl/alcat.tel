@@ -1,0 +1,14 @@
+--- source/Makefile.am
++++ source/Makefile.am
+@@ -37,10 +37,10 @@
+ 	dahdi_cfg \
+ 	dahdi_speed \
+ 	dahdi_scan \
++	fxstest \
+ 	fxotune
+ 
+ noinst_PROGRAMS	= \
+-	fxstest \
+ 	patgen \
+ 	pattest \
+ 	patlooptest \

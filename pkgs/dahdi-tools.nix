@@ -14,6 +14,10 @@ in
       sha256 = "1rb44przhc5zabs62z96pnn6i939lw2s6wdc6fqimb1vdiksag9d";
     };
 
+    patches = [
+      ./dahdi-tools-00-add-tools.patch
+    ];
+
     hardeningDisable = [];
     nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.man pkgs.asciidoc pkgs.makeWrapper];
     buildInputs = [pkgs.perl];
