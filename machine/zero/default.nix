@@ -20,7 +20,7 @@ in {
   boot.extraModulePackages = [dahdi];
   boot.kernelModules = ["wctdm"];
 
-  environment.systemPackages = [dahdi-tools];
+  environment.systemPackages = [dahdi-tools pkgs.pciutils];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
