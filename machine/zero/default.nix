@@ -19,7 +19,7 @@ in {
 
   services.dahdi = {
     enable = true;
-    drivers = ["wctdm24xxp"];
+    modules = ["wctdm24xxp"];
   };
 
   environment.systemPackages = [dahdi-tools];

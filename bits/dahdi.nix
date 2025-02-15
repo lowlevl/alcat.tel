@@ -14,9 +14,9 @@ in {
   options.services.dahdi = {
     enable = lib.mkEnableOption "Management of DAHDI interfaces and kernel drivers";
 
-    drivers = lib.mkOption {
+    modules = lib.mkOption {
       type = types.listOf types.str;
-      description = "The list of drivers to manage using the `dahdi` service";
+      description = "The list of modules to be managed by the service";
     };
   };
 
@@ -28,20 +28,26 @@ in {
     systemd.services.dahdi = rec {
       wantedBy = ["multi-user.target"];
       after = ["network.target"];
-      description = "Manage `dahdi-linux` modules (un)loading process and userland configuration";
+      description = "`dahdi-linux` modules (un)loading process and userland configuration";
 
       serviceConfig.Type = "oneshot";
       serviceConfig.RemainAfterExit = "yes";
 
       preStart =
         builtins.concatStringsSep "\n"
-        (builtins.map (module: ''${lib.getExe' pkgs.kmod "modprobe"} "${module}"'') cfg.drivers);
+        (builtins.map (module: ''${lib.getExe' pkgs.kmod "modprobe"} "${module}"'') cfg.modules);
       postStop =
         builtins.concatStringsSep "\n"
-        (builtins.map (module: ''${lib.getExe' pkgs.kmod "rmmod"} "${module}"'') cfg.drivers);
+        (builtins.map (module: ''${lib.getExe' pkgs.kmod "rmmod"} "${module}"'') cfg.modules);
 
       script = "${lib.getExe' dahdi-tools "dahdi_cfg"}";
       reload = script;
+    };
+
+    environment.etc."dahdi/system.conf" = {
+      group = config.users.groups.telecom.name;
+      text = ''
+      '';
     };
 
     services.udev.extraRules = ''
