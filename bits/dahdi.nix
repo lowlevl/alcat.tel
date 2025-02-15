@@ -86,23 +86,15 @@ in {
     };
 
     services.udev.extraRules = ''
-      ACTION!="add", GOTO="dahdi_end"
-
       # DAHDI devices with permissions for running as non-root
-      SUBSYSTEM=="dahdi", GROUP="${config.users.groups.telecom.name}", MODE="0660"
+      ACTION="add" SUBSYSTEM=="dahdi", GROUP="${config.users.groups.telecom.name}", MODE="0660"
 
       # Backward compatible dev-paths: /dev/dahdi/<channo>
-      SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
+      ACTION="add" SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
 
       # Add persistant names as well
-      SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="", SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
-      SUBSYSTEM=="dahdi_channels", ATTRS{location}!="", SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
-
-      LABEL="dahdi_end"
-
-      # Hotplug scripts
-      SUBSYSTEM=="dahdi_devices", RUN+="${dahdi-tools}/share/dahdi/dahdi_handle_device"
-      SUBSYSTEM=="dahdi_spans", RUN+="${dahdi-tools}/share/dahdi/dahdi_span_config"
+      ACTION="add" SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="", SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
+      ACTION="add" SUBSYSTEM=="dahdi_channels", ATTRS{location}!="", SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
     '';
   };
 }
