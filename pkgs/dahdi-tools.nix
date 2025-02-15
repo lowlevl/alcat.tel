@@ -9,9 +9,11 @@ in
     pname = "dahdi-tools";
     version = "3.4.0";
 
-    src = builtins.fetchTarball {
-      url = "https://github.com/asterisk/dahdi-tools/releases/download/v${version}/dahdi-tools-${version}.tar.gz";
-      sha256 = "1rb44przhc5zabs62z96pnn6i939lw2s6wdc6fqimb1vdiksag9d";
+    src = pkgs.fetchFromGitHub {
+      owner = "asterisk";
+      repo = "${pname}";
+      rev = "${version}";
+      sha256 = "O+NisMAmXXijJx6eOL5CAPWpAKQNeDlU7agUhvdvopE=";
     };
 
     patches = [
@@ -29,6 +31,9 @@ in
       "OUTPATH=$(out)"
     ];
 
+    postPatch = ''
+      echo "${version}" > .version
+    '';
     postBuild = ''
       make docs
     '';
@@ -46,7 +51,7 @@ in
       builtins.concatStringsSep "\n" (builtins.map (program: ''wrapProgram "$out/bin/${program}" --prefix PERL5LIB : "$out/share/perl5"'') programs);
 
     meta = {
-      description = "A set of tools for the DAHDI kernel drivers.";
+      description = "Userland tools for the DAHDI kernel drivers.";
       homepage = "https://github.com/asterisk/dahdi-tools";
       license = lib.licenses.gpl2;
       maintainers = [];

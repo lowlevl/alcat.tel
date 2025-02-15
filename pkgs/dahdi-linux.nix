@@ -35,12 +35,12 @@ in
       [
         (pkgs.fetchFromGitHub {
           owner = "asterisk";
-          repo = "dahdi-linux";
+          repo = "${pname}";
           rev = "${version}";
           sha256 = "G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
         })
       ]
-      #-- Additionnal firmware tarballs required by DAHDI's Makefiles
+      #-- Additionnal tarballs required by dahdi-linux's Makefiles
       ++ lib.mapAttrsToList (package: version: builtins.fetchurl "${fwsUrl}/${package}-${version}.tar.gz") fws;
 
     unpackCmd = ''
