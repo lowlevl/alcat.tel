@@ -12,7 +12,7 @@ in {
     "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/refs/tags/v1.11.0.tar.gz"}/module.nix"
     ./disk-config.nix
 
-    ../../common
+    ../../bits/common
   ];
 
   networking.hostName = "zero";
@@ -20,23 +20,7 @@ in {
   boot.extraModulePackages = [dahdi-linux];
   boot.kernelModules = ["wctdm24xxp"];
 
-  environment.systemPackages = [dahdi-tools pkgs.pciutils];
-
-  services.udev.extraRules = ''
-    ACTION!="add",	GOTO="dahdi_add_end"
-
-    # DAHDI devices with ownership/permissions for running as non-root
-    SUBSYSTEM=="dahdi",		OWNER="asterisk", GROUP="asterisk", MODE="0660"
-
-    # Backward compat names: /dev/dahdi/<channo>
-    SUBSYSTEM=="dahdi_channels",	SYMLINK+="dahdi/%m"
-
-    # Add persistant names as well
-    SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="",	SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
-    SUBSYSTEM=="dahdi_channels", ATTRS{location}!="",	SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
-
-    LABEL="dahdi_add_end"
-  '';
+  environment.systemPackages = [dahdi-tools];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

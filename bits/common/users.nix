@@ -1,5 +1,7 @@
 # - common/users: common users and groups on all machines
-{pkgs, ...}: {
+{pkgs, ...}: let
+  pull-switch = pkgs.callPackage ../../pkgs/pull-switch.nix {};
+in {
   security.sudo.wheelNeedsPassword = false;
 
   users = {
@@ -10,8 +12,7 @@
       extraGroups = ["wheel"];
 
       packages = with pkgs; [
-        (pkgs.callPackage ../pkgs/pull-switch.nix {})
-
+        pull-switch
         neovim
         btop
       ];
