@@ -3,7 +3,6 @@
   pkgs,
   ...
 }: let
-  dahdi-linux = config.boot.kernelPackages.callPackage ../../pkgs/dahdi-linux.nix {};
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools.nix {};
 in {
   imports = [
@@ -13,12 +12,15 @@ in {
     ./disk-config.nix
 
     ../../bits/common
+    ../../bits/dahdi.nix
   ];
 
   networking.hostName = "zero";
 
-  boot.extraModulePackages = [dahdi-linux];
-  boot.kernelModules = ["wctdm24xxp"];
+  services.dahdi = {
+    enable = true;
+    drivers = ["wctdm24xxp"];
+  };
 
   environment.systemPackages = [dahdi-tools];
 
