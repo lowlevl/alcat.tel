@@ -242,6 +242,7 @@ in {
           'deflaw' is similar, but resets the encoding to the channel driver's default.
           It must be useful for something, I guess.
         '';
+        default = null;
       };
 
       echocanceller = lib.mkOption {
@@ -253,6 +254,7 @@ in {
           channel. The default behavior is for there to be NO echo canceller on any
           channel, so it is very important that you specify one here.
         '';
+        default = null;
       };
     };
   };
@@ -285,9 +287,10 @@ in {
     # -<- Channel settings
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (
         id: cfg: ''
+          ## <> ${id}
           ${cfg.signaling}=${id}
-                 ${lib.optionalString (cfg ? encoding) "${cfg.encoding}=${id}"}
-                 ${lib.optionalString (cfg ? echocanceller) "echocanceller=${cfg.echocanceller},${id}"}
+          ${lib.optionalString (cfg.encoding != null) "${cfg.encoding}=${id}"}
+          ${lib.optionalString (cfg.echocanceller != null) "echocanceller=${cfg.echocanceller},${id}"}
         ''
       )
       cfg.channels)}
