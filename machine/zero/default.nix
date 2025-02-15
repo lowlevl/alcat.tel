@@ -17,6 +17,9 @@ in {
 
   networking.hostName = "zero";
 
+  users.users.technician.extraGroups = ["telecom"];
+  environment.systemPackages = [dahdi-tools];
+
   services.dahdi = {
     enable = true;
     modules = ["wctdm24xxp"];
@@ -24,8 +27,6 @@ in {
     defaultzone = "fr";
     channels."1-4".signaling = "fxoks";
   };
-
-  environment.systemPackages = [dahdi-tools];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
