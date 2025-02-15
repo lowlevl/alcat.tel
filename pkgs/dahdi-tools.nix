@@ -44,9 +44,6 @@ in
       ];
     in
       builtins.concatStringsSep "\n" (builtins.map (program: ''wrapProgram "$out/bin/${program}" --prefix PERL5LIB : "$out/share/perl5"'') programs);
-    postInstall = ''
-      make install-config
-    '';
 
     meta = {
       description = "A set of tools for the DAHDI kernel drivers.";
