@@ -33,10 +33,15 @@ in {
       serviceConfig.Type = "oneshot";
       serviceConfig.RemainAfterExit = "yes";
 
-      preStart = builtins.concatStringsSep "\n" (builtins.map (module: ''modprobe "${module}"'') cfg.drivers);
+      preStart =
+        builtins.concatStringsSep "\n"
+        (builtins.map (module: ''${lib.getExe' pkgs.kmod "modprobe"} "${module}"'') cfg.drivers);
+      postStop =
+        builtins.concatStringsSep "\n"
+        (builtins.map (module: ''${lib.getExe' pkgs.kmod "rmmod"} "${module}"'') cfg.drivers);
+
       script = "${lib.getExe' dahdi-tools "dahdi_cfg"}";
       reload = script;
-      postStop = builtins.concatStringsSep "\n" (builtins.map (module: ''rmmod "${module}"'') cfg.drivers);
     };
 
     services.udev.extraRules = ''
