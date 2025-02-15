@@ -22,7 +22,6 @@ in {
     modules = ["wctdm24xxp"];
 
     defaultzone = "fr";
-
     channels."1-4".signaling = "fxoks";
   };
 

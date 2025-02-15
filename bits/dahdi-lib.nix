@@ -1,4 +1,8 @@
-{lib, ...}: let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) types;
 in {
   # List taken from `zoneinfo.c` in dahdi-tools
@@ -148,7 +152,7 @@ in {
   types.channel = types.submodule {
     options = {
       signaling = lib.mkOption {
-        type = types.enum [
+        type = types.nullOr (types.enum [
           "e&m"
           "e&me1"
           "fxsls"
@@ -166,7 +170,7 @@ in {
           "nethdlc"
           "dacs"
           "dacsrbs"
-        ];
+        ]);
         description = ''
           The signaling method for the channel range (e.g. 1,3,5 or 16-23, 29)
 
@@ -230,6 +234,7 @@ in {
             the channel number listed at the end, after a colon and
             also performs the DACSing of RBS bits
         '';
+        default = null;
       };
 
       encoding = lib.mkOption {
@@ -259,41 +264,24 @@ in {
     };
   };
 
-  mkSystemConfig = cfg: ''
-    ## Automatically generated using the `dahdi` NixOS module,
-    # editing this file manually would only work until the next
-    # system rebuild.
+  mkSystemConfig = cfg: let
+    formatter = pkgs.formats.iniWithGlobalSection {listsAsDuplicateKeys = true;};
+  in
+    formatter.generate "system.conf" {
+      globalSection =
+        {
+          loadzone = cfg.loadzones;
+          defaultzone = cfg.defaultzone;
 
-    # -<- Tone zone settings
-    ${builtins.concatStringsSep "\n" (builtins.map (zone: "loadzone = ${zone}") cfg.loadzones)}
-    defaultzone = ${cfg.defaultzone}
-    # ->- Tone zone settings
-
-    # -<- Spans settings
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (
-        id: cfg:
-          "span=${id},${cfg.timing},${cfg.lbo},${cfg.framing},${cfg.coding}" + lib.optionalString cfg.yellow ",yellow"
-      )
-      cfg.spans)}
-    # ->- Spans settings
-
-    # -<- Dynamic spans settings
-    ${lib.concatStringsSep "\n" (lib.map (
-        cfg: "dynamic=${cfg.driver},${cfg.address},${cfg.numchans},${cfg.timing}"
-      )
-      cfg.dynamic)}
-    # ->- Dynamic spans settings
-
-    # -<- Channel settings
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (
-        id: cfg: ''
-          ## <> ${id}
-          ${cfg.signaling}=${id}
-          ${lib.optionalString (cfg.encoding != null) "${cfg.encoding}=${id}"}
-          ${lib.optionalString (cfg.echocanceller != null) "echocanceller=${cfg.echocanceller},${id}"}
-        ''
-      )
-      cfg.channels)}
-    # ->- Channel settings
-  '';
+          span =
+            lib.mapAttrsToList (id: cfg: "${id},${cfg.timing},${cfg.lbo},${cfg.framing},${cfg.coding}" + lib.optionalString cfg.yellow ",yellow")
+            cfg.spans;
+          dynamic =
+            lib.map (cfg: "${cfg.driver},${cfg.address},${cfg.numchans},${cfg.timing}")
+            cfg.dynamic;
+        }
+        // lib.zipAttrs (lib.mapAttrsToList (id: cfg: {${cfg.signaling} = id;}) (lib.filterAttrs (id: cfg: cfg.signaling != null) cfg.channels))
+        // lib.zipAttrs (lib.mapAttrsToList (id: cfg: {${cfg.encoding} = id;}) (lib.filterAttrs (id: cfg: cfg.encoding != null) cfg.channels))
+        // lib.zipAttrs (lib.mapAttrsToList (id: cfg: {echocanceller = "${cfg.echocanceller},${id}";}) (lib.filterAttrs (id: cfg: cfg.echocanceller != null) cfg.channels));
+    };
 }

@@ -6,7 +6,7 @@
 }: let
   inherit (lib) types;
 
-  dahdi-lib = import ./dahdi-lib.nix {inherit lib;};
+  dahdi-lib = import ./dahdi-lib.nix {inherit lib pkgs;};
 
   dahdi-linux = config.boot.kernelPackages.callPackage ../pkgs/dahdi-linux.nix {};
   dahdi-tools = pkgs.callPackage ../pkgs/dahdi-tools.nix {};
@@ -82,7 +82,7 @@ in {
     environment.etc."dahdi/system.conf" = {
       group = "${config.users.groups.telecom.name}";
       mode = "0660";
-      text = dahdi-lib.mkSystemConfig cfg;
+      source = dahdi-lib.mkSystemConfig cfg;
     };
 
     services.udev.extraRules = ''
