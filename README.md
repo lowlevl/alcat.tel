@@ -7,6 +7,7 @@ Some fun with classic "Télécommunication" infrastructure.
 - https://chengeric.com/homelab/
 - https://bef.github.io/yate-cookbook/
 - https://ryantm.github.io/nixpkgs/stdenv/stdenv/
+- https://github.com/InterLinked1/phreakscript
 
 ### Installation on the machine
 

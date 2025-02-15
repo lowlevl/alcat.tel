@@ -28,14 +28,16 @@
 in
   stdenv.mkDerivation rec {
     pname = "dahdi-linux";
-    version = "3.4.0";
+    version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
 
     sourceRoot = "source";
     srcs =
       [
-        (builtins.fetchTarball {
-          url = "https://github.com/asterisk/dahdi-linux/releases/download/v${version}/dahdi-linux-${version}.tar.gz";
-          sha256 = "08w1fy4hm9amia12zbwb791l4zmg7axdws660w40dckmnvh5qw6y";
+        (pkgs.fetchFromGitHub {
+          owner = "asterisk";
+          repo = "dahdi-linux";
+          rev = "${version}";
+          sha256 = "G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
         })
       ]
       #-- Additionnal firmware tarballs required by DAHDI's Makefiles
