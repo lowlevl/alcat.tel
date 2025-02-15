@@ -22,6 +22,22 @@ in {
 
   environment.systemPackages = [dahdi-tools pkgs.pciutils];
 
+  services.udev.extraRules = ''
+ACTION!="add",	GOTO="dahdi_add_end"
+
+# DAHDI devices with ownership/permissions for running as non-root
+SUBSYSTEM=="dahdi",		OWNER="asterisk", GROUP="asterisk", MODE="0660"
+
+# Backward compat names: /dev/dahdi/<channo>
+SUBSYSTEM=="dahdi_channels",	SYMLINK+="dahdi/%m"
+
+# Add persistant names as well
+SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="",	SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
+SUBSYSTEM=="dahdi_channels", ATTRS{location}!="",	SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
+
+LABEL="dahdi_add_end"
+  '';
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
