@@ -96,8 +96,8 @@ in {
     };
 
     environment.etc."dahdi/system.conf" = {
-      group = "${config.users.groups.telecom.name}";
       mode = "0440";
+      group = "${config.users.groups.telecom.name}";
       source = dahdi-lib.mkSystemConfig cfg;
     };
 

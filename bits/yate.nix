@@ -39,14 +39,17 @@ in {
       serviceConfig.Group = config.users.users.yate.group;
       serviceConfig.Restart = "always";
 
-      serviceConfig.ExecStart = "${lib.getExe pkgs.yate} -F";
+      serviceConfig.ExecStart = "${lib.getExe pkgs.yate} -F -c /etc/yate";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
     environment.etc."yate" = {
-      group = config.users.users.yate.group;
-      mode = "0440";
-      text = "";
+      # mode = "0440";
+      # group = config.users.users.yate.group;
+      source = pkgs.symlinkJoin {
+        name = "yate";
+        paths = [];
+      };
     };
   };
 }
