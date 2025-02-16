@@ -56,7 +56,7 @@ in {
 
     dynamic = lib.mkOption {
       type = types.listOf dahdi-lib.types.dynamic;
-      description = "Dynamic pans definitions and configuration";
+      description = "Dynamic spans definitions and configuration";
       default = [];
     };
 

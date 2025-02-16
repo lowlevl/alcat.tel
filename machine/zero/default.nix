@@ -29,6 +29,12 @@ in {
 
   services.yate = {
     enable = true;
+
+    conf.general.modload = "disable";
+    modules.dumbchan = {};
+    modules.regfile = {};
+    modules.rmanager = {};
+    modules.tonegen = {};
   };
 
   # Ring the first phone when successfully started drivers

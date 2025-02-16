@@ -8,13 +8,24 @@
 
   cfg = config.services.yate;
 in {
-  options.services.yate = rec {
+  options.services.yate = {
     enable = lib.mkEnableOption config.systemd.service.yate.description;
 
-    nice = lib.mkOption {
+    niceness = lib.mkOption {
       type = types.ints.between (-19) 20;
-      description = "Set the `nice` level for the service";
+      description = "The niceness priority to run the service with";
       default = -4;
+    };
+
+    conf = lib.mkOption {
+      type = types.attrs;
+      description = "The configuration for the daemon (yate.conf)";
+      default = {};
+    };
+    modules = lib.mkOption {
+      type = types.attrsOf types.attrs;
+      description = "The configuration for the specified modules (<name>.conf)";
+      default = {};
     };
   };
 
@@ -35,7 +46,7 @@ in {
         config.environment.etc."yate".source
       ];
 
-      serviceConfig.Nice = cfg.nice;
+      serviceConfig.Nice = cfg.niceness;
       serviceConfig.User = config.users.users.yate.name;
       serviceConfig.Group = config.users.users.yate.group;
       serviceConfig.Restart = "always";
@@ -44,9 +55,19 @@ in {
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
-    environment.etc."yate".source = pkgs.symlinkJoin {
-      name = "yate";
-      paths = [];
-    };
+    environment.etc."yate".source = let
+      formatter = lib.generators.toINI {};
+      yateconf =
+        cfg.conf
+        // {
+          modules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
+        };
+    in
+      pkgs.symlinkJoin {
+        name = "yate-conf.d";
+        paths =
+          [(pkgs.writeTextDir "yate.conf" (formatter yateconf))]
+          ++ lib.mapAttrsToList (name: module: pkgs.writeTextDir "${name}.conf" (formatter module)) cfg.modules;
+      };
   };
 }
