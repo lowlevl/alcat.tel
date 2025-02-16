@@ -5,6 +5,7 @@
   ...
 }: let
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools.nix {};
+  rmanager = pkgs.callPackage ../../pkgs/rmanager.nix {inherit config;};
 in {
   imports = [
     ./hardware-configuration.nix
@@ -17,7 +18,7 @@ in {
   networking.hostName = "zero";
 
   users.users.technician.extraGroups = ["telecom"];
-  environment.systemPackages = [dahdi-tools];
+  environment.systemPackages = [dahdi-tools rmanager];
 
   services.dahdi = {
     enable = true;
@@ -30,9 +31,7 @@ in {
   services.yate = {
     enable = true;
 
-    conf = {
-      general.modload = "disable";
-    };
+    conf.general.modload = "disable";
     modules.rmanager = {
       general.addr = "127.0.0.1";
       general.port = 5038;
