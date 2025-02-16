@@ -30,7 +30,7 @@
   cfg = config.services.dahdi;
 in {
   options.services.dahdi = rec {
-    enable = lib.mkEnableOption "Management of DAHDI interfaces and kernel drivers";
+    enable = lib.mkEnableOption config.systemd.service.dahdi.description;
 
     modules = lib.mkOption {
       type = types.listOf types.str;
@@ -75,7 +75,7 @@ in {
     systemd.services.dahdi = rec {
       wantedBy = ["multi-user.target"];
       after = ["network.target"];
-      description = "`dahdi-linux` modules (un)loading process and userland configuration";
+      description = "`dahdi-linux` modules management and userland configuration";
 
       reloadTriggers = [
         config.environment.etc."dahdi/system.conf".source
@@ -84,15 +84,15 @@ in {
       serviceConfig.Type = "oneshot";
       serviceConfig.RemainAfterExit = "yes";
 
+      serviceConfig.ExecStart = "${lib.getExe' dahdi-tools "dahdi_cfg"}";
+      serviceConfig.ExecReload = serviceConfig.ExecStart;
+
       preStart =
         builtins.concatStringsSep "\n"
         (builtins.map (module: ''${lib.getExe' pkgs.kmod "modprobe"} "${module}"'') cfg.modules);
       postStop =
         builtins.concatStringsSep "\n"
         (builtins.map (module: ''${lib.getExe' pkgs.kmod "rmmod"} "${module}"'') cfg.modules);
-
-      script = "${lib.getExe' dahdi-tools "dahdi_cfg"}";
-      reload = "${script}";
     };
 
     environment.etc."dahdi/system.conf" = {

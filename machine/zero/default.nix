@@ -9,11 +9,9 @@ in {
   imports = [
     ./hardware-configuration.nix
 
-    "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/refs/tags/v1.11.0.tar.gz"}/module.nix"
-    ./disk-config.nix
-
     ../../bits/common
     ../../bits/dahdi.nix
+    ../../bits/yate.nix
   ];
 
   networking.hostName = "zero";
@@ -27,6 +25,10 @@ in {
 
     defaultzone = "fr";
     channels."1-4".signaling = "fxoks";
+  };
+
+  services.yate = {
+    enable = true;
   };
 
   # Ring the first phone when successfully started drivers
