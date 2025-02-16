@@ -11,6 +11,22 @@
   dahdi-linux = config.boot.kernelPackages.callPackage ../pkgs/dahdi-linux.nix {};
   dahdi-tools = pkgs.callPackage ../pkgs/dahdi-tools.nix {};
 
+  dahdi-udev = pkgs.writeTextFile {
+    name = "dahdi-udev";
+    text = ''
+      # Setup non-root access on devices
+      ACTION=="add|change", SUBSYSTEMS=="dahdi|dahdi_spans|dahdi_channels", GROUP="${config.users.groups.telecom.name}", MODE="0660"
+
+      # Backward compatible dev-paths: /dev/dahdi/<channo>
+      ACTION=="add|change", SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
+
+      # Hardware-based dev-paths
+      ACTION=="add|change", SUBSYSTEM=="dahdi_channels", ATTRS{location}!="", SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
+      ACTION=="add|change", SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="", SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
+    '';
+    destination = "/lib/udev/rules.d/20-dahdi.rules";
+  };
+
   cfg = config.services.dahdi;
 in {
   options.services.dahdi = rec {
@@ -81,20 +97,10 @@ in {
 
     environment.etc."dahdi/system.conf" = {
       group = "${config.users.groups.telecom.name}";
-      mode = "0660";
+      mode = "0440";
       source = dahdi-lib.mkSystemConfig cfg;
     };
 
-    services.udev.extraRules = ''
-      # DAHDI devices with permissions for running as non-root
-      ACTION="add" SUBSYSTEM=="dahdi", GROUP="${config.users.groups.telecom.name}", MODE="0660"
-
-      # Backward compatible dev-paths: /dev/dahdi/<channo>
-      ACTION="add" SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
-
-      # Add persistant names as well
-      ACTION="add" SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="", SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
-      ACTION="add" SUBSYSTEM=="dahdi_channels", ATTRS{location}!="", SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
-    '';
+    services.udev.packages = [dahdi-udev];
   };
 }
