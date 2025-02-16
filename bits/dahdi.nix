@@ -15,7 +15,7 @@
     name = "dahdi-udev";
     text = ''
       # Setup non-root access on devices
-      SUBSYSTEMS=="dahdi|dahdi_spans|dahdi_channels", GROUP="${config.users.groups.telecom.name}", MODE="0660"
+      SUBSYSTEMS=="dahdi|dahdi_channels|dahdi_devices|dahdi_spans", GROUP="${config.users.groups.telecom.name}", MODE="0660"
 
       # Backward compatible dev-paths: /dev/dahdi/<channo>
       SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
