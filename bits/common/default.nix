@@ -7,4 +7,5 @@
   ];
 
   networking.domain = "alcat.tel";
+  environment.enableAllTerminfo = true;
 }
