@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }: let
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools.nix {};
@@ -27,6 +28,9 @@ in {
     defaultzone = "fr";
     channels."1-4".signaling = "fxoks";
   };
+
+  # Ring the first phone when successfully started drivers
+  systemd.services.dahdi.postStart = "${lib.getExe' dahdi-tools "fxstest"} 1 ring";
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
