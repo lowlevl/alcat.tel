@@ -72,6 +72,7 @@ in {
 
     users.groups.telecom = {};
 
+    services.udev.packages = [dahdi-udev];
     systemd.services.dahdi = rec {
       wantedBy = ["multi-user.target"];
       after = ["network.target"];
@@ -95,12 +96,6 @@ in {
         (builtins.map (module: ''${lib.getExe' pkgs.kmod "rmmod"} "${module}"'') cfg.modules);
     };
 
-    environment.etc."dahdi/system.conf" = {
-      mode = "0440";
-      group = "${config.users.groups.telecom.name}";
-      source = dahdi-lib.mkSystemConfig cfg;
-    };
-
-    services.udev.packages = [dahdi-udev];
+    environment.etc."dahdi/system.conf".source = dahdi-lib.mkSystemConfig cfg;
   };
 }

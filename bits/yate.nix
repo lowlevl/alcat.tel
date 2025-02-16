@@ -32,6 +32,7 @@ in {
       description = "`yate` (Yet Another Telephony Engine) daemon";
 
       reloadTriggers = [
+        config.environment.etc."yate".source
       ];
 
       serviceConfig.Nice = cfg.nice;
@@ -43,13 +44,9 @@ in {
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
-    environment.etc."yate" = {
-      # mode = "0440";
-      # group = config.users.users.yate.group;
-      source = pkgs.symlinkJoin {
-        name = "yate";
-        paths = [];
-      };
+    environment.etc."yate".source = pkgs.symlinkJoin {
+      name = "yate";
+      paths = [];
     };
   };
 }
