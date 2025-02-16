@@ -15,14 +15,14 @@
     name = "dahdi-udev";
     text = ''
       # Setup non-root access on devices
-      ACTION=="add|change", SUBSYSTEMS=="dahdi|dahdi_spans|dahdi_channels", GROUP="${config.users.groups.telecom.name}", MODE="0660"
+      SUBSYSTEMS=="dahdi|dahdi_spans|dahdi_channels", GROUP="${config.users.groups.telecom.name}", MODE="0660"
 
       # Backward compatible dev-paths: /dev/dahdi/<channo>
-      ACTION=="add|change", SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
+      SUBSYSTEM=="dahdi_channels", SYMLINK+="dahdi/%m"
 
       # Hardware-based dev-paths
-      ACTION=="add|change", SUBSYSTEM=="dahdi_channels", ATTRS{location}!="", SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
-      ACTION=="add|change", SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="", SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
+      SUBSYSTEM=="dahdi_channels", ATTRS{location}!="", SYMLINK+="dahdi/devices/@%s{location}/%s{local_spanno}/%n"
+      SUBSYSTEM=="dahdi_channels", ATTRS{hardware_id}!="", SYMLINK+="dahdi/devices/%s{hardware_id}/%s{local_spanno}/%n"
     '';
     destination = "/lib/udev/rules.d/20-dahdi.rules";
   };
