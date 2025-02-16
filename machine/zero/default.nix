@@ -23,17 +23,23 @@ in {
     enable = true;
     modules = ["wctdm24xxp"];
 
-    defaultzone = "fr";
     channels."1-4".signaling = "fxoks";
+    defaultzone = "fr";
   };
 
   services.yate = {
     enable = true;
 
-    conf.general.modload = "disable";
+    conf = {
+      general.modload = "disable";
+    };
+    modules.rmanager = {
+      general.addr = "127.0.0.1";
+      general.port = 5038;
+      general.color = "yes";
+    };
     modules.dumbchan = {};
     modules.regfile = {};
-    modules.rmanager = {};
     modules.tonegen = {};
   };
 

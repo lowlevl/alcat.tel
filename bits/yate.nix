@@ -18,12 +18,12 @@ in {
     };
 
     conf = lib.mkOption {
-      type = types.attrs;
+      type = types.attrsOf types.attrs;
       description = "The configuration for the daemon (yate.conf)";
       default = {};
     };
     modules = lib.mkOption {
-      type = types.attrsOf types.attrs;
+      type = types.attrsOf (types.attrsOf types.attrs);
       description = "The configuration for the specified modules (<name>.conf)";
       default = {};
     };
