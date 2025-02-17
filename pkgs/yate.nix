@@ -28,9 +28,6 @@ in
       "--with-doxygen=${lib.getExe pkgs.doxygen}"
       "--enable-sse2=yes"
     ];
-    buildFlags = [
-#      "CFLAGS=-I${dahdi-linux}/usr/include"
-    ];
 
     meta = {
       description = "Yet another telephony engine";

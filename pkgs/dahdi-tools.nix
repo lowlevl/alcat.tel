@@ -28,7 +28,8 @@ in
       "--with-dahdi=${dahdi-linux}/usr"
     ];
     buildFlags = [
-      "all" "doc"
+      "all"
+      "doc"
     ];
     installFlags = [
       "OUTPATH=$(out)"
