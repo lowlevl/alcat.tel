@@ -37,6 +37,7 @@ in {
       general.port = 5038;
       general.color = "yes";
     };
+    modules.tonedetect = null;
     modules.tonegen = {
       general.lang = config.services.dahdi.defaultzone;
     };
@@ -48,12 +49,13 @@ in {
       };
     };
     modules.analog = {
-      local-fxs = {
+      "local-fxs" = {
         type = "FXS";
         spans = "tdm410:0:fxs1-4";
+        ringback = "yes";
       };
     };
-    modules.regfile = {};
+    modules.regexroute = {};
   };
 
   # Ring the first phone when successfully started drivers

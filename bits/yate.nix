@@ -25,7 +25,7 @@ in {
       default = {};
     };
     modules = lib.mkOption {
-      type = types.attrsOf (types.attrsOf types.attrs);
+      type = types.attrsOf (types.nullOr (types.attrsOf types.attrs));
       description = "The configuration for the specified modules (<name>.conf)";
       default = {};
     };
@@ -69,7 +69,7 @@ in {
         name = "yate-conf.d";
         paths =
           [(pkgs.writeTextDir "yate.conf" (formatter yateconf))]
-          ++ lib.mapAttrsToList (name: module: pkgs.writeTextDir "${name}.conf" (formatter module)) cfg.modules;
+          ++ lib.mapAttrsToList (name: module: pkgs.writeTextDir "${name}.conf" (formatter module)) (lib.filterAttrs (name: module: module != null) cfg.modules);
       };
   };
 }
