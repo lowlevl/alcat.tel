@@ -23,6 +23,7 @@ in
       ./yate-config.sh
     '';
 
+    # Use `CFLAGS` because `CPPFLAGS` is not propagated correctly
     configureFlags = [
       "CFLAGS=-I${dahdi-linux}/usr/include"
       "--with-doxygen=${lib.getExe pkgs.doxygen}"
