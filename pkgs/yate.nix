@@ -20,12 +20,14 @@ in
     };
 
     preConfigure = ''
+      configureFlagsArray+=(
+        # Use `CFLAGS` because `CPPFLAGS` is not propagated correctly
+        "CFLAGS=-I${dahdi-linux}/usr/include -DDEBUG"
+      )
       ./yate-config.sh
     '';
 
-    # Use `CFLAGS` because `CPPFLAGS` is not propagated correctly
     configureFlags = [
-      "CFLAGS=-I${dahdi-linux}/usr/include"
       "--with-doxygen=${lib.getExe pkgs.doxygen}"
       "--enable-sse2=yes"
     ];
