@@ -15,6 +15,7 @@ in {
         pull-switch
         neovim
         btop
+	file
       ];
 
       openssh.authorizedKeys.keys = [

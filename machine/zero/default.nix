@@ -41,7 +41,7 @@ in {
       general.lang = config.services.dahdi.defaultzone;
     };
     modules.zapcard = {
-      "tdm410-0-fxs" = {
+      "tdm410:0:fxs1-4" = {
         type = "FXS";
         offset = 0;
         voicechans = "1-4";
@@ -50,7 +50,7 @@ in {
     modules.analog = {
       local-fxs = {
 	type = "FXS";
-        spans = "tdm410-0-fxs";
+        spans = "tdm410:0:fxs1-4";
       };
     };
     modules.regfile = {};
