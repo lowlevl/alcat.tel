@@ -6,6 +6,8 @@
 }: let
   inherit (lib) types;
 
+  yate = pkgs.callPackage ../pkgs/yate.nix {};
+
   cfg = config.services.yate;
 in {
   options.services.yate = {
@@ -51,7 +53,7 @@ in {
       serviceConfig.Group = config.users.users.yate.group;
       serviceConfig.Restart = "always";
 
-      serviceConfig.ExecStart = "${lib.getExe pkgs.yate} -F -c /etc/yate";
+      serviceConfig.ExecStart = "${lib.getExe yate} -F -c /etc/yate";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 

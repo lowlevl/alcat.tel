@@ -30,6 +30,9 @@ in
     pname = "dahdi-linux";
     version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
 
+    hardeningDisable = ["pic"];
+    nativeBuildInputs = kernel.moduleBuildDependencies ++ [pkgs.perl];
+
     sourceRoot = "source";
     srcs =
       [
@@ -58,12 +61,11 @@ in
       ./dahdi-linux-00-revert-tdm410-tdm800-disable.patch
     ];
 
-    hardeningDisable = ["pic"];
-    nativeBuildInputs = kernel.moduleBuildDependencies ++ [pkgs.perl];
-
     makeFlags = [
       "KVERS=${kernel.modDirVersion}"
       "KSRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+    ];
+    installFlags = [
       "DESTDIR=$(out)"
     ];
 

@@ -9,6 +9,10 @@ in
     pname = "dahdi-tools";
     version = "3.4.0";
 
+    hardeningDisable = [];
+    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.newt pkgs.man pkgs.asciidoc pkgs.makeWrapper];
+    buildInputs = [pkgs.perl];
+
     src = pkgs.fetchFromGitHub {
       owner = "asterisk";
       repo = "${pname}";
@@ -20,22 +24,18 @@ in
       ./dahdi-tools-00-add-fxstest.patch
     ];
 
-    hardeningDisable = [];
-    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.newt pkgs.man pkgs.asciidoc pkgs.makeWrapper];
-    buildInputs = [pkgs.perl];
-
     configureFlags = [
       "--with-dahdi=${dahdi-linux}/usr"
     ];
-    makeFlags = [
+    buildFlags = [
+      "all" "doc"
+    ];
+    installFlags = [
       "OUTPATH=$(out)"
     ];
 
     postPatch = ''
       echo "${version}" > .version
-    '';
-    postBuild = ''
-      make docs
     '';
     postFixup = let
       programs = [

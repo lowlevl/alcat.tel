@@ -49,7 +49,7 @@ in {
     };
     modules.analog = {
       local-fxs = {
-	type = "FXS";
+        type = "FXS";
         spans = "tdm410:0:fxs1-4";
       };
     };
