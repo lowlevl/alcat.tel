@@ -62,12 +62,15 @@ in {
         spans = "tdm410:0:1-4";
 
         ringback = "yes";
-        call-ended-playtime = 10000;
+        call-ended-playtime = 10;
       };
     };
     modules.regexroute = ''
       [default]
-      ^off-hook$=external/nodata/overlapped.php;tonedetect_in=yes
+      ; TODO: No routing for unauthenticated remote users
+      ;''${username}^$=-;error=noauth
+
+      ^off-hook$=external/nodata/overlapped.php;tonedetect_in=yes;interdigit=10;accept_call=true
 
       ^991$=tone/dial
       ^992$=tone/busy
