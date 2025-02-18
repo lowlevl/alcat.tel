@@ -6,10 +6,10 @@
 }: let
   inherit (lib) types;
 
-  dahdi-lib = import ./dahdi-lib.nix {inherit lib pkgs;};
+  dahdi-lib = import ./lib.nix {inherit lib pkgs;};
 
-  dahdi-linux = config.boot.kernelPackages.callPackage ../pkgs/dahdi-linux.nix {};
-  dahdi-tools = pkgs.callPackage ../pkgs/dahdi-tools.nix {};
+  dahdi-linux = config.boot.kernelPackages.callPackage ../../pkgs/dahdi-linux {};
+  dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
 
   dahdi-udev = pkgs.writeTextFile {
     name = "dahdi-udev";

@@ -58,7 +58,7 @@ in
     '';
 
     patches = [
-      ./dahdi-linux-00-revert-tdm410-tdm800-disable.patch
+      ./00-revert-tdm410-tdm800-disable.patch
     ];
 
     makeFlags = [

@@ -3,7 +3,7 @@
   lib,
   pkgs,
 }: let
-  dahdi-linux = pkgs.linuxPackages.callPackage ./dahdi-linux.nix {};
+  dahdi-linux = pkgs.linuxPackages.callPackage ../dahdi-linux {};
 in
   stdenv.mkDerivation rec {
     pname = "dahdi-tools";
@@ -21,7 +21,7 @@ in
     };
 
     patches = [
-      ./dahdi-tools-00-add-fxstest.patch
+      ./00-add-fxstest.patch
     ];
 
     configureFlags = [

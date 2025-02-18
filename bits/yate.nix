@@ -6,7 +6,7 @@
 }: let
   inherit (lib) types;
 
-  yate = pkgs.callPackage ../pkgs/yate.nix {};
+  yate = pkgs.callPackage ../pkgs/yate {};
 
   cfg = config.services.yate;
 in {

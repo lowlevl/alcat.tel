@@ -4,8 +4,8 @@
   lib,
   ...
 }: let
-  dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools.nix {};
-  rmanager = pkgs.callPackage ../../pkgs/rmanager.nix {inherit config;};
+  dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
+  rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {inherit config;};
 
   share = pkgs.callPackage ../../share {};
 in {
@@ -13,7 +13,7 @@ in {
     ./hardware-configuration.nix
 
     ../../bits/common
-    ../../bits/dahdi.nix
+    ../../bits/dahdi
     ../../bits/yate.nix
   ];
 

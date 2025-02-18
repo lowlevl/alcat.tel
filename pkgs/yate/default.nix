@@ -3,7 +3,7 @@
   lib,
   pkgs,
 }: let
-  dahdi-linux = pkgs.linuxPackages.callPackage ./dahdi-linux.nix {};
+  dahdi-linux = pkgs.linuxPackages.callPackage ../dahdi-linux {};
 in
   stdenv.mkDerivation rec {
     pname = "yate";
@@ -20,7 +20,7 @@ in
     };
 
     patches = [
-      ./yate-00-fix-analog-module.patch
+      ./00-fix-analog-module.patch
     ];
 
     preConfigure = ''

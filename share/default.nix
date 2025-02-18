@@ -3,7 +3,7 @@
   lib,
   pkgs,
 }: let
-  yate = pkgs.callPackage ../pkgs/yate.nix {};
+  yate = pkgs.callPackage ../pkgs/yate {};
 in
   stdenv.mkDerivation rec {
     name = "alcat.tel-share";
