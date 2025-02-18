@@ -44,8 +44,13 @@ in {
       general.lang = config.services.dahdi.defaultzone;
     };
     modules.wavefile = null;
+    modules.extmodule = {
+      general = {
+        scripts_dir = "${share}/scripts/";
+      };
+    };
     modules.zapcard = {
-      "tdm410:0:fxs1-4" = {
+      "tdm410:0:1-4" = {
         type = "FXS";
         offset = 0;
         voicechans = "1-4";
@@ -54,11 +59,32 @@ in {
     modules.analog = {
       "local-fxs" = {
         type = "FXS";
-        spans = "tdm410:0:fxs1-4";
+        spans = "tdm410:0:1-4";
+
         ringback = "yes";
+        call-ended-playtime = 10000;
       };
     };
-    modules.regexroute = {};
+    modules.regexroute = ''
+      [default]
+      ^off-hook$=external/nodata/overlapped.php;tonedetect_in=yes
+
+      ^991$=tone/dial
+      ^992$=tone/busy
+      ^993$=tone/ring
+      ^994$=tone/specdial
+      ^995$=tone/congestion
+      ^996$=tone/outoforder
+      ^997$=tone/milliwatt
+      ^998$=tone/info
+      ^111$=wave/play/${share}/wave/rick-roll.slin
+
+      ^20\([1-4]\)$=analog/local-fxs/\1
+
+      ''${overlapped}yes^=return
+      .\{10\}=-;error=noroute
+      .*=;error=incomplete
+    '';
   };
 
   # Ring the first phone when successfully started drivers
