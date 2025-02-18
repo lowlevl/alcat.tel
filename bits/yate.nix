@@ -39,7 +39,7 @@ in {
     };
     users.groups.yate = {};
 
-    systemd.services.yate = {
+    systemd.services.yate = rec {
       wantedBy = ["multi-user.target"];
       after = ["network.target" "dahdi.service"];
       description = "`yate` (Yet Another Telephony Engine) daemon";
@@ -48,12 +48,16 @@ in {
         config.environment.etc."yate".source
       ];
 
+      serviceConfig.Type = "forking";
+      serviceConfig.RuntimeDirectory  = "yate";
+      serviceConfig.PIDFile = "/run/yate/yate.pid";
+
       serviceConfig.Nice = cfg.niceness;
       serviceConfig.User = config.users.users.yate.name;
       serviceConfig.Group = config.users.users.yate.group;
       serviceConfig.Restart = "always";
 
-      serviceConfig.ExecStart = "${lib.getExe yate} -F -c /etc/yate";
+      serviceConfig.ExecStart = "${lib.getExe yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile}";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
