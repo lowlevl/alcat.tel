@@ -7,9 +7,6 @@
 }: {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
-
-    "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/refs/tags/v1.11.0.tar.gz"}/module.nix"
-    ./disk-config.nix
   ];
 
   boot.initrd.availableKernelModules = ["sata_sil" "ohci_pci" "ehci_pci" "pata_atiixp" "usb_storage" "usbhid" "sd_mod" "sr_mod"];

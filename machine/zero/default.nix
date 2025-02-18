@@ -4,13 +4,19 @@
   lib,
   ...
 }: let
+  sources = import ../../sources.nix;
+
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
   rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {inherit config;};
 
   share = pkgs.callPackage ../../share {};
 in {
   imports = [
+    sources.disko
+    sources.sops-nix
+
     ./hardware-configuration.nix
+    ./disk-config.nix
 
     ../../bits/common
     ../../bits/dahdi
