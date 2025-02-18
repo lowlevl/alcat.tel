@@ -49,7 +49,7 @@ in {
       ];
 
       serviceConfig.Type = "forking";
-      serviceConfig.RuntimeDirectory  = "yate";
+      serviceConfig.RuntimeDirectory = "yate";
       serviceConfig.PIDFile = "/run/yate/yate.pid";
 
       serviceConfig.Nice = cfg.niceness;

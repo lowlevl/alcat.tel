@@ -45,9 +45,7 @@ in {
     };
     modules.wavefile = null;
     modules.extmodule = {
-      general = {
-        scripts_dir = "${share}/scripts/";
-      };
+      general.scripts_dir = "${share}/scripts/";
     };
     modules.zapcard = {
       "tdm410:0:1-4" = {
