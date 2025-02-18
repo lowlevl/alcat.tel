@@ -19,6 +19,10 @@ in
       sha256 = "SlSpgNNEiHWjgPB7zim2gVRYcTENS4bOLdECLGXzRqI=";
     };
 
+    patches = [
+      ./yate-00-fix-analog-module.patch
+    ];
+
     preConfigure = ''
       configureFlagsArray+=(
         # Use `CFLAGS` because `CPPFLAGS` is not propagated correctly
