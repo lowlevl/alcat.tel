@@ -6,6 +6,8 @@
 }: let
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools.nix {};
   rmanager = pkgs.callPackage ../../pkgs/rmanager.nix {inherit config;};
+
+  share = pkgs.callPackage ../../share {};
 in {
   imports = [
     ./hardware-configuration.nix
@@ -41,6 +43,7 @@ in {
     modules.tonegen = {
       general.lang = config.services.dahdi.defaultzone;
     };
+    modules.wavefile = null;
     modules.zapcard = {
       "tdm410:0:fxs1-4" = {
         type = "FXS";

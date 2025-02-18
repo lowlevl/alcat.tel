@@ -58,7 +58,7 @@ in {
     };
 
     environment.etc."yate".source = let
-      formatter = lib.generators.toINI {};
+      formatter = lib.generators.toINI {listsAsDuplicateKeys = true;};
       yateconf =
         cfg.conf
         // {
