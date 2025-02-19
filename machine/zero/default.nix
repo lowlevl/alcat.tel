@@ -8,6 +8,7 @@
 
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
   rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {inherit config;};
+  yate = pkgs.callPackage ../../pkgs/yate {};
 
   share = pkgs.callPackage ../../share {};
 in {
@@ -46,9 +47,13 @@ in {
       general.color = "yes";
     };
     modules.tonedetect = null;
-    modules.tonegen = {
-      general.lang = config.services.dahdi.defaultzone;
-    };
+    modules.tonegen = ''
+      ; Require the packaged tone definitions
+      $require ${yate}/etc/yate/tonegen.conf
+
+      [itu]
+      $requiresection fr
+    '';
     modules.wavefile = null;
     modules.extmodule = {
       general.scripts_dir = "${share}/scripts/";
@@ -61,6 +66,8 @@ in {
       };
     };
     modules.analog = {
+      general.lang = config.services.dahdi.defaultzone;
+
       "local-fxs" = {
         type = "FXS";
         spans = "tdm410:0:1-4";
