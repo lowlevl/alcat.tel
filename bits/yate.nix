@@ -48,16 +48,18 @@ in {
         config.environment.etc."yate".source
       ];
 
-      serviceConfig.Type = "forking";
+      serviceConfig.LogsDirectory = "yate";
       serviceConfig.RuntimeDirectory = "yate";
-      serviceConfig.PIDFile = "/run/yate/yate.pid";
 
+      serviceConfig.Type = "forking";
       serviceConfig.Nice = cfg.niceness;
       serviceConfig.User = config.users.users.yate.name;
       serviceConfig.Group = config.users.users.yate.group;
       serviceConfig.Restart = "always";
+      serviceConfig.PIDFile = "/run/${serviceConfig.RuntimeDirectory}/yate.pid";
 
-      serviceConfig.ExecStart = "${lib.getExe yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile}";
+
+      serviceConfig.ExecStart = "${lib.getExe yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile} -l /var/log/${serviceConfig.LogsDirectory}/yate.log";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
