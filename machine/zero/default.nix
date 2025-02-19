@@ -8,6 +8,7 @@
 
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
   rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {inherit config;};
+  yate = pkgs.callPackage ../../pkgs/yate {};
 
   share = pkgs.callPackage ../../share {};
 in {
@@ -45,11 +46,14 @@ in {
       general.port = 5038;
       general.color = "yes";
     };
-    modules.tonedetect = null;
-    modules.tonegen = {
-      general.lang = config.services.dahdi.defaultzone;
-    };
     modules.wavefile = null;
+    modules.tonedetect = null;
+    modules.tonegen =
+      ''
+        [general]
+        lang=${config.services.dahdi.defaultzone}
+      ''
+      + builtins.readFile "${yate}/etc/yate/tonegen.conf";
     modules.extmodule = {
       general.scripts_dir = "${share}/scripts/";
     };

@@ -58,7 +58,6 @@ in {
       serviceConfig.Restart = "always";
       serviceConfig.PIDFile = "/run/${serviceConfig.RuntimeDirectory}/yate.pid";
 
-
       serviceConfig.ExecStart = "${lib.getExe yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile} -l /var/log/${serviceConfig.LogsDirectory}/yate.log";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
