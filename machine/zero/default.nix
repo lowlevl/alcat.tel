@@ -40,12 +40,15 @@ in {
   services.yate = {
     enable = true;
 
+    # Default configuration and debugging
     conf.general.modload = "disable";
     modules.rmanager = {
       general.addr = "127.0.0.1";
       general.port = 5038;
       general.color = "yes";
     };
+
+    # Audio sources and detectors
     modules.wavefile = null;
     modules.tonedetect = null;
     modules.tonegen =
@@ -57,6 +60,8 @@ in {
     modules.extmodule = {
       general.scripts_dir = "${share}/scripts/";
     };
+
+    # Hardware configuration
     modules.zapcard = {
       "tdm410:0:1-4" = {
         type = "FXS";
@@ -73,6 +78,8 @@ in {
         call-ended-playtime = 10;
       };
     };
+
+    # Routing
     modules.regexroute = ''
       [default]
       ; TODO: No routing for unauthenticated remote users
@@ -88,7 +95,10 @@ in {
       ^996$=tone/outoforder
       ^997$=tone/milliwatt
       ^998$=tone/info
+      ^999$=tone/noise
+
       ^111$=wave/play/${share}/wave/rick-roll.slin
+      ^17$=wave/play/${share}/wave/woop-woop.slin
 
       ^20\([1-4]\)$=analog/local-fxs/\1
 
