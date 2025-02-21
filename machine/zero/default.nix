@@ -26,9 +26,28 @@ in {
 
   networking.hostName = "zero";
 
-  users.users.technician.extraGroups = ["telecom"];
   environment.systemPackages = [dahdi-tools rmanager];
+  users.users.technician.extraGroups = ["telecom"];
 
+  # Secrets management outside of the Nix store
+  sops.defaultSopsFile = ../../secrets.yaml;
+  sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+
+  sops.secrets."sip0/server" = {};
+  sops.secrets."sip0/username" = {};
+  sops.secrets."sip0/password" = {};
+  sops.templates."sip0.conf" = {
+    content = ''
+      [sip0]
+      server=${config.sops.placeholder."sip0/server"}
+      username=${config.sops.placeholder."sip0/username"}
+      password=${config.sops.placeholder."sip0/password"}
+    '';
+    owner = config.users.users.yate.name;
+    path = "/etc/yate/sip0.conf";
+  };
+
+  # Drivers and configuration for telephony cards
   services.dahdi = {
     enable = true;
     modules = ["wctdm24xxp"];
@@ -37,6 +56,10 @@ in {
     defaultzone = "fr";
   };
 
+  # Ring the first phone when successfully started drivers
+  systemd.services.dahdi.postStart = "${lib.getExe' dahdi-tools "fxstest"} 1 ring";
+
+  # The Yate telephony service
   services.yate = {
     enable = true;
 
@@ -48,9 +71,9 @@ in {
       general.color = "yes";
     };
 
-    # Audio sources and detectors
-    modules.wavefile = null;
+    # Audio processing and sources
     modules.tonedetect = null;
+    modules.wavefile = null;
     modules.tonegen =
       ''
         [general]
@@ -78,6 +101,15 @@ in {
         call-ended-playtime = 10;
       };
     };
+
+    # External trunks and lines
+    modules.accfile = ''
+      $include sip0.conf
+
+      [sip0]
+      enabled=yes
+      protocol=sip
+    '';
 
     # Routing
     modules.regexroute = ''
@@ -107,9 +139,6 @@ in {
       .*=;error=incomplete
     '';
   };
-
-  # Ring the first phone when successfully started drivers
-  systemd.services.dahdi.postStart = "${lib.getExe' dahdi-tools "fxstest"} 1 ring";
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

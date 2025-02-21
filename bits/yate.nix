@@ -41,7 +41,7 @@ in {
 
     systemd.services.yate = rec {
       wantedBy = ["multi-user.target"];
-      after = ["network.target" "dahdi.service"];
+      after = ["network.target" "dahdi.service" "sops-nix.service"];
       description = "`yate` (Yet Another Telephony Engine) daemon";
 
       reloadTriggers = [

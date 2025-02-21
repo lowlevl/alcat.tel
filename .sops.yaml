@@ -1,0 +1,14 @@
+#^ nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+keys:
+  - &me >-
+    2572AB455CFE0D0AD221434E841AD164D942D3D9,
+    890B1B924CBD066D0485C682FC8C6BD101A0EF00
+  - &zero age129gnnxkk5z7rgvprzl0fs8x3xv5p44rtmhr07lj4js798kqz9cpq5r8djz
+
+stores:
+  yaml:
+    indent: 2
+
+creation_rules:
+  - pgp: *me
+    age: *zero
