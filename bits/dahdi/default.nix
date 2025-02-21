@@ -7,6 +7,7 @@
   inherit (lib) types;
 
   dahdi-lib = import ./lib.nix {inherit lib pkgs;};
+  dahdi-types = import ./types.nix {inherit lib;};
 
   dahdi-linux = config.boot.kernelPackages.callPackage ../../pkgs/dahdi-linux {};
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
@@ -38,30 +39,30 @@ in {
     };
 
     defaultzone = lib.mkOption {
-      type = dahdi-lib.types.tonezone;
+      type = dahdi-types.tonezone;
       description = "The default tone zone to be loaded";
       default = "us";
     };
     loadzones = lib.mkOption {
-      type = types.listOf dahdi-lib.types.tonezone;
+      type = types.listOf dahdi-types.tonezone;
       description = "A list of tone zones to be preloaded";
       default = [cfg.defaultzone];
     };
 
     spans = lib.mkOption {
-      type = types.attrsOf dahdi-lib.types.span;
+      type = types.attrsOf dahdi-types.span;
       description = "Spans definitions and configuration";
       default = {};
     };
 
     dynamic = lib.mkOption {
-      type = types.listOf dahdi-lib.types.dynamic;
+      type = types.listOf dahdi-types.dynamic;
       description = "Dynamic spans definitions and configuration";
       default = [];
     };
 
     channels = lib.mkOption {
-      type = types.attrsOf dahdi-lib.types.channel;
+      type = types.attrsOf dahdi-types.channel;
       description = "Channels definitions and configuration";
       default = {};
     };
