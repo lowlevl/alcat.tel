@@ -6,6 +6,13 @@
 
 Some fun with classic "Télécommunication" infrastructure.
 
+#### TODOs and ideas:
+
+- Contribute back with the yate fixes to `eventphone/yate` or `yatevoip/yate`.
+- Run a _voyance_ service randomly generated from found phrases.
+- Find out why the `$require` directive does not work in `yate`. (maybe only local filepaths?)
+- Add a Tcl scripting environment with `ygi` in the infra.
+
 ### Some inspirations, documentation and reference.
 
 - https://search.nixos.org/
