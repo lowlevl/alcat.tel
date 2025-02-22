@@ -111,6 +111,10 @@ in {
 
     # Routing
     modules.regexroute = yate.mkConfigPrefix ''
+      [contexts]
+      ; Route incoming calls on `line0` to the `off-hook` target.
+      ''${in_line}^line0$=;called=201;
+
       [default]
       ; TODO: No routing for unauthenticated remote users
       ;''${username}^$=-;error=noauth
