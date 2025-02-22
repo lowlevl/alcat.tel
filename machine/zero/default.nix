@@ -36,12 +36,11 @@ in {
   sops.secrets."line0/username" = {};
   sops.secrets."line0/password" = {};
   sops.templates."line0.conf" = {
+    owner = config.systemd.services.yate.serviceConfig.User;
     content = ''
       username=${config.sops.placeholder."line0/username"}
       password=${config.sops.placeholder."line0/password"}
     '';
-    owner = config.users.users.yate.name;
-    path = "/etc/yate/line0.conf";
   };
 
   # Drivers and configuration for telephony cards
@@ -104,7 +103,7 @@ in {
       line0.enabled = "yes";
       line0.protocol = "sip";
       line0.server = "sbc6.fr.sip.ovh";
-      line0."[$require line0.conf]" = null;
+      line0."[$require ${config.sops.templates."line0.conf".path}]" = null;
     };
     modules.ysipchan = yate.mkConfig {};
     modules.yrtpchan = yate.mkConfig {};
