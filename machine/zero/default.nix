@@ -69,6 +69,7 @@ in {
       general.addr = "127.0.0.1";
       general.port = 5038;
       general.color = "yes";
+      general.prompt = "\"\${configname}@\${nodename}> \"";
     };
 
     # Audio processing and sources
