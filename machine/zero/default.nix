@@ -7,7 +7,7 @@
   sources = import ../../sources.nix;
 
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
-  rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {inherit config;};
+  rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {};
   yate = pkgs.callPackage ../../pkgs/yate {};
 
   share = pkgs.callPackage ../../share {};
@@ -64,8 +64,8 @@ in {
     enable = true;
 
     # Default configuration and debugging
-    conf.general.modload = "disable";
-    modules.rmanager = {
+    config.general.modload = "disable";
+    modules.rmanager = yate.mkConfig {
       general.addr = "127.0.0.1";
       general.port = 5038;
       general.color = "yes";
@@ -74,25 +74,22 @@ in {
     # Audio processing and sources
     modules.tonedetect = null;
     modules.wavefile = null;
-    modules.tonegen =
-      ''
-        [general]
-        lang=${config.services.dahdi.defaultzone}
-      ''
-      + builtins.readFile "${yate}/etc/yate/tonegen.conf";
-    modules.extmodule = {
+    modules.tonegen = yate.mkConfigExt {
+      general.lang = config.services.dahdi.defaultzone;
+    };
+    modules.extmodule = yate.mkConfig {
       general.scripts_dir = "${share}/scripts/";
     };
 
     # Hardware configuration
-    modules.zapcard = {
+    modules.zapcard = yate.mkConfig {
       "tdm410:0:1-4" = {
         type = "FXS";
         offset = 0;
         voicechans = "1-4";
       };
     };
-    modules.analog = {
+    modules.analog = yate.mkConfig {
       "local-fxs" = {
         type = "FXS";
         spans = "tdm410:0:1-4";
@@ -103,16 +100,16 @@ in {
     };
 
     # External trunks and lines
-    modules.accfile = ''
-      $include sip0.conf
-
-      [sip0]
-      enabled=yes
-      protocol=sip
-    '';
+    modules.accfile =
+      yate.mkConfigPrefix
+      "$include sip0.conf"
+      {
+        sip0.enabled = "yes";
+        sip0.protocol = "sip";
+      };
 
     # Routing
-    modules.regexroute = ''
+    modules.regexroute = yate.mkConfigPrefix ''
       [default]
       ; TODO: No routing for unauthenticated remote users
       ;''${username}^$=-;error=noauth
@@ -137,7 +134,7 @@ in {
       ''${overlapped}yes^=return
       .\{10\}=-;error=noroute
       .*=;error=incomplete
-    '';
+    '' {};
   };
 
   # This value determines the NixOS release from which the default

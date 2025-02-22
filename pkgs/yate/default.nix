@@ -1,16 +1,22 @@
 {
   stdenv,
-  lib,
   pkgs,
+  lib,
+  ...
 }: let
   dahdi-linux = pkgs.linuxPackages.callPackage ../dahdi-linux {};
 in
-  stdenv.mkDerivation rec {
+  stdenv.mkDerivation (finalAttrs: rec {
     pname = "yate";
     version = "6.4.0-1";
 
     nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config];
     buildInputs = [pkgs.openssl pkgs.sqlite];
+
+    passthru = import ./passthru.nix {
+      inherit pkgs lib;
+      self = finalAttrs.finalPackage;
+    };
 
     src = pkgs.fetchFromGitHub {
       owner = "yatevoip";
@@ -49,4 +55,4 @@ in
       ];
       mainProgram = "yate";
     };
-  }
+  })

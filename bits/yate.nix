@@ -9,6 +9,7 @@
   yate = pkgs.callPackage ../pkgs/yate {};
 
   cfg = config.services.yate;
+  configFiles = lib.filterAttrs (name: fn: fn != null) cfg.modules;
 in {
   options.services.yate = {
     enable = lib.mkEnableOption config.systemd.service.yate.description;
@@ -19,13 +20,13 @@ in {
       default = -4;
     };
 
-    conf = lib.mkOption {
+    config = lib.mkOption {
       type = types.attrsOf types.attrs;
       description = "The configuration for the daemon (yate.conf)";
       default = {};
     };
     modules = lib.mkOption {
-      type = types.attrsOf (types.nullOr (types.either types.str (types.attrsOf types.attrs)));
+      type = types.attrsOf (types.nullOr (types.functionTo types.package));
       description = "The configuration for the specified modules (<name>.conf)";
       default = {};
     };
@@ -44,9 +45,10 @@ in {
       after = ["network.target" "dahdi.service" "sops-nix.service"];
       description = "`yate` (Yet Another Telephony Engine) daemon";
 
-      reloadTriggers = [
-        config.environment.etc."yate".source
-      ];
+      reloadTriggers = let
+        files = ["yate"] ++ lib.mapAttrsToList (name: value: name) configFiles;
+      in
+        lib.map (name: config.environment.etc."yate/${name}.conf".source) files;
 
       serviceConfig.LogsDirectory = "yate";
       serviceConfig.RuntimeDirectory = "yate";
@@ -62,26 +64,11 @@ in {
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
-    environment.etc."yate".source = let
-      formatter = lib.generators.toINI {listsAsDuplicateKeys = true;};
-      yateconf =
-        cfg.conf
-        // {
-          modules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
-        };
+    environment.etc = let
+      modules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
+      conf = {modules = modules;} // cfg.config;
     in
-      pkgs.symlinkJoin {
-        name = "yate-conf.d";
-        paths =
-          [(pkgs.writeTextDir "yate.conf" (formatter yateconf))]
-          ++ lib.mapAttrsToList
-          (name: module:
-            pkgs.writeTextDir "${name}.conf" (
-              if lib.isString module
-              then module
-              else formatter module
-            ))
-          (lib.filterAttrs (name: module: module != null) cfg.modules);
-      };
+      {"yate/yate.conf".source = yate.mkConfig conf "yate.conf";}
+      // lib.concatMapAttrs (name: fn: {"yate/${name}.conf".source = fn "${name}.conf";}) configFiles;
   };
 }
