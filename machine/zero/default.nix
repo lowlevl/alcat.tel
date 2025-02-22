@@ -107,6 +107,7 @@ in {
       line0."[$require line0.conf]" = null;
     };
     modules.ysipchan = yate.mkConfig {};
+    modules.yrtpchan = yate.mkConfig {};
 
     # Routing
     modules.regexroute = yate.mkConfigPrefix ''
