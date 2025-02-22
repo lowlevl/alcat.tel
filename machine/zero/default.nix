@@ -33,18 +33,15 @@ in {
   sops.defaultSopsFile = ../../secrets.yaml;
   sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
 
-  sops.secrets."sip0/server" = {};
-  sops.secrets."sip0/username" = {};
-  sops.secrets."sip0/password" = {};
-  sops.templates."sip0.conf" = {
+  sops.secrets."line0/username" = {};
+  sops.secrets."line0/password" = {};
+  sops.templates."line0.conf" = {
     content = ''
-      [sip0]
-      server=${config.sops.placeholder."sip0/server"}
-      username=${config.sops.placeholder."sip0/username"}
-      password=${config.sops.placeholder."sip0/password"}
+      username=${config.sops.placeholder."line0/username"}
+      password=${config.sops.placeholder."line0/password"}
     '';
     owner = config.users.users.yate.name;
-    path = "/etc/yate/sip0.conf";
+    path = "/etc/yate/line0.conf";
   };
 
   # Drivers and configuration for telephony cards
@@ -65,6 +62,8 @@ in {
 
     # Default configuration and debugging
     config.general.modload = "disable";
+    config.configuration.warnings = "yes";
+
     modules.rmanager = yate.mkConfig {
       general.addr = "127.0.0.1";
       general.port = 5038;
@@ -101,13 +100,13 @@ in {
     };
 
     # External trunks and lines
-    modules.accfile =
-      yate.mkConfigPrefix
-      "$include sip0.conf"
-      {
-        sip0.enabled = "yes";
-        sip0.protocol = "sip";
-      };
+    modules.accfile = yate.mkConfig {
+      line0.enabled = "yes";
+      line0.protocol = "sip";
+      line0.server = "sbc6.fr.sip.ovh";
+      line0."[$require line0.conf]" = null;
+    };
+    modules.ysipchan = yate.mkConfig {};
 
     # Routing
     modules.regexroute = yate.mkConfigPrefix ''
