@@ -10,7 +10,6 @@ Some fun with classic "Télécommunication" infrastructure.
 
 - Contribute back with the yate fixes to `eventphone/yate` or `yatevoip/yate`.
 - Run a _voyance_ service randomly generated from found phrases.
-- Add a Tcl scripting environment with `ygi` in the infra.
 
 ### Some inspirations, documentation and reference.
 

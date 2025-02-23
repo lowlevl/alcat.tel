@@ -4,12 +4,19 @@
   pkgs,
 }: let
   yate = pkgs.callPackage ../pkgs/yate {};
+
+  yate-tcl = pkgs.fetchFromGitHub {
+    owner = "bef";
+    repo = "yate-tcl";
+    rev = "f306cedf1b4760e2d8c02cf4159f7018172349fe";
+    sha256 = "E37vAiOsmn0lhZPwKNXyLx7czEihvKcotJGDkQyMQpM=";
+  };
 in
   stdenv.mkDerivation rec {
     name = "alcat.tel-share";
 
     nativeBuildInputs = [];
-    buildInputs = [pkgs.php];
+    buildInputs = [pkgs.php pkgs.tcl yate-tcl];
 
     sourceRoot = ".";
     srcs = [
@@ -18,24 +25,32 @@ in
     ];
 
     dontBuild = true;
-    installPhase = let
+    installPhase = ''
+      runHook preInstall
+      install -m 0755 -D scripts/* -t $out/scripts/
+      mkdir -p $out/wave/ && cp -vr wave/* $out/wave/
+      runHook postInstall
+    '';
+    postInstall = let
       links = [
-        "libyate.php"
-        "libyateivr.php"
-        "libyatechan.php"
-        "libvoicemail.php"
-        "libeliza.js"
-        "libchatbot.js"
-        "eliza.js"
-        "libyate.py"
-        "Yate.pm"
+        # Yate's library files
+        "${yate}/share/yate/scripts/libyate.php"
+        "${yate}/share/yate/scripts/libyateivr.php"
+        "${yate}/share/yate/scripts/libyatechan.php"
+        "${yate}/share/yate/scripts/libvoicemail.php"
+        "${yate}/share/yate/scripts/libeliza.js"
+        "${yate}/share/yate/scripts/libchatbot.js"
+        "${yate}/share/yate/scripts/eliza.js"
+        "${yate}/share/yate/scripts/libyate.py"
+        "${yate}/share/yate/scripts/Yate.pm"
+
+        # Bef's ygi library
+        "${yate-tcl}/ygi"
       ];
     in
-      ''
-        install -m 0755 -D scripts/* -t $out/scripts
-        install -m 0644 -D wave/* -t $out/wave
-      ''
-      + builtins.concatStringsSep "\n" (builtins.map (path: ''ln -v -s "${yate}/share/yate/scripts/${path}" "$out/scripts/${path}"'') links);
+      builtins.concatStringsSep "\n" (
+        builtins.map (path: "ln -v -s ${path} $out/scripts/$(basename ${path})") links
+      );
 
     meta = {
       description = "The shareable for yate in the alcat.tel system";

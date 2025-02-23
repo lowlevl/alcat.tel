@@ -62,6 +62,10 @@ in {
     # Default configuration and debugging
     config.general.modload = "disable";
     config.configuration.warnings = "yes";
+    config.ygi = {
+      sndpath = "${share}/wave";
+      sndformats = "slin";
+    };
 
     modules.rmanager = yate.mkConfig {
       general.addr = "127.0.0.1";
@@ -111,8 +115,8 @@ in {
     # Routing
     modules.regexroute = yate.mkConfigPrefix ''
       [contexts]
-      ; Route incoming calls on `line0` to the `off-hook` target.
-      ''${in_line}^line0$=;called=201;
+      ; Route incoming calls on `line0` to the hotline target.
+      ''${in_line}^line0$=;called=111;
 
       [default]
       ; TODO: No routing for unauthenticated remote users
@@ -130,8 +134,10 @@ in {
       ^998$=tone/info
       ^999$=tone/noise
 
-      ^111$=wave/play/${share}/wave/rick-roll.slin
-      ^17$=wave/play/${share}/wave/woop-woop.slin
+      ^111$=external/nodata/hotline.tcl
+
+      ^222$=wave/play/${share}/wave/music/rick-roll.slin
+      ^17$=wave/play/${share}/wave/music/woop-woop.slin
 
       ^20\([1-4]\)$=analog/local-fxs/\1
 
