@@ -33,13 +33,13 @@ in {
   sops.defaultSopsFile = ../../secrets.yaml;
   sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
 
-  sops.secrets."line0/username" = {};
-  sops.secrets."line0/password" = {};
-  sops.templates."line0.conf" = {
+  sops.secrets."pstn0/username" = {};
+  sops.secrets."pstn0/password" = {};
+  sops.templates."pstn0.conf" = {
     owner = config.systemd.services.yate.serviceConfig.User;
     content = ''
-      username=${config.sops.placeholder."line0/username"}
-      password=${config.sops.placeholder."line0/password"}
+      username=${config.sops.placeholder."pstn0/username"}
+      password=${config.sops.placeholder."pstn0/password"}
     '';
   };
 
@@ -104,10 +104,10 @@ in {
 
     # External trunks and lines
     modules.accfile = yate.mkConfig {
-      line0.enabled = "yes";
-      line0.protocol = "sip";
-      line0.server = "sbc6.fr.sip.ovh";
-      line0."[$require ${config.sops.templates."line0.conf".path}]" = null;
+      pstn0.enabled = "yes";
+      pstn0.protocol = "sip";
+      pstn0.server = "sbc6.fr.sip.ovh";
+      pstn0."[$require ${config.sops.templates."pstn0.conf".path}]" = null;
     };
     modules.ysipchan = yate.mkConfig {};
     modules.yrtpchan = yate.mkConfig {};
@@ -115,14 +115,27 @@ in {
     # Routing
     modules.regexroute = yate.mkConfigPrefix ''
       [contexts]
-      ; Route incoming calls on `line0` to the hotline target.
-      ''${in_line}^line0$=;called=111;
+
+      ; Treat `sip` incoming calls with extra care
+      ''${module}^sip$=include sip
+
+      ;
+      ; :: Incoming calls pre-routing ::
+
+      ''${in_line}^pstn0$=;called=888
+
+      [sip]
+
+      ; Reject unauthenticated calls with `noauth`
+      ''${username}^$=-;error=noauth
+
+      ; TODO: Ensure the `caller` value is equivalent to the authenticated username
+      ;.*=;caller=''${username}
 
       [default]
-      ; TODO: No routing for unauthenticated remote users
-      ;''${username}^$=-;error=noauth
 
-      ^off-hook$=external/nodata/overlapped.php;tonedetect_in=yes;interdigit=10;accept_call=true
+      ;
+      ; :: Service numbers ::
 
       ^991$=tone/dial
       ^992$=tone/busy
@@ -132,18 +145,33 @@ in {
       ^996$=tone/outoforder
       ^997$=tone/milliwatt
       ^998$=tone/info
-      ^999$=tone/noise
+      ^999\(.\)$=tone/probe/\1
 
-      ^111$=external/nodata/hotline.tcl
+      ;
+      ; :: Automated services ::
 
-      ^222$=wave/play/${share}/wave/music/rick-roll.slin
-      ^17$=wave/play/${share}/wave/music/woop-woop.slin
+      ^801$=wave/play/${share}/wave/music/rick-roll.slin
+      ^802$=wave/play/${share}/wave/music/woop-woop.slin
 
-      ^20\([1-4]\)$=analog/local-fxs/\1
+      ^888$=external/nodata/hotline.tcl
 
-      ''${overlapped}yes^=return
+      ;
+      ; :: Local analog phones (FXS) ::
+
+      ^10\([1-4]\)$=analog/local-fxs/\1
+
+      ;
+      ; :: `off-hook` calls routing using `overlapped.php`
+
+      ''${overlapped}yes=goto overlapped
+      ^off-hook$=external/nodata/overlapped.php;tonedetect_in=yes;interdigit=10;accept_call=true
+
+      [overlapped]
+
+      ; Limit overlapped dialing to `10` digits
       .\{10\}=-;error=noroute
       .*=;error=incomplete
+
     '' {};
   };
 
