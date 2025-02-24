@@ -61,7 +61,7 @@ in {
 
     # Default configuration and debugging
     config.general.modload = "disable";
-    config.configuration.warnings = "yes";
+    config.configuration.warnings = true;
     config.ygi = {
       sndpath = "${share}/wave";
       sndformats = "slin";
@@ -70,7 +70,7 @@ in {
     modules.rmanager = yate.mkConfig {
       general.addr = "127.0.0.1";
       general.port = 5038;
-      general.color = "yes";
+      general.color = true;
       general.prompt = "\"\${configname}@\${nodename}> \"";
     };
 
@@ -97,14 +97,14 @@ in {
         type = "FXS";
         spans = "tdm410:0:1-4";
 
-        ringback = "yes";
+        ringback = true;
         call-ended-playtime = 10;
       };
     };
 
     # External trunks and lines
     modules.accfile = yate.mkConfig {
-      pstn0.enabled = "yes";
+      pstn0.enabled = true;
       pstn0.protocol = "sip";
       pstn0.server = "sbc6.fr.sip.ovh";
       pstn0."[$require ${config.sops.templates."pstn0.conf".path}]" = null;
