@@ -43,6 +43,16 @@ in {
     '';
   };
 
+  sops.secrets."epvpn0/username" = {};
+  sops.secrets."epvpn0/password" = {};
+  sops.templates."epvpn0.conf" = {
+    owner = config.systemd.services.yate.serviceConfig.User;
+    content = ''
+      username=${config.sops.placeholder."epvpn0/username"}
+      password=${config.sops.placeholder."epvpn0/password"}
+    '';
+  };
+
   # Drivers and configuration for telephony cards
   services.dahdi = {
     enable = true;
@@ -104,10 +114,19 @@ in {
 
     # External trunks and lines
     modules.accfile = yate.mkConfig {
-      pstn0.enabled = true;
-      pstn0.protocol = "sip";
-      pstn0.server = "sbc6.fr.sip.ovh";
-      pstn0."[$require ${config.sops.templates."pstn0.conf".path}]" = null;
+      pstn0 = {
+        enabled = true;
+        protocol = "sip";
+        server = "sbc6.fr.sip.ovh";
+        "[$require ${config.sops.templates."pstn0.conf".path}]" = null;
+      };
+
+      epvpn0 = {
+        enabled = true;
+        protocol = "sip";
+        server = "hg.eventphone.de";
+        "[$require ${config.sops.templates."epvpn0.conf".path}]" = null;
+      };
     };
     modules.ysipchan = yate.mkConfig {};
     modules.yrtpchan = yate.mkConfig {};
@@ -123,6 +142,7 @@ in {
       ; :: Incoming calls pre-routing ::
 
       ''${in_line}^pstn0$=;called=888
+      ''${in_line}^epvpn0$=;called=888
 
       [sip]
 
@@ -159,6 +179,11 @@ in {
       ; :: Local analog phones (FXS) ::
 
       ^10\([1-4]\)$=analog/local-fxs/\1
+
+      ;
+      ; :: Dial-out to EPVPN ::
+
+      ^01999\(.\{4\}\)$=line/\1;line=epvpn0
 
       ;
       ; :: `off-hook` calls routing using `overlapped.php`
