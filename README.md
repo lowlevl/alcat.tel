@@ -9,7 +9,10 @@ Some fun with classic "Télécommunication" infrastructure.
 #### TODOs and ideas:
 
 - Contribute back with the yate fixes to `eventphone/yate` or `yatevoip/yate`.
-- Run a _voyance_ service randomly generated from found phrases.
+
+- Run a _voyance_ service from randomly selected phrases.
+- Call-a-keygen jukebox using `keygen.tk` music library.
+- Callback service at specific time, for reminders.
 
 ### Some inspirations, documentation and reference.
 
