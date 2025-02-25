@@ -170,8 +170,8 @@ in {
       ;
       ; :: Automated services ::
 
-      ^801$=wave/play/${share}/wave/music/rick-roll.slin
-      ^802$=wave/play/${share}/wave/music/woop-woop.slin
+      ^811$=wave/play/${share}/wave/music/rick-roll.slin
+      ^812$=wave/play/${share}/wave/music/woop-woop.slin
 
       ^888$=external/nodata/hotline.tcl
 
