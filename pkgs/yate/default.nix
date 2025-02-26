@@ -8,7 +8,7 @@
 in
   stdenv.mkDerivation (finalAttrs: rec {
     pname = "yate";
-    version = "6.4.1-2";
+    version = "6.4.1-3";
 
     nativeBuildInputs = [
       pkgs.autoreconfHook
@@ -32,8 +32,8 @@ in
     src = pkgs.fetchFromGitHub {
       owner = "lowlevl";
       repo = "${pname}";
-      rev = "c32d90f5a78b8b0e0e787a42ec75d4e39b634643";
-      sha256 = "e/CzVbc2ldp1mZMiRrvcFsdRY2gyVzUNWxdtfdXAc5I=";
+      rev = "05c1518de2f4f75eebe55abf1c038425f58bd51e";
+      sha256 = "7LR+a5oHtHvdlaPnrl84qFeiOzMr2kjMiylMTjZEcsg=";
     };
 
     preConfigure = ''
