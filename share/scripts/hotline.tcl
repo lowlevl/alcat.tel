@@ -8,7 +8,7 @@ package require ygi
 
 ::ygi::idle_timeout
 
-::ygi::play "intro"
+::ygi::play_wait "intro"
 ::ygi::sleep 500
 
 while { true } {
