@@ -178,12 +178,13 @@ in {
       ;
       ; :: Local analog phones (FXS) ::
 
-      ^10\([1-4]\)$=analog/local-fxs/\1
+      ^18\([1-4]\)$=analog/local-fxs/\1
 
       ;
       ; :: Dial-out to EPVPN ::
 
-      ^01999\(.\{4\}\)$=line/\1;line=epvpn0
+      ^01999.\{4\}$=line/\0;line=epvpn0
+      ^09.\{4\}$=line/\0;line=epvpn0
 
       ;
       ; :: `off-hook` calls routing using `overlapped.php`
