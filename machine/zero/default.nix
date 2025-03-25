@@ -33,6 +33,17 @@ in {
   sops.defaultSopsFile = ../../secrets.yaml;
   sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
 
+  ## SSL certificate and key for SIPS
+  sops.secrets."ssl/cert" = {
+    owner = config.systemd.services.yate.serviceConfig.User;
+    path = "/etc/yate/ssl/cert.pem";
+  };
+  sops.secrets."ssl/key" = {
+    owner = config.systemd.services.yate.serviceConfig.User;
+    path = "/etc/yate/ssl/key.pem";
+  };
+
+  ## Credentials for the `pstn0` line
   sops.secrets."pstn0/username" = {};
   sops.secrets."pstn0/password" = {};
   sops.templates."pstn0.conf" = {
@@ -43,6 +54,7 @@ in {
     '';
   };
 
+  ## Credentials for the `epvpn0` line
   sops.secrets."epvpn0/username" = {};
   sops.secrets."epvpn0/password" = {};
   sops.templates."epvpn0.conf" = {
@@ -113,6 +125,15 @@ in {
     };
 
     # External trunks and lines
+    modules.openssl = yate.mkConfig {};
+    modules.ysipchan = yate.mkConfig {
+      general = {
+        ssl_certificate_file = "ssl/cert.pem";
+        ssl_key_file = "ssl/key.pem";
+        secure = true;
+      };
+    };
+    modules.yrtpchan = yate.mkConfig {};
     modules.accfile = yate.mkConfig {
       pstn0 = {
         enabled = true;
@@ -125,11 +146,10 @@ in {
         enabled = true;
         protocol = "sip";
         server = "hg.eventphone.de";
+        sips = true;
         "[$require ${config.sops.templates."epvpn0.conf".path}]" = null;
       };
     };
-    modules.ysipchan = yate.mkConfig {};
-    modules.yrtpchan = yate.mkConfig {};
 
     # Routing
     modules.regexroute = yate.mkConfigPrefix ''

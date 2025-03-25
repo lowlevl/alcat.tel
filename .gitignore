@@ -5,5 +5,8 @@
 # Images and drives
 /*.qcow2
 
+# Locally generated certificates and keys
+/*.pem
+
 # Machine configuration symlink
 /configuration.nix
