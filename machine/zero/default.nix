@@ -124,10 +124,14 @@ in {
       };
     };
 
-    # External trunks and lines
+    # SIP-related parameters, including SRTP, SIPS and DTMF passthrough
     modules.openssl = yate.mkConfig {};
     modules.ysipchan = yate.mkConfig {
       general = {
+        realm = "alcat.tel's telephony network";
+        useragent = "alcat.tel/v1.3.3.7";
+        dtmfmethods = "rfc2833,info";
+
         ssl_certificate_file = "ssl/cert.pem";
         ssl_key_file = "ssl/key.pem";
         secure = true;
