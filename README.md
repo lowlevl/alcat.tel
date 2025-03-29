@@ -10,9 +10,11 @@ Some fun with classic "Télécommunication" infrastructure.
 
 - Contribute back with the yate fixes to `eventphone/yate` or `yatevoip/yate`.
 
-- Run a _voyance_ service from randomly selected phrases.
+- A _voyance_ service from randomly selected phrases.
 - Call-a-keygen jukebox using `keygen.tk` music library.
+- Call-a-CD jukebox using the CD/DVD player on the machine.
 - Callback service at specific time, for reminders.
+- An infoline service.
 
 ### Some inspirations, documentation and reference.
 
