@@ -6,11 +6,11 @@
 }: let
   sources = import ../../sources.nix;
 
+  resources = pkgs.callPackage ../../resources {};
+
   dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
   rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {};
   yate = pkgs.callPackage ../../pkgs/yate {};
-
-  share = pkgs.callPackage ../../share {};
 in {
   imports = [
     sources.disko
@@ -85,7 +85,7 @@ in {
     config.general.modload = "disable";
     config.configuration.warnings = true;
     config.ygi = {
-      sndpath = "${share}/wave";
+      sndpath = "${resources}/wave";
       sndformats = "slin";
     };
 
@@ -103,7 +103,7 @@ in {
       general.lang = config.services.dahdi.defaultzone;
     };
     modules.extmodule = yate.mkConfig {
-      general.scripts_dir = "${share}/scripts/";
+      general.scripts_dir = "${resources}/scripts/";
     };
 
     # Hardware configuration
@@ -194,8 +194,8 @@ in {
       ;
       ; :: Automated services ::
 
-      ^811$=wave/play/${share}/wave/music/rick-roll.slin
-      ^812$=wave/play/${share}/wave/music/woop-woop.slin
+      ^811$=wave/play/${resources}/wave/music/rick-roll.slin
+      ^812$=wave/play/${resources}/wave/music/woop-woop.slin
 
       ^888$=external/nodata/hotline.tcl
 

@@ -13,7 +13,7 @@
   };
 in
   stdenv.mkDerivation rec {
-    name = "alcat.tel-share";
+    name = "resources";
 
     nativeBuildInputs = [];
     buildInputs = [pkgs.php pkgs.tcl yate-tcl];
@@ -53,7 +53,7 @@ in
       );
 
     meta = {
-      description = "The shareable for yate in the alcat.tel system";
+      description = "The resources in the alcat.tel system";
       license = lib.licenses.gpl3;
       maintainers = [];
       platforms = lib.platforms.all;
