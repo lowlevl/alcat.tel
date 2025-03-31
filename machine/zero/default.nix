@@ -179,6 +179,29 @@ in {
       [default]
 
       ;
+      ; :: Dial-out to EPVPN ::
+
+      ^01999.\{4\}$=line/\0;line=epvpn0
+      ^09.\{4\}$=line/\0;line=epvpn0
+
+      ;
+      ; :: Local analog phones (FXS) ::
+
+      ^18\([1-4]\)$=analog/local-fxs/\1
+
+      ;
+      ; :: Reserved phone numbers with vanity ::
+
+      ;
+      ; :: Automated services ::
+
+      ^811$=wave/play/${resources}/wave/music/rick-roll.slin
+      ^812$=wave/play/${resources}/wave/music/woop-woop.slin
+      ^813$=wave/play/${resources}/wave/le-temps-des-tempetes.slin
+
+      ^888$=external/nodata/hotline.tcl
+
+      ;
       ; :: Service numbers ::
 
       ^991$=tone/dial
@@ -192,26 +215,7 @@ in {
       ^999\(.\)$=tone/probe/\1
 
       ;
-      ; :: Automated services ::
-
-      ^811$=wave/play/${resources}/wave/music/rick-roll.slin
-      ^812$=wave/play/${resources}/wave/music/woop-woop.slin
-
-      ^888$=external/nodata/hotline.tcl
-
-      ;
-      ; :: Local analog phones (FXS) ::
-
-      ^18\([1-4]\)$=analog/local-fxs/\1
-
-      ;
-      ; :: Dial-out to EPVPN ::
-
-      ^01999.\{4\}$=line/\0;line=epvpn0
-      ^09.\{4\}$=line/\0;line=epvpn0
-
-      ;
-      ; :: `off-hook` calls routing using `overlapped.php`
+      ; :: `off-hook` calls handler using `overlapped.php`
 
       ''${overlapped}yes=goto overlapped
       ^off-hook$=external/nodata/overlapped.php;tonedetect_in=yes;interdigit=10;accept_call=true
