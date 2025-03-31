@@ -165,8 +165,8 @@ in {
       ;
       ; :: Incoming calls pre-routing ::
 
-      ''${in_line}^pstn0$=;called=888
-      ''${in_line}^epvpn0$=;called=888
+      ''${in_line}^pstn0$=;called=4636
+      ''${in_line}^epvpn0$=;called=4636
 
       [sip]
 
@@ -192,14 +192,15 @@ in {
       ;
       ; :: Reserved phone numbers with vanity ::
 
+      ; [INFO]: The infoline service
+      ^4636$=external/nodata/infoline.tcl
+
       ;
       ; :: Automated services ::
 
       ^811$=wave/play/${resources}/wave/music/rick-roll.slin
       ^812$=wave/play/${resources}/wave/music/woop-woop.slin
       ^813$=wave/play/${resources}/wave/le-temps-des-tempetes.slin
-
-      ^888$=external/nodata/hotline.tcl
 
       ;
       ; :: Service numbers ::
