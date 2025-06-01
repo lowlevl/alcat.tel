@@ -165,8 +165,8 @@ in {
       ;
       ; :: Incoming calls pre-routing ::
 
-      ''${in_line}^pstn0$=;called=4636
-      ''${in_line}^epvpn0$=;called=4636
+      ''${in_line}^pstn0$=;called=181
+      ''${in_line}^epvpn0$=;called=181
 
       [sip]
 
