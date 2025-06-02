@@ -28,7 +28,9 @@
             The routing and dial-plan is made according to the following configuration:
             <details>
               <summary><b>regexroute.conf</b></summary>
-              <pre>${config.services.yate.modules.regexroute}</pre>
+              <blockquote>
+                <pre>${config.services.yate.modules.regexroute}</pre>
+              </blockquote>
             </details>
           </p>
 
