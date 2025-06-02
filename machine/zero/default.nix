@@ -89,7 +89,7 @@ in {
       sndformats = "slin";
     };
 
-    modules.rmanager = yate.mkConfig {
+    modules.rmanager = {
       general.addr = "127.0.0.1";
       general.port = 5038;
       general.color = true;
@@ -102,19 +102,19 @@ in {
     modules.tonegen = yate.mkConfigExt {
       general.lang = config.services.dahdi.defaultzone;
     };
-    modules.extmodule = yate.mkConfig {
+    modules.extmodule = {
       general.scripts_dir = "${resources}/scripts/";
     };
 
     # Hardware configuration
-    modules.zapcard = yate.mkConfig {
+    modules.zapcard = {
       "tdm410:0:1-4" = {
         type = "FXS";
         offset = 0;
         voicechans = "1-4";
       };
     };
-    modules.analog = yate.mkConfig {
+    modules.analog = {
       "local-fxs" = {
         type = "FXS";
         spans = "tdm410:0:1-4";
@@ -125,10 +125,10 @@ in {
     };
 
     # SIP-related parameters, including SRTP, SIPS and DTMF passthrough
-    modules.openssl = yate.mkConfig {};
-    modules.ysipchan = yate.mkConfig {
+    modules.openssl = {};
+    modules.ysipchan = {
       general = {
-        realm = "alcat.tel's telephony network";
+        realm = sources.realm;
         useragent = "alcat.tel/v1.3.3.7";
         dtmfmethods = "rfc2833,info";
 
@@ -137,8 +137,8 @@ in {
         secure = true;
       };
     };
-    modules.yrtpchan = yate.mkConfig {};
-    modules.accfile = yate.mkConfig {
+    modules.yrtpchan = {};
+    modules.accfile = {
       pstn0 = {
         enabled = true;
         protocol = "sip";
@@ -156,7 +156,7 @@ in {
     };
 
     # Routing
-    modules.regexroute = yate.mkConfigPrefix ''
+    modules.regexroute = ''
       [contexts]
 
       ; Treat `sip` incoming calls with extra care
@@ -227,7 +227,7 @@ in {
       .\{10\}=-;error=noroute
       .*=;error=incomplete
 
-    '' {};
+    '';
   };
 
   # This value determines the NixOS release from which the default

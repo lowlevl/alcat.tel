@@ -8,8 +8,20 @@
 
   yate = pkgs.callPackage ../pkgs/yate {};
 
+  enabledModules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
+  configSpecs = lib.filterAttrs (name: cnf: cnf != null) cfg.modules;
+  configFns =
+    lib.mapAttrs (
+      name: cnf:
+        if builtins.isString cnf
+        then yate.mkConfigRaw cnf
+        else if builtins.isAttrs cnf && !builtins.hasAttr "__functor" cnf
+        then yate.mkConfig cnf
+        else cnf
+    )
+    configSpecs;
+
   cfg = config.services.yate;
-  configFiles = lib.filterAttrs (name: fn: fn != null) cfg.modules;
 in {
   options.services.yate = {
     enable = lib.mkEnableOption config.systemd.service.yate.description;
@@ -25,8 +37,13 @@ in {
       description = "The configuration for the daemon (yate.conf)";
       default = {};
     };
+
     modules = lib.mkOption {
-      type = types.attrsOf (types.nullOr (types.functionTo types.package));
+      type = types.attrsOf (types.nullOr (types.oneOf [
+        types.str
+        types.attrs
+        (types.functionTo types.package)
+      ]));
       description = "The configuration for the specified modules (<name>.conf)";
       default = {};
     };
@@ -46,7 +63,7 @@ in {
       description = "`yate` (Yet Another Telephony Engine) daemon";
 
       reloadTriggers = let
-        files = ["yate"] ++ lib.mapAttrsToList (name: value: name) configFiles;
+        files = ["yate"] ++ lib.mapAttrsToList (name: value: name) configSpecs;
       in
         lib.map (name: config.environment.etc."yate/${name}.conf".source) files;
 
@@ -64,11 +81,8 @@ in {
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
-    environment.etc = let
-      modules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
-      conf = {modules = modules;} // cfg.config;
-    in
-      {"yate/yate.conf".source = yate.mkConfig conf "yate.conf";}
-      // lib.concatMapAttrs (name: fn: {"yate/${name}.conf".source = fn "${name}.conf";}) configFiles;
+    environment.etc =
+      {"yate/yate.conf".source = yate.mkConfig ({modules = enabledModules;} // cfg.config) "yate.conf";}
+      // lib.concatMapAttrs (name: fn: {"yate/${name}.conf".source = fn "${name}.conf";}) configFns;
   };
 }
