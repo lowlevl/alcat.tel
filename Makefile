@@ -1,6 +1,6 @@
 NIXARGS='<nixpkgs/nixos>' -I nixpkgs=$(NIXPKGS)
 
-NIXPKGS=channel:nixos-24.11
+NIXPKGS=channel:nixos-25.05
 MACHINEDIR=./machine
 
 all:
