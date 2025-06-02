@@ -13,8 +13,8 @@
   yate = pkgs.callPackage ../../pkgs/yate {};
 in {
   imports = [
-    sources.disko
-    sources.sops-nix
+    sources.modules.disko
+    sources.modules.sops-nix
 
     ./hardware-configuration.nix
     ./disk-config.nix
@@ -22,6 +22,7 @@ in {
     ../../bits/common
     ../../bits/dahdi
     ../../bits/yate.nix
+    ../../bits/http.nix
   ];
 
   networking.hostName = "zero";
