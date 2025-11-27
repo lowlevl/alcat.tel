@@ -2,32 +2,19 @@
   config,
   pkgs,
   lib,
+  atel,
   ...
-}: let
-  sources = import ../../sources.nix;
-
-  resources = pkgs.callPackage ../../resources {};
-
-  dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
-  rmanager = pkgs.callPackage ../../pkgs/yate/rmanager.nix {};
-  yate = pkgs.callPackage ../../pkgs/yate {};
-in {
+}: {
   imports = [
-    sources.modules.disko
-    sources.modules.sops-nix
-
     ./hardware-configuration.nix
     ./disk-config.nix
 
-    ../../bits/common
-    ../../bits/dahdi
-    ../../bits/yate.nix
-    ../../bits/http.nix
+    ./httpd.nix
   ];
 
   networking.hostName = "zero";
 
-  environment.systemPackages = [dahdi-tools rmanager];
+  environment.systemPackages = [pkgs.dahdi-tools pkgs.rmanager];
   users.users.technician.extraGroups = ["telecom"];
 
   # Secrets management outside of the Nix store
@@ -76,7 +63,7 @@ in {
   };
 
   # Ring the first phone when successfully started drivers
-  systemd.services.dahdi.postStart = "${lib.getExe' dahdi-tools "fxstest"} 1 ring";
+  systemd.services.dahdi.postStart = "${lib.getExe' pkgs.dahdi-tools "fxstest"} 1 ring";
 
   # The Yate telephony service
   services.yate = {
@@ -86,7 +73,7 @@ in {
     config.general.modload = "disable";
     config.configuration.warnings = true;
     config.ygi = {
-      sndpath = "${resources}/wave";
+      sndpath = "${pkgs.atel}/wave";
       sndformats = "slin";
     };
 
@@ -100,11 +87,11 @@ in {
     # Audio processing and sources
     modules.tonedetect = null;
     modules.wavefile = null;
-    modules.tonegen = yate.mkConfigExt {
+    modules.tonegen = pkgs.yate.mkConfigExt {
       general.lang = config.services.dahdi.defaultzone;
     };
     modules.extmodule = {
-      general.scripts_dir = "${resources}/scripts/";
+      general.scripts_dir = "${pkgs.atel}/scripts/";
     };
 
     # Hardware configuration
@@ -129,7 +116,7 @@ in {
     modules.openssl = {};
     modules.ysipchan = {
       general = {
-        realm = sources.realm;
+        realm = atel.realm;
         useragent = "alcat.tel/v1.3.3.7";
         dtmfmethods = "rfc2833,info";
 
@@ -199,9 +186,9 @@ in {
       ;
       ; :: Automated services ::
 
-      ^811$=wave/play/${resources}/wave/music/rick-roll.slin
-      ^812$=wave/play/${resources}/wave/music/woop-woop.slin
-      ^813$=wave/play/${resources}/wave/le-temps-des-tempetes.slin
+      ^811$=wave/play/${pkgs.atel}/wave/music/rick-roll.slin
+      ^812$=wave/play/${pkgs.atel}/wave/music/woop-woop.slin
+      ^813$=wave/play/${pkgs.atel}/wave/le-temps-des-tempetes.slin
 
       ;
       ; :: Service numbers ::

@@ -2,10 +2,9 @@
   config,
   pkgs,
   lib,
+  atel,
   ...
 }: let
-  sources = import ../sources.nix;
-
   index = let
     lines = config.services.yate.modules.accfile;
   in
@@ -14,11 +13,11 @@
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>${sources.realm}</title>
+        <title>${atel.realm}</title>
       </head>
       <body>
         <code>
-          <h1><pre>${sources.banner}</pre></h1>
+          <h1><pre>${atel.banner}</pre></h1>
 
           an experiment on building a {Nix, Yate}-based telephony system.
 

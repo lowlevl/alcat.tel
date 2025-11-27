@@ -1,7 +1,5 @@
 # - common/services: common services on all machines
-{...}: let
-  sources = import ../../sources.nix;
-in {
+{atel, ...}: {
   networking.firewall.enable = true;
 
   services.openssh = {
@@ -9,7 +7,7 @@ in {
     startWhenNeeded = true;
 
     banner = ''
-      ${sources.banner}
+      ${atel.banner}
 
       [!!] This realm is the property of `alcat.tel`.
     '';

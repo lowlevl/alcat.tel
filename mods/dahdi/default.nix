@@ -9,9 +9,6 @@
   dahdi-lib = import ./lib.nix {inherit lib pkgs;};
   dahdi-types = import ./types.nix {inherit lib;};
 
-  dahdi-linux = config.boot.kernelPackages.callPackage ../../pkgs/dahdi-linux {};
-  dahdi-tools = pkgs.callPackage ../../pkgs/dahdi-tools {};
-
   dahdi-udev = pkgs.writeTextFile {
     name = "dahdi-udev";
     text = ''
@@ -30,8 +27,9 @@
 
   cfg = config.services.dahdi;
 in {
-  options.services.dahdi = rec {
+  options.services.dahdi = {
     enable = lib.mkEnableOption config.systemd.service.dahdi.description;
+    package = lib.mkPackageOption pkgs "dahdi-linux";
 
     modules = lib.mkOption {
       type = types.listOf types.str;
@@ -69,7 +67,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    boot.extraModulePackages = [dahdi-linux];
+    boot.extraModulePackages = [cfg.package];
 
     users.groups.telecom = {};
 
@@ -86,7 +84,7 @@ in {
       serviceConfig.Type = "oneshot";
       serviceConfig.RemainAfterExit = "yes";
 
-      serviceConfig.ExecStart = "${lib.getExe' dahdi-tools "dahdi_cfg"}";
+      serviceConfig.ExecStart = "${lib.getExe' pkgs.dahdi-tools "dahdi_cfg"}";
       serviceConfig.ExecReload = serviceConfig.ExecStart;
 
       preStart =

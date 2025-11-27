@@ -1,23 +1,31 @@
 {
-  stdenv,
   lib,
-  pkgs,
+  stdenv,
+  fetchFromGitHub,
+  dahdi-linux,
+  autoreconfHook,
+  pkg-config,
+  newt,
+  man,
+  asciidoc,
+  makeWrapper,
+  perl,
 }: let
-  dahdi-linux = pkgs.linuxPackages.callPackage ../dahdi-linux {};
+  version = "3.4.0";
+  hash = "sha256-O+NisMAmXXijJx6eOL5CAPWpAKQNeDlU7agUhvdvopE=";
 in
-  stdenv.mkDerivation rec {
+  stdenv.mkDerivation {
     pname = "dahdi-tools";
-    version = "3.4.0";
+    inherit version;
 
-    hardeningDisable = [];
-    nativeBuildInputs = [pkgs.autoreconfHook pkgs.pkg-config pkgs.newt pkgs.man pkgs.asciidoc pkgs.makeWrapper];
-    buildInputs = [pkgs.perl];
+    nativeBuildInputs = [autoreconfHook pkg-config newt man asciidoc makeWrapper];
+    buildInputs = [perl];
 
-    src = pkgs.fetchFromGitHub {
+    src = fetchFromGitHub {
       owner = "asterisk";
-      repo = "${pname}";
+      repo = "dahdi-tools";
       rev = "${version}";
-      sha256 = "O+NisMAmXXijJx6eOL5CAPWpAKQNeDlU7agUhvdvopE=";
+      inherit hash;
     };
 
     patches = [
@@ -25,7 +33,7 @@ in
     ];
 
     configureFlags = [
-      "--with-dahdi=${dahdi-linux}/usr"
+      "--with-dahdi=${dahdi-linux.dev}/usr"
     ];
     buildFlags = [
       "all"
@@ -52,10 +60,10 @@ in
       builtins.concatStringsSep "\n" (builtins.map (program: ''wrapProgram "$out/bin/${program}" --prefix PERL5LIB : "$out/share/perl5"'') programs);
 
     meta = {
-      description = "Userland tools for the DAHDI kernel drivers.";
-      homepage = "https://github.com/asterisk/dahdi-tools";
-      license = lib.licenses.gpl2;
       maintainers = [];
+      license = lib.licenses.gpl2;
       platforms = lib.platforms.linux;
+      homepage = "https://github.com/asterisk/dahdi-tools";
+      description = "Userland tools for the DAHDI kernel drivers.";
     };
   }

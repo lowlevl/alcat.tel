@@ -6,17 +6,15 @@
 }: let
   inherit (lib) types;
 
-  yate = pkgs.callPackage ../pkgs/yate {};
-
   enabledModules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
   configSpecs = lib.filterAttrs (name: cnf: cnf != null) cfg.modules;
   configFns =
     lib.mapAttrs (
       name: cnf:
         if builtins.isString cnf
-        then yate.mkConfigRaw cnf
+        then pkgs.yate.mkConfigRaw cnf
         else if builtins.isAttrs cnf && !builtins.hasAttr "__functor" cnf
-        then yate.mkConfig cnf
+        then pkgs.yate.mkConfig cnf
         else cnf
     )
     configSpecs;
@@ -77,12 +75,12 @@ in {
       serviceConfig.Restart = "always";
       serviceConfig.PIDFile = "/run/${serviceConfig.RuntimeDirectory}/yate.pid";
 
-      serviceConfig.ExecStart = "${lib.getExe yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile} -l /var/log/${serviceConfig.LogsDirectory}/yate.log";
+      serviceConfig.ExecStart = "${lib.getExe pkgs.yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile} -l /var/log/${serviceConfig.LogsDirectory}/yate.log";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
     environment.etc =
-      {"yate/yate.conf".source = yate.mkConfig ({modules = enabledModules;} // cfg.config) "yate.conf";}
+      {"yate/yate.conf".source = pkgs.yate.mkConfig ({modules = enabledModules;} // cfg.config) "yate.conf";}
       // lib.concatMapAttrs (name: fn: {"yate/${name}.conf".source = fn "${name}.conf";}) configFns;
   };
 }

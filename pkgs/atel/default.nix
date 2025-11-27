@@ -1,22 +1,23 @@
 {
-  stdenv,
   lib,
-  pkgs,
+  stdenv,
+  fetchFromGitHub,
+  yate,
+  php,
+  tcl,
 }: let
-  yate = pkgs.callPackage ../pkgs/yate {};
-
-  yate-tcl = pkgs.fetchFromGitHub {
+  yate-tcl = fetchFromGitHub {
     owner = "bef";
     repo = "yate-tcl";
     rev = "f306cedf1b4760e2d8c02cf4159f7018172349fe";
     sha256 = "E37vAiOsmn0lhZPwKNXyLx7czEihvKcotJGDkQyMQpM=";
   };
 in
-  stdenv.mkDerivation rec {
-    name = "resources";
+  stdenv.mkDerivation {
+    name = "at";
 
     nativeBuildInputs = [];
-    buildInputs = [pkgs.php pkgs.tcl yate-tcl];
+    buildInputs = [php tcl];
 
     sourceRoot = ".";
     srcs = [
@@ -53,9 +54,9 @@ in
       );
 
     meta = {
-      description = "The resources in the alcat.tel system";
-      license = lib.licenses.gpl3;
       maintainers = [];
+      license = lib.licenses.gpl3;
       platforms = lib.platforms.all;
+      description = "The resources in the alcat.tel system";
     };
   }

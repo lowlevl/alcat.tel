@@ -1,10 +1,15 @@
 {
-  stdenv,
-  kernel,
-  pkgs,
   lib,
+  stdenv,
+  fetchFromGitHub,
+  kernel,
+  perl,
 }: let
   fwbase = "https://downloads.digium.com/pub/telephony/firmware/releases";
+
+  version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
+  hash = "sha256-G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
+
   fws = {
     dahdi-fw-oct6114-032.version = "1.05.01";
     dahdi-fw-oct6114-032.sha256 = "egBgcyAtZ+RfHV/x6cboZj5gVs753ExauuhqEBjbNJw=";
@@ -58,21 +63,22 @@
     dahdi-fw-a4b.sha256 = "4Dmvi+w2QHt04d2evdSboHdGntp51OYJNyHtKDbUU28=";
   };
 in
-  stdenv.mkDerivation rec {
-    pname = "dahdi-linux";
-    version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
+  stdenv.mkDerivation {
+    name = "dahdi-linux-${version}-${kernel.version}";
 
-    hardeningDisable = ["pic"];
-    nativeBuildInputs = kernel.moduleBuildDependencies ++ [pkgs.perl];
+    outputs = [
+      "out"
+      "dev"
+    ];
 
     sourceRoot = "source";
     srcs =
       [
-        (pkgs.fetchFromGitHub {
+        (fetchFromGitHub {
           owner = "asterisk";
-          repo = "${pname}";
+          repo = "dahdi-linux";
           rev = "${version}";
-          sha256 = "G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
+          inherit hash;
         })
       ]
       #-- Additionnal tarballs required by dahdi-linux's Makefiles
@@ -93,9 +99,12 @@ in
       cp -r --preserve=mode,timestamps --reflink=auto -- "$source" "$destination"
     '';
     postUnpack = ''
-      mv *.tar.gz "${sourceRoot}/drivers/dahdi/firmware"
-      patchShebangs --build "${sourceRoot}"
+      mv *.tar.gz "$sourceRoot/drivers/dahdi/firmware"
+      patchShebangs --build "$sourceRoot"
     '';
+
+    hardeningDisable = ["pic"];
+    nativeBuildInputs = kernel.moduleBuildDependencies ++ [perl];
 
     patches = [
       ./00-revert-tdm410-tdm800-disable.patch
@@ -105,15 +114,19 @@ in
       "KVERS=${kernel.modDirVersion}"
       "KSRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
     ];
+
     installFlags = [
       "DESTDIR=$(out)"
     ];
+    postInstall = ''
+      moveToOutput "usr/include/dahdi" "$dev"
+    '';
 
     meta = {
-      description = "An open-source device driver framework and a set of HW drivers for E1/T1, ISDN digital and FXO/FXS analog cards.";
-      homepage = "https://github.com/asterisk/dahdi-linux";
-      license = lib.licenses.gpl2;
       maintainers = [];
+      license = lib.licenses.gpl2;
       platforms = lib.platforms.linux;
+      homepage = "https://github.com/asterisk/dahdi-linux";
+      description = "An open-source device driver framework and a set of HW drivers for E1/T1, ISDN digital and FXO/FXS analog cards.";
     };
   }

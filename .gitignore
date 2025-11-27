@@ -7,6 +7,3 @@
 
 # Locally generated certificates and keys
 /*.pem
-
-# Machine configuration symlink
-/configuration.nix

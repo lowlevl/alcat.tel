@@ -1,65 +1,74 @@
 {
-  stdenv,
-  pkgs,
   lib,
+  stdenv,
+  callPackage,
+  fetchFromGitHub,
+  autoreconfHook,
+  pkg-config,
+  dahdi-linux,
+  openssl,
+  sqlite,
+  libtiff,
+  spandsp,
+  speex,
+  gsm,
+  doxygen,
   ...
 }: let
-  dahdi-linux = pkgs.linuxPackages.callPackage ../dahdi-linux {};
+  version = "05c1518de2f4f75eebe55abf1c038425f58bd51e";
+  hash = "sha256-7LR+a5oHtHvdlaPnrl84qFeiOzMr2kjMiylMTjZEcsg=";
 in
-  stdenv.mkDerivation (finalAttrs: rec {
+  stdenv.mkDerivation (finalAttrs: {
     pname = "yate";
-    version = "6.4.1-3";
+    inherit version;
 
     nativeBuildInputs = [
-      pkgs.autoreconfHook
-      pkgs.pkg-config
+      autoreconfHook
+      pkg-config
     ];
     buildInputs = [
-      pkgs.openssl.dev
-      pkgs.sqlite.dev
-      pkgs.libtiff.dev
-      pkgs.spandsp.dev
-      pkgs.speex.dev
-      pkgs.gsm
+      openssl.dev
+      sqlite.dev
+      libtiff.dev
+      spandsp.dev
+      speex.dev
+      gsm
     ];
     enableParallelBuilding = false; # Breaks the libminiwebrtc.a's `ar` call
 
-    passthru = import ./passthru.nix {
-      inherit pkgs lib;
-      self = finalAttrs.finalPackage;
+    src = fetchFromGitHub {
+      owner = "lowlevl";
+      repo = "yate";
+      rev = version;
+      inherit hash;
     };
 
-    src = pkgs.fetchFromGitHub {
-      owner = "lowlevl";
-      repo = "${pname}";
-      rev = "05c1518de2f4f75eebe55abf1c038425f58bd51e";
-      sha256 = "7LR+a5oHtHvdlaPnrl84qFeiOzMr2kjMiylMTjZEcsg=";
-    };
+    passthru = callPackage ./passthru.nix {};
 
     preConfigure = ''
       configureFlagsArray+=(
         # Use `CFLAGS` because `CPPFLAGS` is not propagated correctly
-        "CFLAGS=-I${dahdi-linux}/usr/include"
+        "CFLAGS=-I${dahdi-linux.dev}/usr/include"
       )
       ./yate-config.sh
     '';
     configureFlags = [
-      "--with-doxygen=${lib.getExe pkgs.doxygen}"
-      "--with-spandsp=${pkgs.spandsp.dev}/include"
-      "--with-libspeex=${pkgs.speex.dev}/include"
-      "--with-libgsm=${pkgs.gsm}/include/gsm"
+      "--with-doxygen=${lib.getExe doxygen}"
+      "--with-spandsp=${spandsp.dev}/include"
+      "--with-libspeex=${speex.dev}/include"
+      "--with-libgsm=${gsm}/include/gsm"
       "--enable-sse2=yes"
       "--verbose"
     ];
 
     meta = {
-      description = "Yet another telephony engine";
-      homepage = "https://yate.ro/";
+      maintainers = [];
       # Yate's license is GPL with an exception for linking with
       # OpenH323 and PWlib (licensed under MPL).
       license = lib.licenses.gpl2Only;
-      maintainers = [];
       platforms = lib.platforms.linux;
       mainProgram = "yate";
+      homepage = "https://yate.ro/";
+      description = "Yet another telephony engine";
     };
   })
