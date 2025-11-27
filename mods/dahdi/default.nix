@@ -29,7 +29,9 @@
 in {
   options.services.dahdi = {
     enable = lib.mkEnableOption config.systemd.service.dahdi.description;
-    package = lib.mkPackageOption pkgs "dahdi-linux";
+
+    kpackage = lib.mkPackageOption pkgs "dahdi-linux" {};
+    package = lib.mkPackageOption pkgs "dahdi-tools" {};
 
     modules = lib.mkOption {
       type = types.listOf types.str;
@@ -67,7 +69,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    boot.extraModulePackages = [cfg.package];
+    boot.extraModulePackages = [cfg.kpackage];
 
     users.groups.telecom = {};
 
@@ -84,7 +86,7 @@ in {
       serviceConfig.Type = "oneshot";
       serviceConfig.RemainAfterExit = "yes";
 
-      serviceConfig.ExecStart = "${lib.getExe' pkgs.dahdi-tools "dahdi_cfg"}";
+      serviceConfig.ExecStart = "${lib.getExe' cfg.package "dahdi_cfg"}";
       serviceConfig.ExecReload = serviceConfig.ExecStart;
 
       preStart =
