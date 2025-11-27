@@ -66,10 +66,9 @@ in
   stdenv.mkDerivation {
     name = "dahdi-linux-${version}-${kernel.version}";
 
-    outputs = [
-      "out"
-      "dev"
-    ];
+    hardeningDisable = ["pic"];
+    nativeBuildInputs = kernel.moduleBuildDependencies ++ [perl];
+    enableParallelBuilding = true;
 
     sourceRoot = "source";
     srcs =
@@ -103,9 +102,6 @@ in
       patchShebangs --build "$sourceRoot"
     '';
 
-    hardeningDisable = ["pic"];
-    nativeBuildInputs = kernel.moduleBuildDependencies ++ [perl];
-
     patches = [
       ./00-revert-tdm410-tdm800-disable.patch
     ];
@@ -113,6 +109,11 @@ in
     makeFlags = [
       "KVERS=${kernel.modDirVersion}"
       "KSRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+    ];
+
+    outputs = [
+      "out"
+      "dev"
     ];
 
     installFlags = [

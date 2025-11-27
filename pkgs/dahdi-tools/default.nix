@@ -2,14 +2,14 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  dahdi-linux,
+  perl,
   autoreconfHook,
   pkg-config,
   newt,
   man,
   asciidoc,
   makeWrapper,
-  perl,
+  dahdi-linux,
 }: let
   version = "3.4.0";
   hash = "sha256-O+NisMAmXXijJx6eOL5CAPWpAKQNeDlU7agUhvdvopE=";
@@ -18,8 +18,9 @@ in
     pname = "dahdi-tools";
     inherit version;
 
-    nativeBuildInputs = [autoreconfHook pkg-config newt man asciidoc makeWrapper];
     buildInputs = [perl];
+    nativeBuildInputs = [autoreconfHook pkg-config newt man asciidoc makeWrapper];
+    enableParallelBuilding = true;
 
     src = fetchFromGitHub {
       owner = "asterisk";

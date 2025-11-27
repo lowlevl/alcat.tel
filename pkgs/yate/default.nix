@@ -3,9 +3,6 @@
   stdenv,
   callPackage,
   fetchFromGitHub,
-  autoreconfHook,
-  pkg-config,
-  dahdi-linux,
   openssl,
   sqlite,
   libtiff,
@@ -13,6 +10,9 @@
   speex,
   gsm,
   doxygen,
+  autoreconfHook,
+  pkg-config,
+  dahdi-linux,
   ...
 }: let
   version = "05c1518de2f4f75eebe55abf1c038425f58bd51e";
@@ -22,10 +22,6 @@ in
     pname = "yate";
     inherit version;
 
-    nativeBuildInputs = [
-      autoreconfHook
-      pkg-config
-    ];
     buildInputs = [
       openssl.dev
       sqlite.dev
@@ -34,7 +30,11 @@ in
       speex.dev
       gsm
     ];
-    enableParallelBuilding = false; # Breaks the libminiwebrtc.a's `ar` call
+    nativeBuildInputs = [
+      autoreconfHook
+      pkg-config
+    ];
+    enableParallelBuilding = true;
 
     src = fetchFromGitHub {
       owner = "lowlevl";
