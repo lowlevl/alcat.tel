@@ -1,5 +1,5 @@
 # - common/users: common users and groups on all machines
-{pkgs, ...}: {
+{...}: {
   security.sudo.wheelNeedsPassword = false;
 
   users = {
@@ -8,12 +8,6 @@
     users.technician = {
       isNormalUser = true;
       extraGroups = ["wheel"];
-
-      packages = with pkgs; [
-        neovim
-        btop
-        file
-      ];
 
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEac1v6+SJ9gZ208cyORTeD0U3/HcC5ovyvxJnH797o3 unix@socket"

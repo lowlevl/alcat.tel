@@ -16,8 +16,15 @@
       configuration = "/etc/nixos";
     in {
       n = "cd '${configuration}'";
-      pull-switch = "${lib.getExe pkgs.git} -C ${configuration} pull --rebase && sudo nixos-rebuild switch --fast";
+      pull-switch = "sudo sh -c '${lib.getExe pkgs.git} -C ${configuration} pull --rebase && nixos-rebuild switch'";
     };
+
+    systemPackages = with pkgs; [
+      neovim
+      btop
+      file
+      git
+    ];
   };
 
   networking.domain = "alcat.tel";

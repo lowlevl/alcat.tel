@@ -6,10 +6,6 @@
   perl,
 }: let
   fwbase = "https://downloads.digium.com/pub/telephony/firmware/releases";
-
-  version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
-  hash = "sha256-G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
-
   fws = {
     dahdi-fw-oct6114-032.version = "1.05.01";
     dahdi-fw-oct6114-032.sha256 = "egBgcyAtZ+RfHV/x6cboZj5gVs753ExauuhqEBjbNJw=";
@@ -62,6 +58,9 @@
     dahdi-fw-a4b.version = "d001e";
     dahdi-fw-a4b.sha256 = "4Dmvi+w2QHt04d2evdSboHdGntp51OYJNyHtKDbUU28=";
   };
+
+  version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
+  hash = "sha256-G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
 in
   stdenv.mkDerivation {
     name = "dahdi-linux-${version}-${kernel.version}";
