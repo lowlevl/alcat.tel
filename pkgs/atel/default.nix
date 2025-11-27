@@ -14,7 +14,7 @@
   };
 in
   stdenv.mkDerivation {
-    name = "at";
+    name = "atel";
 
     nativeBuildInputs = [];
     buildInputs = [php tcl];
