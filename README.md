@@ -24,6 +24,7 @@ Some fun with classic "Télécommunication" infrastructure.
 - https://github.com/bef/yate-tcl
 - https://ryantm.github.io/nixpkgs/stdenv/stdenv/
 - https://github.com/InterLinked1/phreakscript
+- https://howto.dect.network/
 
 ### Installation on the machine
 
