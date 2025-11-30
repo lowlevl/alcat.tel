@@ -1,0 +1,26 @@
+--- a/patches/kdrivers/src/wanrouter/af_wanpipe.c
++++ b/patches/kdrivers/src/wanrouter/af_wanpipe.c
+@@ -2106,6 +2106,11 @@ static int sk_poll_wake (struct sock *sk)
+ 
+ 
+ #if defined(LINUX_2_6)
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(6,10,0)
++static int wanpipe_accept610(struct socket *sock, struct socket *newsock, struct proto_accept_arg *arg) {
++	return wanpipe_accept(sock, newsock, arg->flags, arg->kern);
++}
++# endif
+ struct proto_ops wanpipe_ops = {
+ 	.family		=PF_WANPIPE,
+ 	.owner		=THIS_MODULE,
+@@ -2118,7 +2118,11 @@ struct proto_ops wanpipe_ops = {
+ 	.bind		=wanpipe_bind,
+ 	.connect 	=wanpipe_connect,
+ 	.socketpair 	=sock_no_socketpair,
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(6,10,0)
++	.accept 	=wanpipe_accept610,
++# else
+ 	.accept 	=wanpipe_accept,
++# endif
+ 	.getname 	=wanpipe_getname, 
+ 	.poll 		=wanpipe_poll,
+ 	.ioctl 		=wanpipe_ioctl,
