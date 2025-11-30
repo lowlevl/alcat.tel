@@ -1,0 +1,15 @@
+--- a/Makefile
++++ b/Makefile
+@@ -345,10 +345,10 @@ EXTRA_CFLAGS+=-DKERN_PROC_CREATE=$(KERN_PROC_CREATE)
+ endif
+ 
+ ifneq (,$(wildcard $(KDIR)/include/linux/types.h))
+-KERN_TIMER_32BIT=$(shell grep 'time_t' $(KDIR)/include/linux/t* | grep typedef -c)
++KERN_TIMER_32BIT=$(shell grep ' time_t' $(KDIR)/include/linux/t* | grep typedef -c)
+ EXTRA_CFLAGS+=-DKERN_TIMER_32BIT=$(KERN_TIMER_32BIT)
+ else ifneq (,$(wildcard $(KSRC)/include/linux/types.h))
+-KERN_TIMER_32BIT=$(shell grep 'time_t' $(KSRC)/include/linux/t* | grep typedef -c)
++KERN_TIMER_32BIT=$(shell grep ' time_t' $(KSRC)/include/linux/t* | grep typedef -c)
+ EXTRA_CFLAGS+=-DKERN_TIMER_32BIT=$(KERN_TIMER_32BIT)
+ else
+ KERN_TIMER_32BIT=0
