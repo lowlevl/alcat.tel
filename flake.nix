@@ -34,6 +34,7 @@
         overlays.default = final: prev: rec {
           dahdi-linux = prev.linuxPackages.callPackage ./pkgs/dahdi-linux {};
           dahdi-tools = prev.callPackage ./pkgs/dahdi-tools {inherit dahdi-linux;};
+          wanpipe = prev.linuxPackages.callPackage ./pkgs/wanpipe {};
           yate = prev.callPackage ./pkgs/yate {inherit dahdi-linux;};
           rmanager = prev.callPackage ./pkgs/rmanager.nix {};
           atel = prev.callPackage ./pkgs/atel {inherit yate;};
