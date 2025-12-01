@@ -6,23 +6,30 @@
 }: let
   inherit (lib) types;
 
+  cfg = config.services.yate;
+
   enabledModules = lib.mapAttrs' (name: module: lib.nameValuePair "${name}.yate" true) cfg.modules;
   configSpecs = lib.filterAttrs (name: cnf: cnf != null) cfg.modules;
   configFns =
     lib.mapAttrs (
       name: cnf:
         if builtins.isString cnf
-        then pkgs.yate.mkConfigRaw cnf
+        then cfg.package.mkConfigRaw cnf
         else if builtins.isAttrs cnf && !builtins.hasAttr "__functor" cnf
-        then pkgs.yate.mkConfig cnf
+        then cfg.package.mkConfig cnf
         else cnf
     )
     configSpecs;
-
-  cfg = config.services.yate;
 in {
   options.services.yate = {
     enable = lib.mkEnableOption config.systemd.service.yate.description;
+    package = lib.mkPackageOption pkgs "yate" {};
+
+    nodename = lib.mkOption {
+      type = types.str;
+      description = "The name of the node in clustered configuation";
+      default = config.networking.hostName;
+    };
 
     niceness = lib.mkOption {
       type = types.ints.between (-19) 20;
@@ -65,22 +72,20 @@ in {
       in
         lib.map (name: config.environment.etc."yate/${name}.conf".source) files;
 
-      serviceConfig.LogsDirectory = "yate";
       serviceConfig.RuntimeDirectory = "yate";
 
-      serviceConfig.Type = "forking";
       serviceConfig.Nice = cfg.niceness;
       serviceConfig.User = config.users.users.yate.name;
       serviceConfig.Group = config.users.users.yate.group;
       serviceConfig.Restart = "always";
       serviceConfig.PIDFile = "/run/${serviceConfig.RuntimeDirectory}/yate.pid";
 
-      serviceConfig.ExecStart = "${lib.getExe pkgs.yate} -c /etc/yate -F -d -p ${serviceConfig.PIDFile} -l /var/log/${serviceConfig.LogsDirectory}/yate.log";
+      serviceConfig.ExecStart = "${lib.getExe cfg.package} -c /etc/yate -F -p ${serviceConfig.PIDFile} -N ${cfg.nodename}";
       serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
     };
 
     environment.etc =
-      {"yate/yate.conf".source = pkgs.yate.mkConfig ({modules = enabledModules;} // cfg.config) "yate.conf";}
+      {"yate/yate.conf".source = cfg.package.mkConfig ({modules = enabledModules;} // cfg.config) "yate.conf";}
       // lib.concatMapAttrs (name: fn: {"yate/${name}.conf".source = fn "${name}.conf";}) configFns;
   };
 }
