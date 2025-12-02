@@ -14,7 +14,7 @@
   };
 in
   stdenv.mkDerivation {
-    name = "atel";
+    name = "atel-resources";
 
     nativeBuildInputs = [];
     buildInputs = [php tcl];

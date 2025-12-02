@@ -48,7 +48,7 @@
     config.general.modload = "disable";
     config.configuration.warnings = true;
     config.ygi = {
-      sndpath = "${pkgs.atel}/wave";
+      sndpath = "${pkgs.atel-resources}/wave";
       sndformats = "slin";
     };
 
@@ -66,7 +66,7 @@
       general.lang = config.services.dahdi.defaultzone;
     };
     modules.extmodule = {
-      general.scripts_dir = "${pkgs.atel}/scripts/";
+      general.scripts_dir = "${pkgs.atel-resources}/scripts/";
     };
 
     # Hardware configuration
@@ -161,9 +161,9 @@
       ;
       ; :: Automated services ::
 
-      ^811$=wave/play/${pkgs.atel}/wave/music/rick-roll.slin
-      ^812$=wave/play/${pkgs.atel}/wave/music/woop-woop.slin
-      ^813$=wave/play/${pkgs.atel}/wave/le-temps-des-tempetes.slin
+      ^811$=wave/play/${pkgs.atel-resources}/wave/music/rick-roll.slin
+      ^812$=wave/play/${pkgs.atel-resources}/wave/music/woop-woop.slin
+      ^813$=wave/play/${pkgs.atel-resources}/wave/le-temps-des-tempetes.slin
 
       ;
       ; :: Service numbers ::

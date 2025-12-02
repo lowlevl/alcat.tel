@@ -36,7 +36,7 @@
           dahdi-tools = prev.callPackage ./pkgs/dahdi-tools {inherit dahdi-linux;};
           yate = prev.callPackage ./pkgs/yate {inherit dahdi-linux;};
           rmanager = prev.callPackage ./pkgs/rmanager.nix {};
-          atel = prev.callPackage ./pkgs/atel {inherit yate;};
+          atel-resources = prev.callPackage ./pkgs/atel-resources {inherit yate;};
         };
 
         nixosModules = {
