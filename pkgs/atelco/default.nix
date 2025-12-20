@@ -5,7 +5,7 @@
   ...
 }:
 rustPlatform.buildRustPackage {
-  pname = "atel";
+  pname = "atelco";
   version = "0.0.0-devel";
 
   nativeBuildInputs = [llvmPackages.bintools];
@@ -16,6 +16,7 @@ rustPlatform.buildRustPackage {
   };
 
   meta = {
+    mainProgram = "atelco";
     description = "Various telecom functionalities, handling & management for alcat.tel's network.";
     license = with lib.licenses; [
       agpl3Only

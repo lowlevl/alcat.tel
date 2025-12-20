@@ -18,7 +18,7 @@ pub async fn run(
     let mut messages = engine.messages();
 
     while let Some(req) = messages.try_next().await? {
-        tracing::info!("new call: {req:?}");
+        tracing::info!("new: {req:?}");
 
         engine.ack(req, false).await?;
     }

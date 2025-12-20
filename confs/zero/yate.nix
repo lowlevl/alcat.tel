@@ -4,6 +4,8 @@
   atel,
   ...
 }: {
+  environment.systemPackages = [pkgs.atelco];
+
   sops = {
     ## SSL certificate and key for SIP over SSL
     secrets."ssl/cert" = {
@@ -67,6 +69,8 @@
     };
     modules.extmodule = {
       general.scripts_dir = "${pkgs.atel-resources}/scripts/";
+
+      scripts."/run/current-system/sw/bin/atelco" = "route";
     };
 
     # Hardware configuration
