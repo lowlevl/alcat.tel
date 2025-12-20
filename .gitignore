@@ -7,3 +7,6 @@
 
 # Locally generated certificates and keys
 /*.pem
+
+# Cached direnv shell
+/.direnv

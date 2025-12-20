@@ -1,0 +1,28 @@
+[package]
+name = "atel"
+version = "0.0.0"
+edition = "2024"
+
+[[bin]]
+name = "atelco"
+path = "src/atelco/main.rs"
+
+[[bin]]
+name = "ateladm"
+path = "src/ateladm/main.rs"
+
+[dependencies]
+futures = "0.3.31"
+smol = "2.0.2"
+
+smol-macros = "0.1.1"
+macro_rules_attribute = "0.2.2"
+
+yengine = "0.0.2"
+# yengine = { path = "../../../yengine" }
+
+clap = { version = "4.5.53", features = ["derive"] }
+anyhow = "1.0.100"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+

@@ -27,6 +27,8 @@
       perSystem = {pkgs, ...}: {
         formatter = pkgs.alejandra;
         packages = self.overlays.default {} pkgs;
+
+        devShells.default = pkgs.callPackage ./shell.nix {};
       };
 
       flake = {
@@ -37,6 +39,7 @@
           yate = prev.callPackage ./pkgs/yate {inherit dahdi-linux;};
           rmanager = prev.callPackage ./pkgs/rmanager.nix {};
           atel-resources = prev.callPackage ./pkgs/atel-resources {inherit yate;};
+          atel = prev.callPackage ./pkgs/atel {};
         };
 
         nixosModules = {
