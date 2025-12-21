@@ -15,6 +15,8 @@ rustPlatform.buildRustPackage {
     lockFile = ./Cargo.lock;
   };
 
+  SQLX_OFFLINE = true; # use cached compile-time checking.
+
   meta = {
     mainProgram = "atelco";
     description = "Various telecom functionalities, handling & management for alcat.tel's network.";

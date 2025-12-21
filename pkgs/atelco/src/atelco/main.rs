@@ -31,6 +31,6 @@ async fn main() -> anyhow::Result<()> {
 
     let engine = yengine::Engine::stdio();
     match args {
-        Args::Route => route::run(engine).await,
+        Args::Route => route::run(engine, atelco::database("sqlite::memory:").await?).await,
     }
 }
