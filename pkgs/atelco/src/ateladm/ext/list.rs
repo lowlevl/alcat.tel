@@ -1,0 +1,59 @@
+use derive_more::Display;
+use sqlx::SqlitePool;
+use tabled::{Tabled, derive::display, settings::style};
+
+#[derive(Debug, Display)]
+#[display(rename_all = "lowercase")]
+enum State {
+    Routed,
+    Alias,
+    Offline,
+    Reserved,
+}
+
+#[derive(Tabled)]
+struct Ext {
+    ext: String,
+
+    #[tabled(display("display::option", "(none)"))]
+    module: Option<String>,
+
+    #[tabled(display("display::option", "(none)"))]
+    location: Option<String>,
+
+    state: State,
+}
+
+pub async fn run(database: SqlitePool) -> anyhow::Result<()> {
+    let exts = sqlx::query!(
+        r#"
+            SELECT * FROM ext
+            ORDER BY module, ext
+        "#
+    )
+    .fetch_all(&database)
+    .await?
+    .into_iter()
+    .map(|record| {
+        let state = match (&record.module, &record.location) {
+            (Some(_), Some(_)) => State::Routed,
+            (None, Some(_)) => State::Alias,
+            (Some(_), None) => State::Offline,
+            (None, None) => State::Reserved,
+        };
+
+        Ext {
+            ext: record.ext,
+            module: record.module,
+            location: record.location,
+            state,
+        }
+    });
+
+    let mut table = tabled::Table::builder(exts).build();
+    let table = table.with(style::Style::rounded());
+
+    println!("{table}");
+
+    Ok(())
+}

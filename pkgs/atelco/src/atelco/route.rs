@@ -1,14 +1,12 @@
 use std::sync::Arc;
 
-use futures::{AsyncRead, AsyncWrite, TryStreamExt};
+use futures::TryStreamExt;
+use smol::net::unix::UnixStream;
 use sqlx::SqlitePool;
 use yengine::Engine;
 
 pub async fn run(
-    engine: Engine<
-        impl AsyncRead + Send + Unpin + 'static,
-        impl AsyncWrite + Send + Unpin + 'static,
-    >,
+    engine: Engine<UnixStream, UnixStream>,
     database: SqlitePool,
 ) -> anyhow::Result<()> {
     engine.setlocal("trackparam", module_path!()).await?;

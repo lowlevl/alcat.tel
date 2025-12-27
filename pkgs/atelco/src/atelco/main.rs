@@ -1,17 +1,25 @@
-use std::io;
+use std::{io, path::PathBuf};
 
 use clap::Parser;
 use macro_rules_attribute::apply;
 use smol_macros::main;
 use tracing_subscriber::EnvFilter;
+use url::Url;
 
 mod route;
 
-/// All the telecommunication functionalities.
+/// Core telecom functionalities.
 #[derive(Debug, Parser)]
 enum Args {
-    /// Route calls according to the local database
-    Route,
+    /// Route calls from the provided database.
+    Route {
+        /// The path to the `sqlite` database.
+        #[arg(short, long)]
+        database: Url,
+
+        /// Path to yate's control socket.
+        socket: PathBuf,
+    },
 }
 
 #[apply(main!)]
@@ -29,8 +37,13 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::debug!("starting with args: {args:?}");
 
-    let engine = yengine::Engine::stdio();
     match args {
-        Args::Route => route::run(engine, atelco::database("sqlite::memory:").await?).await,
+        Args::Route { database, socket } => {
+            route::run(
+                atelco::engine(&socket).await?,
+                atelco::database(&database).await?,
+            )
+            .await
+        }
     }
 }
