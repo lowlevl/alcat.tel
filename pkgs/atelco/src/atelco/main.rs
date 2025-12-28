@@ -39,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
 
     match args {
         Args::Route { database, socket } => {
-            route::run(
+            route::exec(
                 atelco::engine(&socket).await?,
                 atelco::database(&database).await?,
             )

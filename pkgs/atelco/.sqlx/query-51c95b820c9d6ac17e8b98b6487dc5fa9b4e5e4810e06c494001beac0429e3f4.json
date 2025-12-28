@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT ext FROM ext WHERE ext.module = ? AND ext.location = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "ext",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "ext"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "51c95b820c9d6ac17e8b98b6487dc5fa9b4e5e4810e06c494001beac0429e3f4"
+}
