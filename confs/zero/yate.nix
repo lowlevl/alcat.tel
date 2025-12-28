@@ -4,7 +4,7 @@
   atel,
   ...
 }: {
-  environment.systemPackages = [pkgs.atelco];
+  environment.systemPackages = [pkgs.atelco]; # provides `ateladm`
 
   sops = {
     ## SSL certificate and key for SIP over SSL
@@ -70,7 +70,10 @@
     modules.extmodule = {
       general.scripts_dir = "${pkgs.atel-resources}/scripts/";
 
-      scripts."/run/current-system/sw/bin/atelco" = "route";
+      "listener ctrl" = {
+        type = "unix";
+        path = "/run/yate/ctrl.sock";
+      };
     };
 
     # Hardware configuration

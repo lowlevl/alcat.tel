@@ -9,6 +9,7 @@ rustPlatform.buildRustPackage {
   version = "0.0.0-devel";
 
   nativeBuildInputs = [llvmPackages.bintools];
+  enableParallelBuilding = true;
 
   src = ./.;
   cargoLock = {
