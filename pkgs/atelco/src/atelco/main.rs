@@ -6,19 +6,19 @@ use smol_macros::main;
 use tracing_subscriber::EnvFilter;
 use url::Url;
 
-mod route;
+mod routing;
 
 /// Core telecom functionalities.
 #[derive(Debug, Parser)]
 enum Args {
     /// Route calls from the provided database.
-    Route {
+    Routing {
+        /// Path to yate's control socket.
+        socket: PathBuf,
+
         /// The path to the `sqlite` database.
         #[arg(short, long)]
         database: Url,
-
-        /// Path to yate's control socket.
-        socket: PathBuf,
     },
 }
 
@@ -38,8 +38,8 @@ async fn main() -> anyhow::Result<()> {
     tracing::debug!("starting with args: {args:?}");
 
     match args {
-        Args::Route { database, socket } => {
-            route::exec(
+        Args::Routing { socket, database } => {
+            routing::exec(
                 atelco::engine(&socket).await?,
                 atelco::database(&database).await?,
             )

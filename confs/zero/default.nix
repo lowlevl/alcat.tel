@@ -8,13 +8,13 @@
     ./disk-config.nix
 
     ./yate.nix
+    ./atelco.nix
+
     ./httpd.nix
   ];
 
   networking.hostName = "zero";
   environment.systemPackages = [pkgs.dahdi-tools pkgs.rmanager];
-
-  users.users.technician.extraGroups = ["telecom"];
 
   # Secrets management outside of the Nix store
   sops.defaultSopsFile = ../../secrets.yaml;

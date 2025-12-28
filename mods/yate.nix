@@ -31,12 +31,6 @@ in {
       default = config.networking.hostName;
     };
 
-    niceness = lib.mkOption {
-      type = types.ints.between (-19) 20;
-      description = "The niceness priority to run the service with";
-      default = -4;
-    };
-
     config = lib.mkOption {
       type = types.attrsOf types.attrs;
       description = "The configuration for the daemon (yate.conf)";
@@ -55,14 +49,14 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    users.groups.yate = {};
     users.users.yate = {
       isSystemUser = true;
       group = "yate";
       extraGroups = ["telecom"];
     };
-    users.groups.yate = {};
 
-    systemd.services.yate = rec {
+    systemd.services.yate = {
       wantedBy = ["multi-user.target"];
       after = ["network.target" "dahdi.service" "sops-nix.service"];
       description = "`yate` (Yet Another Telephony Engine) daemon";
@@ -72,16 +66,17 @@ in {
       in
         lib.map (name: config.environment.etc."yate/${name}.conf".source) files;
 
-      serviceConfig.RuntimeDirectory = "yate";
+      serviceConfig = {
+        User = config.users.users.yate.name;
+        Group = config.users.users.yate.group;
+        Restart = "always";
+        Nice = -4;
 
-      serviceConfig.Nice = cfg.niceness;
-      serviceConfig.User = config.users.users.yate.name;
-      serviceConfig.Group = config.users.users.yate.group;
-      serviceConfig.Restart = "always";
-      serviceConfig.PIDFile = "/run/${serviceConfig.RuntimeDirectory}/yate.pid";
+        RuntimeDirectory = "yate"; # populate `/run/yate` for sockets
 
-      serviceConfig.ExecStart = "${lib.getExe cfg.package} -c /etc/yate -F -p ${serviceConfig.PIDFile} -N ${cfg.nodename}";
-      serviceConfig.ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
+        ExecStart = "${lib.getExe cfg.package} -c /etc/yate -F -N ${cfg.nodename}";
+        ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
+      };
     };
 
     environment.etc =

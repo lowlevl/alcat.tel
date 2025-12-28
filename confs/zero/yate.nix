@@ -1,11 +1,9 @@
 {
-  config,
   pkgs,
+  config,
   atel,
   ...
 }: {
-  environment.systemPackages = [pkgs.atelco]; # provides `ateladm`
-
   sops = {
     ## SSL certificate and key for SIP over SSL
     secrets."ssl/cert" = {
@@ -125,7 +123,7 @@
       };
     };
 
-    # Routing
+    # Routing using `regexroute`
     modules.regexroute = ''
       [contexts]
 
@@ -155,11 +153,6 @@
       ^09.\{4\}$=line/\0;line=epvpn0
 
       ;
-      ; :: Local analog phones (FXS) ::
-
-      ^18\([1-4]\)$=analog/local-fxs/\1
-
-      ;
       ; :: Reserved phone numbers with vanity ::
 
       ; [INFO]: The infoline service
@@ -171,19 +164,6 @@
       ^811$=wave/play/${pkgs.atel-resources}/wave/music/rick-roll.slin
       ^812$=wave/play/${pkgs.atel-resources}/wave/music/woop-woop.slin
       ^813$=wave/play/${pkgs.atel-resources}/wave/le-temps-des-tempetes.slin
-
-      ;
-      ; :: Service numbers ::
-
-      ^991$=tone/dial
-      ^992$=tone/busy
-      ^993$=tone/ring
-      ^994$=tone/specdial
-      ^995$=tone/congestion
-      ^996$=tone/outoforder
-      ^997$=tone/milliwatt
-      ^998$=tone/info
-      ^999\(.\)$=tone/probe/\1
 
       ;
       ; :: `off-hook` calls handler using `overlapped.php`
