@@ -37,8 +37,11 @@ in {
       wantedBy = ["multi-user.target"];
       requires = ["yate.service"];
 
+      environment.RUST_LOG = "warn,atelco=trace";
+
       serviceConfig = {
         StateDirectory = "atelco";
+        StateDirectoryMode = "0775";
 
         User = config.users.users.atelco.name;
         Group = config.users.users.atelco.group;

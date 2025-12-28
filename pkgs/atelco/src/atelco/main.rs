@@ -30,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
         .with_writer(io::stderr)
         .with_env_filter(
             EnvFilter::builder()
-                .with_default_directive(tracing::Level::DEBUG.into())
+                .with_default_directive(tracing::Level::WARN.into())
                 .from_env_lossy(),
         )
         .init();
