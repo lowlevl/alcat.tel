@@ -27,7 +27,7 @@ enum Command {
     /// Manage extensions.
     Ext {
         #[clap(subcommand)]
-        sub: ext::Ext,
+        ext: ext::Ext,
     },
 }
 
@@ -48,7 +48,13 @@ async fn main() -> anyhow::Result<()> {
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
         Command::Ext {
-            sub: ext::Ext::List,
-        } => ext::list::run(database).await,
+            ext: ext::Ext::List,
+        } => ext::list::exec(database).await,
+        Command::Ext {
+            ext: ext::Ext::Add(add),
+        } => ext::add::exec(database, add).await,
+        Command::Ext {
+            ext: ext::Ext::Del(del),
+        } => ext::del::exec(database, del).await,
     }
 }

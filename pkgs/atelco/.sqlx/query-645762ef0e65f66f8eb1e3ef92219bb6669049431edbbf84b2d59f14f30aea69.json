@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM ext WHERE ext.ext = ? RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "name": "ext",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "ext"
+          }
+        }
+      },
+      {
+        "name": "module",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "module"
+          }
+        }
+      },
+      {
+        "name": "location",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "location"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "645762ef0e65f66f8eb1e3ef92219bb6669049431edbbf84b2d59f14f30aea69"
+}

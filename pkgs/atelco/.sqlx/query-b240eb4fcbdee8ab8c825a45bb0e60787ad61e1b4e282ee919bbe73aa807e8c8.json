@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT ext FROM ext WHERE ? LIKE ext.ext || '%'",
+  "describe": {
+    "columns": [
+      {
+        "name": "ext",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "ext"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b240eb4fcbdee8ab8c825a45bb0e60787ad61e1b4e282ee919bbe73aa807e8c8"
+}

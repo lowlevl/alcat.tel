@@ -2,29 +2,29 @@ use derive_more::Display;
 use sqlx::SqlitePool;
 use tabled::{Tabled, derive::display, settings::style};
 
-#[derive(Debug, Display)]
-#[display(rename_all = "lowercase")]
-enum State {
-    Routed,
-    Alias,
-    Offline,
-    Reserved,
-}
+pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
+    #[derive(Debug, Display)]
+    #[display(rename_all = "lowercase")]
+    enum State {
+        Routed,
+        Alias,
+        Offline,
+        Reserved,
+    }
 
-#[derive(Tabled)]
-struct Ext {
-    ext: String,
+    #[derive(Tabled)]
+    struct Ext {
+        ext: String,
 
-    #[tabled(display("display::option", "(none)"))]
-    module: Option<String>,
+        #[tabled(display("display::option", "(none)"))]
+        module: Option<String>,
 
-    #[tabled(display("display::option", "(none)"))]
-    location: Option<String>,
+        #[tabled(display("display::option", "(none)"))]
+        location: Option<String>,
 
-    state: State,
-}
+        state: State,
+    }
 
-pub async fn run(database: SqlitePool) -> anyhow::Result<()> {
     let exts = sqlx::query!(
         r#"
             SELECT * FROM ext
