@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use futures::TryStreamExt;
 use smol::net::unix::UnixStream;
 use sqlx::SqlitePool;
@@ -14,26 +12,33 @@ pub async fn run(
         anyhow::bail!("unable to register `call.route` handler");
     }
 
-    let engine = Arc::new(engine);
     let mut messages = engine.messages();
-
     while let Some(mut req) = messages.try_next().await? {
         if req.name == "call.route"
             && let Some(called) = req.kv.get("called")
         {
-            tracing::debug!("request to route {called}");
+            tracing::debug!("call.route to `{called}`");
 
-            let row = sqlx::query!("SELECT module, location FROM ext WHERE ext.ext = ?", called)
-                .fetch_optional(&database)
-                .await?;
-
-            if let Some(row) = row
-                && let Some(module) = row.module
-                && let Some(location) = row.location
+            if let Some(row) =
+                sqlx::query!("SELECT module, location FROM ext WHERE ext.ext = ?", called)
+                    .fetch_optional(&database)
+                    .await?
             {
-                tracing::debug!("found {called} <> {module}/{location}");
+                req.retvalue = match (row.module, row.location) {
+                    // Route to final location
+                    (Some(module), Some(location)) => format!("{module}/{location}"),
+                    // Alias to another location
+                    (None, Some(location)) => location,
+                    // Route is offline
+                    (Some(_), None) => {
+                        req.kv.insert("error".into(), "offline".into());
 
-                req.retvalue = format!("{module}/{location}");
+                        "-".into()
+                    }
+                    // Route is not routable
+                    (None, None) => "-".into(),
+                };
+
                 engine.ack(req, true).await?;
 
                 continue;
