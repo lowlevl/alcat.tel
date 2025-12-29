@@ -36,6 +36,7 @@ in {
 
       wantedBy = ["multi-user.target"];
       requires = ["yate.service"];
+      after = ["yate.service"];
 
       environment.RUST_LOG = "warn,atelco=trace";
 
@@ -45,7 +46,10 @@ in {
 
         User = config.users.users.atelco.name;
         Group = config.users.users.atelco.group;
+
         Restart = "always";
+        RestartSteps = "10";
+        RestartMaxDelaySec = "5";
 
         ExecStartPre = [
           "+${lib.getExe' pkgs.coreutils "chmod"} g+w ${socket}" # set-up yate's socket

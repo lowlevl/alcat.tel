@@ -57,9 +57,11 @@ in {
     };
 
     systemd.services.yate = {
-      wantedBy = ["multi-user.target"];
-      after = ["network.target" "dahdi.service" "sops-nix.service"];
       description = "`yate` (Yet Another Telephony Engine) daemon";
+
+      wantedBy = ["multi-user.target"];
+      wants = ["network-online.target" "dahdi.service" "sops-nix.service"];
+      after = ["network-online.target" "dahdi.service" "sops-nix.service"];
 
       reloadTriggers = let
         files = ["yate"] ++ lib.mapAttrsToList (name: value: name) configSpecs;
@@ -74,8 +76,8 @@ in {
 
         RuntimeDirectory = "yate"; # populate `/run/yate` for sockets
 
-        ExecStart = "${lib.getExe cfg.package} -c /etc/yate -F -N ${cfg.nodename}";
         ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
+        ExecStart = "${lib.getExe cfg.package} -c /etc/yate -F -N ${cfg.nodename}";
       };
     };
 

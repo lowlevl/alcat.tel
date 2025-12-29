@@ -1,5 +1,5 @@
 {pkgs, ...}:
-pkgs.mkShell rec {
+pkgs.mkShell {
   buildInputs = [
     pkgs.cargo
     pkgs.rustc
@@ -10,6 +10,5 @@ pkgs.mkShell rec {
     pkgs.sqlx-cli
   ];
 
-  AT_DATABASE = "sqlite:///tmp/atelco.sqlite";
-  DATABASE_URL = AT_DATABASE;
+  DATABASE_URL = "sqlite:///tmp/atelco.sqlite?mode=rwc";
 }
