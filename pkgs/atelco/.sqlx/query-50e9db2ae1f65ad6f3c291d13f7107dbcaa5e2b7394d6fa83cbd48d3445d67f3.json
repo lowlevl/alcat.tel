@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT ext FROM ext WHERE ext.module = ? AND ext.location = ?",
+  "query": "SELECT ext FROM ext WHERE ext.module = ? AND ext.address = ?",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "51c95b820c9d6ac17e8b98b6487dc5fa9b4e5e4810e06c494001beac0429e3f4"
+  "hash": "50e9db2ae1f65ad6f3c291d13f7107dbcaa5e2b7394d6fa83cbd48d3445d67f3"
 }

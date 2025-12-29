@@ -10,9 +10,9 @@ pub struct Add {
     #[clap(short, long)]
     module: Option<String>,
 
-    /// The `location` of the extension.
+    /// The `address` of the extension.
     #[clap(short, long)]
-    location: Option<String>,
+    address: Option<String>,
 }
 
 pub async fn exec(database: SqlitePool, add: Add) -> anyhow::Result<()> {
@@ -21,6 +21,8 @@ pub async fn exec(database: SqlitePool, add: Add) -> anyhow::Result<()> {
     let colliding = sqlx::query!("SELECT ext FROM ext WHERE ? LIKE ext.ext || '%'", add.ext)
         .fetch_optional(tx.as_mut())
         .await?;
+
+    // FIXME: detect reverse prefixing, 18 LIKE 181 or 181 LIKE 18
 
     if let Some(colliding) = colliding {
         anyhow::bail!(
@@ -34,7 +36,7 @@ pub async fn exec(database: SqlitePool, add: Add) -> anyhow::Result<()> {
         "INSERT INTO ext VALUES (?, ?, ?)",
         add.ext,
         add.module,
-        add.location
+        add.address
     )
     .execute(tx.as_mut())
     .await?;

@@ -6,6 +6,8 @@ use sqlx::SqlitePool;
 use url::Url;
 use yengine::Engine;
 
+pub mod router;
+
 pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream>> {
     let socket = UnixStream::connect(path)
         .await

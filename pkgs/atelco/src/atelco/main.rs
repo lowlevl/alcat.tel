@@ -1,10 +1,9 @@
-use std::{io, path::PathBuf};
+use std::io;
 
 use clap::Parser;
 use macro_rules_attribute::apply;
 use smol_macros::main;
 use tracing_subscriber::EnvFilter;
-use url::Url;
 
 mod routing;
 
@@ -12,14 +11,7 @@ mod routing;
 #[derive(Debug, Parser)]
 enum Args {
     /// Route calls from the provided database.
-    Routing {
-        /// Path to yate's control socket.
-        socket: PathBuf,
-
-        /// The path to the `sqlite` database.
-        #[arg(short, long)]
-        database: Url,
-    },
+    Routing(routing::Args),
 }
 
 #[apply(main!)]
@@ -35,15 +27,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .init();
 
-    tracing::debug!("starting with args: {args:?}");
-
     match args {
-        Args::Routing { socket, database } => {
-            routing::exec(
-                atelco::engine(&socket).await?,
-                atelco::database(&database).await?,
-            )
-            .await
-        }
+        Args::Routing(args) => routing::exec(args).await,
     }
 }

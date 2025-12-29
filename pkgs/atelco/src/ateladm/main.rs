@@ -56,5 +56,6 @@ async fn main() -> anyhow::Result<()> {
         Command::Ext {
             ext: ext::Ext::Del(del),
         } => ext::del::exec(database, del).await,
+        // TODO: `alrm` commands with system services monitoring
     }
 }

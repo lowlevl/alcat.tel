@@ -20,7 +20,7 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         module: Option<String>,
 
         #[tabled(display("display::option", "(none)"))]
-        location: Option<String>,
+        address: Option<String>,
 
         state: State,
     }
@@ -35,7 +35,8 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
     .await?
     .into_iter()
     .map(|record| {
-        let state = match (&record.module, &record.location) {
+        // FIXME: maybe golf this with routing
+        let state = match (&record.module, &record.address) {
             (Some(_), Some(_)) => State::Routed,
             (None, Some(_)) => State::Alias,
             (Some(_), None) => State::Offline,
@@ -45,7 +46,7 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         Ext {
             ext: record.ext,
             module: record.module,
-            location: record.location,
+            address: record.address,
             state,
         }
     });

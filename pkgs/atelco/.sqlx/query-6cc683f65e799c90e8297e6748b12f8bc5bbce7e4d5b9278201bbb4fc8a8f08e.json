@@ -26,13 +26,13 @@
         }
       },
       {
-        "name": "location",
+        "name": "address",
         "ordinal": 2,
         "type_info": "Text",
         "origin": {
           "Table": {
             "table": "ext",
-            "name": "location"
+            "name": "address"
           }
         }
       }

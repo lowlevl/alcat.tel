@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT module, location FROM ext WHERE ext.ext = ?",
+  "query": "SELECT module, address FROM ext WHERE ext.ext = ?",
   "describe": {
     "columns": [
       {
@@ -15,13 +15,13 @@
         }
       },
       {
-        "name": "location",
+        "name": "address",
         "ordinal": 1,
         "type_info": "Text",
         "origin": {
           "Table": {
             "table": "ext",
-            "name": "location"
+            "name": "address"
           }
         }
       }
@@ -34,5 +34,5 @@
       true
     ]
   },
-  "hash": "f38f4b867fe6fcc2502664e63314ce8271adac61759d7d6a6bcecd613624f84d"
+  "hash": "7b437245741539fafab7d7ba6fdcac506c79ab340a49f96e846e75b460c3bcdc"
 }
