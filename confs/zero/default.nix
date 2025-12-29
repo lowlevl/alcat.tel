@@ -24,6 +24,7 @@
     channels."1-4".signaling = "fxoks";
     defaultzone = "fr";
   };
+  users.users.yate.extraGroups = ["telecom"]; # give access to `yate` to telephony cards
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

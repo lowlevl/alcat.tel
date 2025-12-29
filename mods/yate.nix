@@ -53,7 +53,6 @@ in {
     users.users.yate = {
       isSystemUser = true;
       group = "yate";
-      extraGroups = ["telecom"];
     };
 
     systemd.services.yate = {
