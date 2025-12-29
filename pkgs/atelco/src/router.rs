@@ -43,14 +43,7 @@ impl Router<'_> {
                 // Route to final location
                 (Some(module), Some(address)) => Ok(Route::Routed(module, address)),
                 // Alias to another location
-                (None, Some(address)) => {
-                    // FIXME: does not work
-                    // TODO: recursive routing
-                    // NOTE: recursive will need re-entry probably
-                    // TODO: loop prevention
-
-                    Ok(Route::Alias(address))
-                }
+                (None, Some(address)) => Ok(Route::Alias(address)),
                 // Route is offline
                 (Some(_), None) => Ok(Route::Offline),
                 // Route is not routable

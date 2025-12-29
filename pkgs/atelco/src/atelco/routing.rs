@@ -3,9 +3,10 @@ use std::path::PathBuf;
 use atelco::router::{Route, Router};
 use clap::Parser;
 use futures::TryStreamExt;
+use smol::net::unix::UnixStream;
 use sqlx::SqlitePool;
 use url::Url;
-use yengine::Req;
+use yengine::{Engine, Req};
 
 #[derive(Debug, Parser)]
 pub struct Args {
@@ -24,6 +25,7 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
     );
 
     engine.setlocal("trackparam", module_path!()).await?;
+    engine.setlocal("reenter", "true").await?;
 
     if !engine.install(80, "call.route", None).await? {
         anyhow::bail!("unable to register `call.route` handler");
@@ -44,14 +46,18 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
         .messages()
         .err_into()
         .try_for_each_concurrent(None, async |mut req| {
-            let processed = process(&database, &mut req).await?;
+            let processed = process(&engine, &database, &mut req).await?;
 
             Ok(engine.ack(req, processed).await?)
         })
         .await
 }
 
-async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
+async fn process(
+    engine: &Engine<UnixStream, UnixStream>,
+    database: &SqlitePool,
+    req: &mut Req,
+) -> anyhow::Result<bool> {
     let router = Router(database);
 
     if req.name == "call.preroute"
@@ -80,14 +86,34 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
 
                 Ok(true)
             }
-            Route::Alias(_) => {
-                // FIXME: does not work
-                // TODO: recursive routing
-                // NOTE: recursive will need re-entry probably
-                // TODO: loop prevention
-                req.retvalue = "tone/info".into();
+            Route::Alias(called) => {
+                let noloop = req.kv.get("noloop");
 
-                Ok(true)
+                if let Some(noloop) = noloop
+                    && noloop == &called
+                {
+                    tracing::warn!("number `{called}` loops to itself");
+
+                    req.retvalue = "-".into();
+                    req.kv.insert("error".into(), "looping".into());
+
+                    Ok(true)
+                } else {
+                    if noloop.is_none() {
+                        req.kv.insert("noloop".into(), called.clone());
+                    }
+                    req.kv.insert("called".into(), called);
+
+                    // request the engine for a new route
+                    let (processed, retvalue, kv) = engine
+                        .message(&req.name, &req.retvalue, req.kv.clone())
+                        .await?;
+
+                    req.retvalue = retvalue;
+                    req.kv = kv;
+
+                    Ok(processed)
+                }
             }
             Route::Offline => {
                 req.retvalue = "-".into();
