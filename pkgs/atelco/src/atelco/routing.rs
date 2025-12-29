@@ -63,11 +63,15 @@ async fn process(
     if req.name == "call.preroute"
         && let Some(module) = req.kv.get("module")
         && let Some(address) = req.kv.get("address")
-        && let Some(caller) = router.preroute(module, address).await?
     {
-        req.kv.insert("caller".into(), caller);
+        match router.preroute(module, address).await? {
+            None => Ok(false),
+            Some(caller) => {
+                req.kv.insert("caller".into(), caller);
 
-        Ok(true)
+                Ok(true)
+            }
+        }
     } else if req.name == "call.route"
         && let Some(called) = req.kv.get("called")
     {
