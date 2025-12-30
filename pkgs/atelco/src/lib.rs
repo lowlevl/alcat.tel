@@ -1,8 +1,12 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 use anyhow::Context;
 use smol::net::unix::UnixStream;
-use sqlx::SqlitePool;
+use sqlx::{
+    ConnectOptions, SqlitePool,
+    pool::PoolOptions,
+    sqlite::{SqliteConnectOptions, SqliteJournalMode},
+};
 use url::Url;
 use yengine::Engine;
 
@@ -22,7 +26,14 @@ pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream
 }
 
 pub async fn database(url: &Url) -> anyhow::Result<SqlitePool> {
-    let database = SqlitePool::connect(url.as_str())
+    let database = PoolOptions::new()
+        .acquire_slow_threshold(Duration::from_millis(250))
+        .min_connections(2)
+        .connect_with(
+            SqliteConnectOptions::from_url(url)?
+                .log_slow_statements("warn".parse()?, Duration::from_millis(100))
+                .journal_mode(SqliteJournalMode::Wal),
+        )
         .await
         .context("while connecting to sqlite database")?;
 
