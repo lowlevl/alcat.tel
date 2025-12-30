@@ -15,7 +15,7 @@
   atelco = lib.getExe pkgs.atelco;
 
   daemons = {
-    at-routing = "${atelco} routing ${socket} --database sqlite://${database}";
+    atelco-r = "${atelco} routing ${socket} --database sqlite://${database}";
   };
 in {
   environment.systemPackages = [ateladm];
@@ -50,6 +50,9 @@ in {
         Restart = "always";
         RestartSteps = "10";
         RestartMaxDelaySec = "5";
+
+        StartLimitBurst = "10";
+        StartLimitIntervalSec = "60";
 
         ExecStartPre = [
           "+${lib.getExe' pkgs.coreutils "chmod"} g+w ${socket}" # set-up yate's socket
