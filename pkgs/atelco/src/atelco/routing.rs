@@ -16,6 +16,10 @@ pub struct Args {
     /// The path to the `sqlite` database.
     #[arg(short, long)]
     database: Url,
+
+    /// The priority for `call.preroute` and `call.route` handlers.
+    #[arg(short, long, default_value = "95")]
+    priority: u64,
 }
 
 pub async fn exec(args: Args) -> anyhow::Result<()> {
@@ -27,30 +31,28 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
     engine.setlocal("trackparam", module_path!()).await?;
     engine.setlocal("reenter", "true").await?;
 
-    if !engine.install(80, "call.route", None).await? {
-        anyhow::bail!("unable to register `call.route` handler");
-    }
-    if !engine.install(80, "call.preroute", None).await? {
+    if !engine.install(args.priority, "call.preroute", None).await? {
         anyhow::bail!("unable to register `call.preroute` handler");
     }
+    if !engine.install(args.priority, "call.route", None).await? {
+        anyhow::bail!("unable to register `call.route` handler");
+    }
 
-    tracing::info!(
-        "%%>{} ready to route calls for {}@{}-{}",
-        engine.getlocal("engine.runid").await?,
-        engine.getlocal("engine.nodename").await?,
-        engine.getlocal("engine.version").await?,
-        engine.getlocal("engine.release").await?,
-    );
+    futures::try_join!(
+        atelco::sigterm(&engine),
+        engine
+            .messages()
+            .err_into()
+            .try_for_each_concurrent(None, async |mut req| {
+                let processed = process(&engine, &database, &mut req).await?;
 
-    engine
-        .messages()
-        .err_into()
-        .try_for_each_concurrent(None, async |mut req| {
-            let processed = process(&engine, &database, &mut req).await?;
+                Ok(engine.ack(req, processed).await?)
+            })
+    )?;
 
-            Ok(engine.ack(req, processed).await?)
-        })
-        .await
+    tracing::info!("processed all incoming messages, exiting");
+
+    Ok(())
 }
 
 async fn process(

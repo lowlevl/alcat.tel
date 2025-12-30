@@ -12,11 +12,15 @@ name = "ateladm"
 path = "src/ateladm/main.rs"
 
 [dependencies]
+async-signal = "0.2.13"
 futures = "0.3.31"
 smol = "2.0.2"
 
 smol-macros = "0.1.1"
 macro_rules_attribute = "0.2.2"
+
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 
 url = "2.5.7"
 clap = { version = "4.5.53", features = ["derive", "env"] }
@@ -28,7 +32,4 @@ yengine = "0.0.6"
 # yengine = { path = "../../../yengine" }
 
 tabled = "0.20.0"
-
-tracing = "0.1.44"
-tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 
