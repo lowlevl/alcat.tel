@@ -19,6 +19,7 @@
   };
 in {
   environment.systemPackages = [ateladm];
+  users.users.technician.extraGroups = ["atelco"]; # give `technician` access to `ateladm`
 
   users.groups.atelco = {};
   users.users.atelco = {
@@ -26,9 +27,6 @@ in {
     group = "atelco";
     extraGroups = ["yate"];
   };
-
-  # give `technician` access to `ateladm`
-  users.users.technician.extraGroups = ["atelco"];
 
   systemd.services =
     builtins.mapAttrs (name: value: {
@@ -40,6 +38,9 @@ in {
 
       environment.RUST_LOG = "warn,atelco=trace";
 
+      startLimitBurst = 10;
+      startLimitIntervalSec = 30;
+
       serviceConfig = {
         StateDirectory = "atelco";
         StateDirectoryMode = "0775";
@@ -49,10 +50,7 @@ in {
 
         Restart = "always";
         RestartSteps = "10";
-        RestartMaxDelaySec = "5";
-
-        StartLimitBurst = "10";
-        StartLimitIntervalSec = "60";
+        RestartMaxDelaySec = "10";
 
         ExecStartPre = [
           "+${lib.getExe' pkgs.coreutils "chmod"} g+w ${socket}" # set-up yate's socket
