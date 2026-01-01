@@ -40,6 +40,8 @@
     };
   };
 
+  networking.firewall.allowedUDPPorts = [5060]; # open firewall for SIP listener
+
   # The Yate telephony engine service
   services.yate = {
     enable = true;
