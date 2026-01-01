@@ -6,12 +6,16 @@ use smol_macros::main;
 use tracing_subscriber::EnvFilter;
 
 mod routing;
+mod sipd;
 
 /// Core telecom functionalities.
 #[derive(Debug, Parser)]
 enum Args {
-    /// Route calls from the provided database.
+    /// Handle `call.preroute` and `call.route` messages.
     Routing(routing::Args),
+
+    /// Handle `user.auth`, `user.register` and `user.unregister` messages.
+    Sipd(sipd::Args),
 }
 
 #[apply(main!)]
@@ -30,5 +34,6 @@ async fn main() -> anyhow::Result<()> {
 
     match args {
         Args::Routing(args) => routing::exec(args).await,
+        Args::Sipd(args) => sipd::exec(args).await,
     }
 }
