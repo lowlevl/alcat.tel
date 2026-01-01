@@ -11,9 +11,13 @@
 
   nix = {
     settings.experimental-features = ["nix-command" "flakes"];
-    gc.automatic = true;
 
+    # do not degrade service while rebuilding
     daemonCPUSchedPolicy = "idle";
+    daemonIOSchedClass = "idle";
+
+    # automatic garbage-collect
+    gc.automatic = true;
   };
 
   environment = {
