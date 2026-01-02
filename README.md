@@ -15,6 +15,7 @@ Some fun with classic "Télécommunication" infrastructure.
 - Call-a-CD jukebox using the CD/DVD player on the machine.
 - Callback service at specific time, for reminders.
 - An infoline service.
+- Transfer calls using _hook flash_ (`F`).
 
 ### Some inspirations, documentation and reference.
 
