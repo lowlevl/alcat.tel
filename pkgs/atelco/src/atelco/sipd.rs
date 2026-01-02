@@ -28,6 +28,8 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
 
     engine.setlocal("trackparam", module_path!()).await?;
 
+    // FIXME: deny `call.route` when unauthenticated, or investigate engine
+
     if !engine.install(args.priority, "user.auth", None).await? {
         anyhow::bail!("unable to register `user.auth` handler");
     }

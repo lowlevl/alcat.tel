@@ -129,24 +129,16 @@
     modules.regexroute = ''
       [contexts]
 
-      ; Treat `sip` incoming calls with extra care
-      ''${module}^sip$=include sip
-
       ;
       ; :: Incoming calls pre-routing ::
 
       ''${in_line}^pstn0$=;called=181
       ''${in_line}^epvpn0$=;called=181
 
-      [sip]
-
-      ; Reject unauthenticated calls with `noauth`
-      ''${username}^$=-;error=noauth
-
-      ; TODO: Ensure the `caller` value is equivalent to the authenticated username
-      ;.*=;caller=''${username}
-
       [default]
+
+      ; Reject unauthenticated `sip` calls with `noauth`
+      ''${username}^$=if ''${module}^sip$=-;error=noauth
 
       ;
       ; :: Dial-out to EPVPN ::
