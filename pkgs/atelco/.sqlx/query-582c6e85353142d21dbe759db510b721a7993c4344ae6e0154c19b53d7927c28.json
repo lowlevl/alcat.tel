@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT ext, module, address FROM ext\n            ORDER BY module, ext\n        ",
+  "query": "\n        SELECT ext,\n            module,\n            address,\n            expiry - UNIXEPOCH() as \"ttl: u64\"\n        FROM ext\n        ORDER BY module, ext\n        ",
   "describe": {
     "columns": [
       {
@@ -35,6 +35,12 @@
             "name": "address"
           }
         }
+      },
+      {
+        "name": "ttl: u64",
+        "ordinal": 3,
+        "type_info": "Datetime",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -43,8 +49,9 @@
     "nullable": [
       false,
       true,
+      true,
       true
     ]
   },
-  "hash": "e0c5e82a70325bf57e47932c88a46dc33c3a2ca35304914c0b4dd745ed9d0818"
+  "hash": "582c6e85353142d21dbe759db510b721a7993c4344ae6e0154c19b53d7927c28"
 }

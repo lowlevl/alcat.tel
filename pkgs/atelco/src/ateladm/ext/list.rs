@@ -23,20 +23,27 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         address: Option<String>,
 
         state: State,
+
+        #[tabled(display("display::option", ""))]
+        ttl: Option<u64>,
     }
 
     let exts = sqlx::query!(
         r#"
-            SELECT ext, module, address FROM ext
-            ORDER BY module, ext
+        SELECT ext,
+            module,
+            address,
+            expiry - UNIXEPOCH() as "ttl: u64"
+        FROM ext
+        ORDER BY module, ext
         "#
     )
     .fetch_all(&database)
     .await?
     .into_iter()
-    .map(|record| {
+    .map(|row| {
         // FIXME: maybe golf this with routing
-        let state = match (&record.module, &record.address) {
+        let state = match (&row.module, &row.address) {
             (Some(_), Some(_)) => State::Routed,
             (None, Some(_)) => State::Alias,
             (Some(_), None) => State::Offline,
@@ -44,10 +51,11 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         };
 
         Ext {
-            ext: record.ext,
-            module: record.module,
-            address: record.address,
+            ext: row.ext,
+            module: row.module,
+            address: row.address,
             state,
+            ttl: row.ttl,
         }
     });
 

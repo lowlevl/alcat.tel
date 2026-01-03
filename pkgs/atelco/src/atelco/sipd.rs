@@ -68,9 +68,18 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         && let Some(username) = req.kv.get("username")
     {
         let row = sqlx::query!(
-            "SELECT sip.pwd FROM sip INNER JOIN ext ON ext.ext = sip.ext AND ext.module = 'sip' WHERE ext.ext = ?",
+            r#"
+            SELECT sip.pwd
+            FROM sip
+            INNER JOIN ext
+                ON ext.ext = sip.ext
+                AND ext.module = 'sip'
+            WHERE ext.ext = ?
+            "#,
             username
-        ).fetch_optional(database).await?;
+        )
+        .fetch_optional(database)
+        .await?;
 
         match row {
             Some(row) => {
@@ -88,10 +97,13 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     } else if req.name == "user.register"
         && let Some(username) = req.kv.get("username")
         && let Some(expires) = req.kv.get("expires")
-        && let Some(data) = req.kv.get("data")
+        && let Some(address) = req
+            .kv
+            .get("data")
+            .and_then(|data| data.strip_prefix("sip/"))
     {
         router
-            .register(username, data, expires.parse().unwrap_or(60))
+            .register(username, address, expires.parse().unwrap_or(60))
             .await
     } else if req.name == "user.unregister"
         && let Some(username) = req.kv.get("username")

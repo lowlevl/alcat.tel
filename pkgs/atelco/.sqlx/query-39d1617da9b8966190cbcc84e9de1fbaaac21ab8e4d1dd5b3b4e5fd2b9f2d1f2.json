@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "UPDATE ext SET address = NULL WHERE ext.ext = ? RETURNING ext.ext",
+  "query": "\n            UPDATE ext\n            SET address = NULL\n            WHERE ext.ext = ?\n            RETURNING ext.ext\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "7891a0cd961235ae89276e0779afc8ee76b6dceb38835288cb2a7a503062ce29"
+  "hash": "39d1617da9b8966190cbcc84e9de1fbaaac21ab8e4d1dd5b3b4e5fd2b9f2d1f2"
 }

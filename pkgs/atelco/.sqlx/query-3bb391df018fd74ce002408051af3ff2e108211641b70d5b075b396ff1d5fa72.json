@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "UPDATE ext SET address = ?, expiry = CURRENT_TIMESTAMP + ? WHERE ext.ext = ? RETURNING ext.ext",
+  "query": "\n            UPDATE ext\n            SET address = ?,\n                expiry = UNIXEPOCH() + ?\n            WHERE ext.ext = ?\n            RETURNING ext.ext\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "dca5bbd14e506ee643f0fae662439644180c84085c1bea7fc361e2957cd13c2e"
+  "hash": "3bb391df018fd74ce002408051af3ff2e108211641b70d5b075b396ff1d5fa72"
 }

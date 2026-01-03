@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT sip.pwd FROM sip INNER JOIN ext ON ext.ext = sip.ext AND ext.module = 'sip' WHERE ext.ext = ?",
+  "query": "\n            SELECT sip.pwd\n            FROM sip\n            INNER JOIN ext\n                ON ext.ext = sip.ext\n                AND ext.module = 'sip'\n            WHERE ext.ext = ?\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "194ff40462decaaf2ffc4482d8c9d9b9d79fcfa3179b4be4e6a482279fd8461f"
+  "hash": "2ec38916302811c5f6508d51ba25fa258878a43d8b704c46cadeab86f9f40c32"
 }

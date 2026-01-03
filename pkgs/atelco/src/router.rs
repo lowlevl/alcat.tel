@@ -16,7 +16,13 @@ impl Router<'_> {
         tracing::trace!("preroute from `{module}/{address}`");
 
         if let Some(row) = sqlx::query!(
-            "SELECT ext FROM ext WHERE ext.module = ? AND ext.address = ?",
+            r#"
+            SELECT ext
+            FROM ext
+            WHERE ext.module = ?
+                AND ext.address = ?
+                AND (ext.expiry IS NULL OR ext.expiry > UNIXEPOCH())
+            "#,
             module,
             address
         )
@@ -35,9 +41,18 @@ impl Router<'_> {
     pub async fn route(&self, called: &str) -> anyhow::Result<Route> {
         tracing::trace!("route to `{called}`");
 
-        let route = match sqlx::query!("SELECT module, address FROM ext WHERE ext.ext = ?", called)
-            .fetch_optional(self.0)
-            .await?
+        let route = match sqlx::query!(
+            r#"
+            SELECT module,
+                address
+            FROM ext
+            WHERE ext.ext = ?
+                AND (ext.expiry IS NULL OR ext.expiry > UNIXEPOCH())
+            "#,
+            called
+        )
+        .fetch_optional(self.0)
+        .await?
         {
             None => Route::NotFound,
             Some(row) => match (row.module, row.address) {
@@ -61,7 +76,13 @@ impl Router<'_> {
         tracing::trace!("registering `{ext}` at `{address}` for {ttl}s");
 
         let registered = sqlx::query!(
-            "UPDATE ext SET address = ?, expiry = CURRENT_TIMESTAMP + ? WHERE ext.ext = ? RETURNING ext.ext",
+            r#"
+            UPDATE ext
+            SET address = ?,
+                expiry = UNIXEPOCH() + ?
+            WHERE ext.ext = ?
+            RETURNING ext.ext
+            "#,
             address,
             ttl,
             ext
@@ -76,7 +97,12 @@ impl Router<'_> {
         tracing::trace!("unregistering `{ext}`");
 
         let unregistered = sqlx::query!(
-            "UPDATE ext SET address = NULL WHERE ext.ext = ? RETURNING ext.ext",
+            r#"
+            UPDATE ext
+            SET address = NULL
+            WHERE ext.ext = ?
+            RETURNING ext.ext
+            "#,
             ext
         )
         .fetch_optional(self.0)

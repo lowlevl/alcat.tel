@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT ext FROM ext WHERE ext.module = ? AND ext.address = ?",
+  "query": "\n            SELECT ext\n            FROM ext\n            WHERE ext.module = ?\n                AND ext.address = ?\n                AND (ext.expiry IS NULL OR ext.expiry > UNIXEPOCH())\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "50e9db2ae1f65ad6f3c291d13f7107dbcaa5e2b7394d6fa83cbd48d3445d67f3"
+  "hash": "0ca2eb3bc349801c6d9d4ea0adb2ade732162a401835dc7917d5bd87eaa7a45d"
 }
