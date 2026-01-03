@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use atelco::router::Router;
 use clap::Parser;
 use futures::TryStreamExt;
 use sqlx::SqlitePool;
@@ -60,8 +61,43 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn process(_database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
-    tracing::trace!("got {req:?}");
+async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
+    let router = Router(database);
 
-    Ok(false)
+    if req.name == "user.auth"
+        && let Some(username) = req.kv.get("username")
+    {
+        let row = sqlx::query!(
+            "SELECT sip.pwd FROM sip INNER JOIN ext ON ext.ext = sip.ext AND ext.module = 'sip' WHERE ext.ext = ?",
+            username
+        ).fetch_optional(database).await?;
+
+        match row {
+            Some(row) => {
+                req.retvalue = row.pwd;
+
+                Ok(true)
+            }
+            None => {
+                req.retvalue = "-".into();
+                req.kv.insert("error".into(), "noauth".into());
+
+                Ok(true)
+            }
+        }
+    } else if req.name == "user.register"
+        && let Some(username) = req.kv.get("username")
+        && let Some(expires) = req.kv.get("expires")
+        && let Some(data) = req.kv.get("data")
+    {
+        router
+            .register(username, data, expires.parse().unwrap_or(60))
+            .await
+    } else if req.name == "user.unregister"
+        && let Some(username) = req.kv.get("username")
+    {
+        router.unregister(username).await
+    } else {
+        Ok(false)
+    }
 }

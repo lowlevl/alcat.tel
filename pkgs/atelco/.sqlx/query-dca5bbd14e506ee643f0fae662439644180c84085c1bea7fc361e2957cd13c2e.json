@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE ext SET address = ?, expiry = CURRENT_TIMESTAMP + ? WHERE ext.ext = ? RETURNING ext.ext",
+  "describe": {
+    "columns": [
+      {
+        "name": "ext",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "ext"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "dca5bbd14e506ee643f0fae662439644180c84085c1bea7fc361e2957cd13c2e"
+}

@@ -5,13 +5,13 @@ pub mod del;
 pub mod list;
 
 #[derive(Debug, Subcommand)]
-pub enum Ext {
+pub enum Args {
     /// List routed extensions.
     List,
 
     /// Add extension to the routing system.
-    Add(add::Add),
+    Add(add::Args),
 
     /// Delete extension from the routing system.
-    Del(del::Del),
+    Del(del::Args),
 }

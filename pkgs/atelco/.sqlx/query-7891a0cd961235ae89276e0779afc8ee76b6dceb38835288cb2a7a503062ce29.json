@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE ext SET address = NULL WHERE ext.ext = ? RETURNING ext.ext",
+  "describe": {
+    "columns": [
+      {
+        "name": "ext",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "ext",
+            "name": "ext"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7891a0cd961235ae89276e0779afc8ee76b6dceb38835288cb2a7a503062ce29"
+}

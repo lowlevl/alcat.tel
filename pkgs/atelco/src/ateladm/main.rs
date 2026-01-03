@@ -7,6 +7,7 @@ use tracing_subscriber::EnvFilter;
 use url::Url;
 
 mod ext;
+mod sip;
 
 /// Administrate the telecom system.
 #[derive(Debug, Parser)]
@@ -27,7 +28,13 @@ enum Command {
     /// Manage extensions.
     Ext {
         #[clap(subcommand)]
-        ext: ext::Ext,
+        args: ext::Args,
+    },
+
+    /// Manage SIP.
+    Sip {
+        #[clap(subcommand)]
+        args: sip::Args,
     },
 }
 
@@ -48,14 +55,17 @@ async fn main() -> anyhow::Result<()> {
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
         Command::Ext {
-            ext: ext::Ext::List,
+            args: ext::Args::List,
         } => ext::list::exec(database).await,
         Command::Ext {
-            ext: ext::Ext::Add(add),
-        } => ext::add::exec(database, add).await,
+            args: ext::Args::Add(args),
+        } => ext::add::exec(database, args).await,
         Command::Ext {
-            ext: ext::Ext::Del(del),
-        } => ext::del::exec(database, del).await,
+            args: ext::Args::Del(args),
+        } => ext::del::exec(database, args).await,
+        Command::Sip {
+            args: sip::Args::Generate(args),
+        } => sip::generate::exec(database, args).await,
         // TODO: `alrm` commands with system services monitoring
     }
 }

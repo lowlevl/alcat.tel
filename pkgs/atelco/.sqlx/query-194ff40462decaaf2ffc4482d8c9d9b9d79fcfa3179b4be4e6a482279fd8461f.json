@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT sip.pwd FROM sip INNER JOIN ext ON ext.ext = sip.ext AND ext.module = 'sip' WHERE ext.ext = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "pwd",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "sip",
+            "name": "pwd"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "194ff40462decaaf2ffc4482d8c9d9b9d79fcfa3179b4be4e6a482279fd8461f"
+}

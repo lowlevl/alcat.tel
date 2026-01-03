@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "INSERT INTO ext VALUES (?, ?, ?)",
+  "query": "INSERT INTO ext VALUES (?, ?, ?, NULL)",
   "describe": {
     "columns": [],
     "parameters": {
@@ -8,5 +8,5 @@
     },
     "nullable": []
   },
-  "hash": "21a9ea6d1c60043834f45faa6324a9fd26c7f88417b6e465981e09286587e2c4"
+  "hash": "2f34542828e162b2769ae10394950324edb8dcf93ee0d2ebeafb84c7af74f534"
 }

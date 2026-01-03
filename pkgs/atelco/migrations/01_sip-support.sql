@@ -1,0 +1,10 @@
+ALTER TABLE ext
+  ADD expiry TIMESTAMP;
+
+CREATE TABLE sip (
+  ext TEXT NOT NULL,
+  pwd TEXT NOT NULL,
+
+  PRIMARY KEY(ext),
+  FOREIGN KEY(ext) REFERENCES ext(ext)
+);

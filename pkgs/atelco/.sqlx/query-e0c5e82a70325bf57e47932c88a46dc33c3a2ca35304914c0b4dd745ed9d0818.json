@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "DELETE FROM ext WHERE ext.ext = ? RETURNING *",
+  "query": "\n            SELECT ext, module, address FROM ext\n            ORDER BY module, ext\n        ",
   "describe": {
     "columns": [
       {
@@ -38,7 +38,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 0
     },
     "nullable": [
       false,
@@ -46,5 +46,5 @@
       true
     ]
   },
-  "hash": "645762ef0e65f66f8eb1e3ef92219bb6669049431edbbf84b2d59f14f30aea69"
+  "hash": "e0c5e82a70325bf57e47932c88a46dc33c3a2ca35304914c0b4dd745ed9d0818"
 }

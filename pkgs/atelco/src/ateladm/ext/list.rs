@@ -27,7 +27,7 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
 
     let exts = sqlx::query!(
         r#"
-            SELECT * FROM ext
+            SELECT ext, module, address FROM ext
             ORDER BY module, ext
         "#
     )
