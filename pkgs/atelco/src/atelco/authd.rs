@@ -62,39 +62,48 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
 async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     let router = Router(database);
 
-    if req.name == "user.auth"
-        && let Some(protocol) = req.kv.get("protocol")
-        && let Some(username) = req.kv.get("username")
-    {
-        let row = sqlx::query!(
-            r#"
-            SELECT auth.pwd
-            FROM auth
-            INNER JOIN route
-                ON route.ext = auth.ext
-                AND route.module = ?
-            WHERE route.ext = ?
-            "#,
-            protocol,
-            username
-        )
-        .fetch_optional(database)
-        .await?;
+    if req.name == "user.auth" {
+        match (req.kv.get("protocol"), req.kv.get("username")) {
+            (Some(protocol), Some(username)) => {
+                let row = sqlx::query!(
+                    r#"
+                    SELECT auth.pwd
+                    FROM auth
+                    INNER JOIN route
+                        ON route.ext = auth.ext
+                        AND route.module = ?
+                    WHERE route.ext = ?
+                    "#,
+                    protocol,
+                    username
+                )
+                .fetch_optional(database)
+                .await?;
 
-        match row {
-            Some(row) => {
-                let username = username.clone();
+                match row {
+                    Some(row) => {
+                        let username = username.clone();
 
-                req.kv.insert("caller".into(), username);
-                req.retvalue = row.pwd;
+                        req.retvalue = row.pwd;
+                        req.kv.insert("caller".into(), username);
 
-                Ok(true)
+                        Ok(true)
+                    }
+
+                    // no `pwd` in database results in `noauth`
+                    None => {
+                        req.retvalue = "-".into();
+                        req.kv.insert("error".into(), "noauth".into());
+
+                        Ok(true)
+                    }
+                }
             }
-            None => {
+
+            // no `username` results in `noauth`
+            _ => {
                 req.retvalue = "-".into();
                 req.kv.insert("error".into(), "noauth".into());
-
-                // FIXME: deny `call.route` when unauthenticated, or investigate engine
 
                 Ok(true)
             }

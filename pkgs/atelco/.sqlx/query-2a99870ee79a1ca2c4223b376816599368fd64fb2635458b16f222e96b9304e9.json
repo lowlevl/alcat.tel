@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT auth.pwd\n            FROM auth\n            INNER JOIN route\n                ON route.ext = auth.ext\n                AND route.module = ?\n            WHERE route.ext = ?\n            ",
+  "query": "\n                    SELECT auth.pwd\n                    FROM auth\n                    INNER JOIN route\n                        ON route.ext = auth.ext\n                        AND route.module = ?\n                    WHERE route.ext = ?\n                    ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "7675342846f074f3a67993d90559c42e31b4adfb82389cb8064b8a4c42d1bd46"
+  "hash": "2a99870ee79a1ca2c4223b376816599368fd64fb2635458b16f222e96b9304e9"
 }
