@@ -138,7 +138,7 @@
       [default]
 
       ; Reject unauthenticated `sip` calls with `noauth`
-      ''${username}^$=if ''${module}^sip$=-;error=noauth
+      ''${module}^sip$=if ''${authenticated}^$=-;error=noauth
 
       ;
       ; :: Dial-out to EPVPN ::
