@@ -18,10 +18,9 @@ impl Router<'_> {
         if let Some(row) = sqlx::query!(
             r#"
             SELECT ext
-            FROM ext
-            WHERE ext.module = ?
-                AND ext.address = ?
-                AND (ext.expiry IS NULL OR ext.expiry > UNIXEPOCH())
+            FROM route
+            WHERE route.module = ?
+                AND route.address = ?
             "#,
             module,
             address
@@ -44,10 +43,10 @@ impl Router<'_> {
         let route = match sqlx::query!(
             r#"
             SELECT module,
-                address
-            FROM ext
-            WHERE ext.ext = ?
-                AND (ext.expiry IS NULL OR ext.expiry > UNIXEPOCH())
+                address,
+                expiry - UNIXEPOCH() as "ttl: i64"
+            FROM route
+            WHERE route.ext = ?
             "#,
             called
         )
@@ -56,14 +55,16 @@ impl Router<'_> {
         {
             None => Route::NotFound,
             Some(row) => match (row.module, row.address) {
-                // Route to final location
-                (Some(module), Some(address)) => Route::Routed(module, address),
-                // Alias to another location
-                (None, Some(address)) => Route::Alias(address),
-                // Route is offline
-                (Some(_), None) => Route::Offline,
                 // Route is not routable
                 (None, None) => Route::Reserved,
+                // Route is offline
+                (Some(_), None) => Route::Offline,
+                // Address has expired
+                (_, _) if row.ttl.unwrap_or_default() < 0 => Route::Offline,
+                // Alias to another location
+                (None, Some(address)) => Route::Alias(address),
+                // Route to final location
+                (Some(module), Some(address)) => Route::Routed(module, address),
             },
         };
 
@@ -77,11 +78,11 @@ impl Router<'_> {
 
         let registered = sqlx::query!(
             r#"
-            UPDATE ext
+            UPDATE route
             SET address = ?,
                 expiry = UNIXEPOCH() + ?
-            WHERE ext.ext = ?
-            RETURNING ext.ext
+            WHERE route.ext = ?
+            RETURNING route.ext
             "#,
             address,
             ttl,
@@ -98,10 +99,11 @@ impl Router<'_> {
 
         let unregistered = sqlx::query!(
             r#"
-            UPDATE ext
-            SET address = NULL
-            WHERE ext.ext = ?
-            RETURNING ext.ext
+            UPDATE route
+            SET address = NULL,
+                expiry = NULL
+            WHERE route.ext = ?
+            RETURNING route.ext
             "#,
             ext
         )

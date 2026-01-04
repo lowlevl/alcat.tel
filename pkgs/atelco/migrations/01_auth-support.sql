@@ -1,0 +1,10 @@
+ALTER TABLE route
+  ADD expiry TIMESTAMP;
+
+CREATE TABLE auth (
+  ext TEXT NOT NULL,
+  pwd TEXT NOT NULL,
+
+  PRIMARY KEY(ext),
+  FOREIGN KEY(ext) REFERENCES route(ext) ON DELETE CASCADE
+);

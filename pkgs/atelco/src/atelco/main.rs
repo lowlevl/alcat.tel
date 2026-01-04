@@ -5,17 +5,17 @@ use macro_rules_attribute::apply;
 use smol_macros::main;
 use tracing_subscriber::EnvFilter;
 
-mod routing;
-mod sipd;
+mod authd;
+mod routed;
 
 /// Core telecom functionalities.
 #[derive(Debug, Parser)]
 enum Args {
     /// Handle `call.preroute` and `call.route` messages.
-    Routing(routing::Args),
+    Routed(routed::Args),
 
     /// Handle `user.auth`, `user.register` and `user.unregister` messages.
-    Sipd(sipd::Args),
+    Authd(authd::Args),
 }
 
 #[apply(main!)]
@@ -33,7 +33,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     match args {
-        Args::Routing(args) => routing::exec(args).await,
-        Args::Sipd(args) => sipd::exec(args).await,
+        Args::Routed(args) => routed::exec(args).await,
+        Args::Authd(args) => authd::exec(args).await,
     }
 }

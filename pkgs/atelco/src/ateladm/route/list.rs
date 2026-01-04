@@ -1,17 +1,7 @@
-use derive_more::Display;
 use sqlx::SqlitePool;
 use tabled::{Tabled, derive::display, settings::style};
 
 pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
-    #[derive(Debug, Display)]
-    #[display(rename_all = "lowercase")]
-    enum State {
-        Routed,
-        Alias,
-        Offline,
-        Reserved,
-    }
-
     #[derive(Tabled)]
     struct Ext {
         ext: String,
@@ -22,10 +12,7 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         #[tabled(display("display::option", "(none)"))]
         address: Option<String>,
 
-        state: State,
-
-        #[tabled(display("display::option", ""))]
-        ttl: Option<u64>,
+        state: String,
     }
 
     let exts = sqlx::query!(
@@ -33,8 +20,8 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         SELECT ext,
             module,
             address,
-            expiry - UNIXEPOCH() as "ttl: u64"
-        FROM ext
+            expiry - UNIXEPOCH() as "ttl: i64"
+        FROM route 
         ORDER BY module, ext
         "#
     )
@@ -42,12 +29,19 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
     .await?
     .into_iter()
     .map(|row| {
-        // FIXME: maybe golf this with routing
+        // NOTE: maybe golf this with routing
         let state = match (&row.module, &row.address) {
-            (Some(_), Some(_)) => State::Routed,
-            (None, Some(_)) => State::Alias,
-            (Some(_), None) => State::Offline,
-            (None, None) => State::Reserved,
+            (None, None) => "reserved".into(),
+            (Some(_), None) => "offline".into(),
+            (_, _) if row.ttl.unwrap_or_default() < 0 => "offline".into(),
+            (None, Some(_)) => "alias".into(),
+            (Some(_), Some(_)) => {
+                if let Some(ttl) = row.ttl {
+                    format!("routed, ttl {ttl}s")
+                } else {
+                    "routed".into()
+                }
+            }
         };
 
         Ext {
@@ -55,7 +49,6 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
             module: row.module,
             address: row.address,
             state,
-            ttl: row.ttl,
         }
     });
 

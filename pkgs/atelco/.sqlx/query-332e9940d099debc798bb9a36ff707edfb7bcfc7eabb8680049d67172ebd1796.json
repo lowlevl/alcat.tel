@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT INTO auth\n                    (ext, pwd)\n                VALUES (?, ?)\n                    ON CONFLICT DO UPDATE SET pwd = ?\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "332e9940d099debc798bb9a36ff707edfb7bcfc7eabb8680049d67172ebd1796"
+}

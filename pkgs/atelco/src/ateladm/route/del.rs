@@ -8,9 +8,12 @@ pub struct Args {
 }
 
 pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
-    let deleted = sqlx::query!("DELETE FROM ext WHERE ext.ext = ? RETURNING ext", args.ext)
-        .fetch_optional(&database)
-        .await?;
+    let deleted = sqlx::query!(
+        "DELETE FROM route WHERE route.ext = ? RETURNING route.ext",
+        args.ext
+    )
+    .fetch_optional(&database)
+    .await?;
 
     if let Some(deleted) = deleted {
         println!("Successfully deleted `{}`: {deleted:?}", deleted.ext);

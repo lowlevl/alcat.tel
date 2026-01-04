@@ -6,8 +6,8 @@ use smol_macros::main;
 use tracing_subscriber::EnvFilter;
 use url::Url;
 
-mod ext;
-mod sip;
+mod auth;
+mod route;
 
 /// Administrate the telecom system.
 #[derive(Debug, Parser)]
@@ -25,16 +25,16 @@ enum Command {
     /// Apply database migrations.
     Migrate,
 
-    /// Manage extensions.
-    Ext {
+    /// Manage routes.
+    Route {
         #[clap(subcommand)]
-        args: ext::Args,
+        args: route::Args,
     },
 
-    /// Manage SIP.
-    Sip {
+    /// Manage authentication.
+    Auth {
         #[clap(subcommand)]
-        args: sip::Args,
+        args: auth::Args,
     },
 }
 
@@ -54,18 +54,18 @@ async fn main() -> anyhow::Result<()> {
     let database = atelco::database(&args.database).await?;
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
-        Command::Ext {
-            args: ext::Args::List,
-        } => ext::list::exec(database).await,
-        Command::Ext {
-            args: ext::Args::Add(args),
-        } => ext::add::exec(database, args).await,
-        Command::Ext {
-            args: ext::Args::Del(args),
-        } => ext::del::exec(database, args).await,
-        Command::Sip {
-            args: sip::Args::Generate(args),
-        } => sip::generate::exec(database, args).await,
+        Command::Route {
+            args: route::Args::List,
+        } => route::list::exec(database).await,
+        Command::Route {
+            args: route::Args::Add(args),
+        } => route::add::exec(database, args).await,
+        Command::Route {
+            args: route::Args::Del(args),
+        } => route::del::exec(database, args).await,
+        Command::Auth {
+            args: auth::Args::Generate(args),
+        } => auth::generate::exec(database, args).await,
         // TODO: `alrm` commands with system services monitoring
     }
 }

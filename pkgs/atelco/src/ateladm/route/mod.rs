@@ -6,12 +6,12 @@ pub mod list;
 
 #[derive(Debug, Subcommand)]
 pub enum Args {
-    /// List routed extensions.
+    /// List routes in the system.
     List,
 
-    /// Add extension to the routing system.
+    /// Add a route to the system.
     Add(add::Args),
 
-    /// Delete extension from the routing system.
+    /// Delete a route from the system.
     Del(del::Args),
 }

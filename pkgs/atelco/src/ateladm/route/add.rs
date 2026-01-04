@@ -18,9 +18,12 @@ pub struct Args {
 pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
     let mut tx = database.begin().await?;
 
-    let colliding = sqlx::query!("SELECT ext FROM ext WHERE ? LIKE ext.ext || '%'", args.ext)
-        .fetch_optional(tx.as_mut())
-        .await?;
+    let colliding = sqlx::query!(
+        "SELECT ext FROM route WHERE ? LIKE route.ext || '%'",
+        args.ext
+    )
+    .fetch_optional(tx.as_mut())
+    .await?;
 
     // FIXME: detect reverse prefixing, 18 LIKE 181 or 181 LIKE 18
 
@@ -33,7 +36,11 @@ pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
     }
 
     sqlx::query!(
-        "INSERT INTO ext VALUES (?, ?, ?, NULL)",
+        r#"
+        INSERT INTO route
+            (ext, module, address)
+        VALUES (?, ?, ?)
+        "#,
         args.ext,
         args.module,
         args.address

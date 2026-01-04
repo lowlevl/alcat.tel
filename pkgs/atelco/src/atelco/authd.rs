@@ -29,8 +29,6 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
 
     engine.setlocal("trackparam", module_path!()).await?;
 
-    // FIXME: deny `call.route` when unauthenticated, or investigate engine
-
     if !engine.install(args.priority, "user.auth", None).await? {
         anyhow::bail!("unable to register `user.auth` handler");
     }
@@ -65,17 +63,19 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     let router = Router(database);
 
     if req.name == "user.auth"
+        && let Some(protocol) = req.kv.get("protocol")
         && let Some(username) = req.kv.get("username")
     {
         let row = sqlx::query!(
             r#"
-            SELECT sip.pwd
-            FROM sip
-            INNER JOIN ext
-                ON ext.ext = sip.ext
-                AND ext.module = 'sip'
-            WHERE ext.ext = ?
+            SELECT auth.pwd
+            FROM auth
+            INNER JOIN route
+                ON route.ext = auth.ext
+                AND route.module = ?
+            WHERE route.ext = ?
             "#,
+            protocol,
             username
         )
         .fetch_optional(database)
@@ -91,16 +91,15 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
                 req.retvalue = "-".into();
                 req.kv.insert("error".into(), "noauth".into());
 
+                // FIXME: deny `call.route` when unauthenticated, or investigate engine
+
                 Ok(true)
             }
         }
     } else if req.name == "user.register"
         && let Some(username) = req.kv.get("username")
         && let Some(expires) = req.kv.get("expires")
-        && let Some(address) = req
-            .kv
-            .get("data")
-            .and_then(|data| data.strip_prefix("sip/"))
+        && let Some((_, address)) = req.kv.get("data").and_then(|data| data.split_once('/'))
     {
         router
             .register(username, address, expires.parse().unwrap_or(60))

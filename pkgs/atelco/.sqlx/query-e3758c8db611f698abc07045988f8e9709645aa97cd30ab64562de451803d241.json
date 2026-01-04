@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE route\n            SET address = ?,\n                expiry = UNIXEPOCH() + ?\n            WHERE route.ext = ?\n            RETURNING route.ext\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "ext",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "route",
+            "name": "ext"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e3758c8db611f698abc07045988f8e9709645aa97cd30ab64562de451803d241"
+}
