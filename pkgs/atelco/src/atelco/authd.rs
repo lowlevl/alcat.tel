@@ -83,6 +83,9 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
 
         match row {
             Some(row) => {
+                let username = username.clone();
+
+                req.kv.insert("caller".into(), username);
                 req.retvalue = row.pwd;
 
                 Ok(true)
