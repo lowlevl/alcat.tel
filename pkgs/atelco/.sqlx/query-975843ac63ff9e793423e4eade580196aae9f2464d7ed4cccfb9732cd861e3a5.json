@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT ext,\n            module,\n            address,\n            expiry - UNIXEPOCH() as \"ttl: u64\"\n        FROM ext\n        ORDER BY module, ext\n        ",
+  "query": "\n        SELECT ext,\n            module,\n            address,\n            expiry - UNIXEPOCH() as \"ttl: i64\"\n        FROM route \n        ORDER BY module, ext\n        ",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "ext"
           }
         }
@@ -20,7 +20,7 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "module"
           }
         }
@@ -31,13 +31,13 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "address"
           }
         }
       },
       {
-        "name": "ttl: u64",
+        "name": "ttl: i64",
         "ordinal": 3,
         "type_info": "Datetime",
         "origin": "Expression"
@@ -53,5 +53,5 @@
       true
     ]
   },
-  "hash": "582c6e85353142d21dbe759db510b721a7993c4344ae6e0154c19b53d7927c28"
+  "hash": "975843ac63ff9e793423e4eade580196aae9f2464d7ed4cccfb9732cd861e3a5"
 }

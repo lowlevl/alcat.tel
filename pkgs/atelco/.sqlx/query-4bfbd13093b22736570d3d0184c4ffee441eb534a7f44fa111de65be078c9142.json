@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            UPDATE ext\n            SET address = NULL\n            WHERE ext.ext = ?\n            RETURNING ext.ext\n            ",
+  "query": "SELECT ext FROM route WHERE ? LIKE route.ext || '%'",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "ext"
           }
         }
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "39d1617da9b8966190cbcc84e9de1fbaaac21ab8e4d1dd5b3b4e5fd2b9f2d1f2"
+  "hash": "4bfbd13093b22736570d3d0184c4ffee441eb534a7f44fa111de65be078c9142"
 }

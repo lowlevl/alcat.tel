@@ -15,8 +15,8 @@
   atelco = lib.getExe pkgs.atelco;
 
   daemons = {
-    atelco-routing = "${atelco} routing ${socket} --database sqlite://${database}";
-    atelco-sipd = "${atelco} sipd ${socket} --database sqlite://${database}";
+    atelco-routed = "${atelco} routed ${socket} --database sqlite://${database}";
+    atelco-authd = "${atelco} authd ${socket} --database sqlite://${database}";
   };
 in {
   environment.systemPackages = [ateladm];

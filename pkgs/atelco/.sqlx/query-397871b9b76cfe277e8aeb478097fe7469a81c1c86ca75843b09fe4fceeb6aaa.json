@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT ext, module FROM ext WHERE ext.ext = ?",
+  "query": "SELECT ext, module FROM route WHERE route.ext = ?",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "ext"
           }
         }
@@ -20,7 +20,7 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "module"
           }
         }
@@ -34,5 +34,5 @@
       true
     ]
   },
-  "hash": "33680e2173d64a1f8ae05899ec0ddc807659666ce572642c020c718a2395be3b"
+  "hash": "397871b9b76cfe277e8aeb478097fe7469a81c1c86ca75843b09fe4fceeb6aaa"
 }

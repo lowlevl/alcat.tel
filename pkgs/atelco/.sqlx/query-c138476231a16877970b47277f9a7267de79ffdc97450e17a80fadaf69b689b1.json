@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            UPDATE ext\n            SET address = ?,\n                expiry = UNIXEPOCH() + ?\n            WHERE ext.ext = ?\n            RETURNING ext.ext\n            ",
+  "query": "DELETE FROM route WHERE route.ext = ? RETURNING route.ext",
   "describe": {
     "columns": [
       {
@@ -9,18 +9,18 @@
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "ext",
+            "table": "route",
             "name": "ext"
           }
         }
       }
     ],
     "parameters": {
-      "Right": 3
+      "Right": 1
     },
     "nullable": [
       false
     ]
   },
-  "hash": "3bb391df018fd74ce002408051af3ff2e108211641b70d5b075b396ff1d5fa72"
+  "hash": "c138476231a16877970b47277f9a7267de79ffdc97450e17a80fadaf69b689b1"
 }

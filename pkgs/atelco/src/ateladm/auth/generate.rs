@@ -17,14 +17,17 @@ pub struct Args {
 pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
     let mut tx = database.begin().await?;
 
-    let row = sqlx::query!("SELECT ext, module FROM ext WHERE ext.ext = ?", args.ext)
-        .fetch_optional(tx.as_mut())
-        .await?;
+    let row = sqlx::query!(
+        "SELECT ext, module FROM route WHERE route.ext = ?",
+        args.ext
+    )
+    .fetch_optional(tx.as_mut())
+    .await?;
     match row {
-        None => eprintln!("extension `{}` not found", args.ext),
+        None => eprintln!("Extension `{}` not found", args.ext),
         Some(row) if row.module.as_deref() != Some("sip") => {
             eprintln!(
-                "extension `{}` is not registered as `sip`: {:?}",
+                "Extension `{}` is not registered as `sip`: {:?}",
                 args.ext, row.module
             )
         }
@@ -40,7 +43,12 @@ pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
                 .join("-");
 
             sqlx::query!(
-                "INSERT INTO sip VALUES (?, ?) ON CONFLICT DO UPDATE SET pwd = ?",
+                r#"
+                INSERT INTO auth
+                    (ext, pwd)
+                VALUES (?, ?)
+                    ON CONFLICT DO UPDATE SET pwd = ?
+                "#,
                 args.ext,
                 pwd,
                 pwd
@@ -50,7 +58,7 @@ pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
 
             tx.commit().await?;
 
-            println!("successfully generated password for `{}`: {pwd}", args.ext);
+            println!("Successfully generated password for `{}`: {pwd}", args.ext);
         }
     }
 
