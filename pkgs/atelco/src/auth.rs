@@ -3,20 +3,10 @@ use sqlx::SqlitePool;
 pub struct Auth<'d>(pub &'d SqlitePool);
 
 impl Auth<'_> {
-    #[allow(clippy::too_many_arguments)]
-    pub async fn auth(
-        &self,
-        username: &str,
-        protocol: &str,
-        nonce: &str,
-        realm: &str,
-        method: &str,
-        uri: &str,
-        response: &str,
-    ) -> anyhow::Result<bool> {
-        tracing::trace!("authenticating `{username}` for `{method} {uri}`");
+    pub async fn pwd(&self, username: &str, protocol: &str) -> anyhow::Result<Option<String>> {
+        tracing::trace!("authenticating `{username}` for `{protocol}`");
 
-        if let Some(row) = sqlx::query!(
+        let row = sqlx::query!(
             r#"
             SELECT auth.pwd
             FROM auth
@@ -29,20 +19,9 @@ impl Auth<'_> {
             username
         )
         .fetch_optional(self.0)
-        .await?
-        {
-            let ha1 = md5::compute(format!("{username}:{realm}:{}", row.pwd));
-            let ha2 = md5::compute(format!("{method}:{uri}"));
+        .await?;
 
-            let computed = md5::compute(format!("{ha1:x}:{nonce}:{ha2:x}"));
-            let expected = format!("{computed:x}");
-
-            tracing::trace!("{response} == {expected}");
-
-            Ok(response == expected)
-        } else {
-            Ok(false)
-        }
+        Ok(row.map(|row| row.pwd))
     }
 
     pub async fn register(&self, ext: &str, address: &str, ttl: u32) -> anyhow::Result<bool> {

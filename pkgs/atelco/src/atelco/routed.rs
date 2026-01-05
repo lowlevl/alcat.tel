@@ -62,10 +62,9 @@ async fn process(
 ) -> anyhow::Result<bool> {
     let router = Router(database);
 
-    // Deny unauthenticated calls (but allow `analog` & `lines` calls) with `noauth`
+    // Deny unauthenticated calls with `noauth`
     if req.kv.get("module").map(String::as_str) != Some("analog")
-        && !req.kv.contains_key("in_line")
-        && !req.kv.contains_key("authenticated")
+        && !req.kv.contains_key("username")
     {
         req.retvalue = "-".into();
         req.kv.insert("error".into(), "noauth".into());
