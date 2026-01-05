@@ -137,8 +137,8 @@
 
       [default]
 
-      ; Reject unauthenticated `sip` calls with `noauth`
-      ''${module}^sip$=if ''${authenticated}^$=-;error=noauth
+      ; Deny unauthenticated calls (but allow `analog` calls) with `noauth`
+      ''${module}^(?!analog).*$=if ''${authenticated}^$=-;error=noauth
 
       ;
       ; :: Dial-out to EPVPN ::

@@ -12,6 +12,7 @@ use sqlx::{
 use url::Url;
 use yengine::Engine;
 
+pub mod auth;
 pub mod router;
 
 pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream>> {

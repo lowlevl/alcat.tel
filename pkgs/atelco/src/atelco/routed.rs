@@ -62,9 +62,9 @@ async fn process(
 ) -> anyhow::Result<bool> {
     let router = Router(database);
 
-    // Deny unauthenticated `sip` calls
-    if req.kv.get("module").map(String::as_str) == Some("sip")
-        && !req.kv.contains_key("authenticated")
+    // Deny unauthenticated calls (but allow `analog` calls) with `noauth`
+    if !req.kv.contains_key("authenticated")
+        && req.kv.get("module").map(String::as_str) != Some("analog")
     {
         req.retvalue = "-".into();
         req.kv.insert("error".into(), "noauth".into());

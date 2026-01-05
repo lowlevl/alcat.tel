@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use atelco::router::Router;
+use atelco::auth::Auth;
 use clap::Parser;
 use futures::TryStreamExt;
 use sqlx::SqlitePool;
@@ -60,51 +60,41 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
 }
 
 async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
-    let router = Router(database);
+    let auth = Auth(database);
 
     if req.name == "user.auth"
-        && let Some(protocol) = req.kv.get("protocol")
         && let Some(username) = req.kv.get("username")
+        && let Some(protocol) = req.kv.get("protocol")
+        && let Some(nonce) = req.kv.get("nonce")
+        && let Some(realm) = req.kv.get("realm")
+        && let Some(method) = req.kv.get("method")
+        && let Some(uri) = req.kv.get("uri")
+        && let Some(response) = req.kv.get("response")
     {
-        let row = sqlx::query!(
-            r#"
-            SELECT auth.pwd
-            FROM auth
-            INNER JOIN route
-                ON route.ext = auth.ext
-                AND route.module = ?
-            WHERE route.ext = ?
-            "#,
-            protocol,
-            username
-        )
-        .fetch_optional(database)
-        .await?;
+        if auth
+            .auth(username, protocol, nonce, realm, method, uri, response)
+            .await?
+        {
+            let username = username.clone();
 
-        match row {
-            None => Ok(false),
-            Some(row) => {
-                let username = username.clone();
+            req.kv.insert("caller".into(), username); // force `caller` to be `username`
+            req.kv.insert("authenticated".into(), "true".into());
 
-                req.retvalue = row.pwd;
-                req.kv.insert("caller".into(), username);
-                req.kv.insert("authenticated".into(), "true".into());
-
-                Ok(true)
-            }
+            Ok(true)
+        } else {
+            Ok(false)
         }
     } else if req.name == "user.register"
         && let Some(username) = req.kv.get("username")
         && let Some(expires) = req.kv.get("expires")
         && let Some((_, address)) = req.kv.get("data").and_then(|data| data.split_once('/'))
     {
-        router
-            .register(username, address, expires.parse().unwrap_or(60))
+        auth.register(username, address, expires.parse().unwrap_or(60))
             .await
     } else if req.name == "user.unregister"
         && let Some(username) = req.kv.get("username")
     {
-        router.unregister(username).await
+        auth.unregister(username).await
     } else {
         Ok(false)
     }
