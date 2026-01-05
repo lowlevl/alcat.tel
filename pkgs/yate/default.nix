@@ -15,8 +15,8 @@
   dahdi-linux,
   ...
 }: let
-  version = "7094a11bd9ad6c78525876d4c036eb817ab13bd6";
-  hash = "sha256-zGPrRj7XBGABnywdrC+T/gTpsjDTfI46zWQ9mxPWvLI=";
+  version = "97d1e76e1d637abd354d48ac2f50c129798be23c";
+  hash = "sha256-J8/koMCMH6q+0lXP7b3mtsjOGS373S5NVZojxA9A8Zw=";
 in
   stdenv.mkDerivation (finalAttrs: {
     pname = "yate";
