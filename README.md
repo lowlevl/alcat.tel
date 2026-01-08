@@ -16,6 +16,7 @@ Some fun with classic "Télécommunication" infrastructure.
 - Callback service at specific time, for reminders.
 - An infoline service.
 - Transfer calls using _hook flash_ (`F`).
+- `WHOAMI` number to tell the caller's number.
 
 ### Some inspirations, documentation and reference.
 
