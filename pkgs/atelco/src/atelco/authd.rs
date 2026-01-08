@@ -65,15 +65,14 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     if req.name == "user.auth"
         && let Some(username) = req.kv.get("username")
         && let Some(protocol) = req.kv.get("protocol")
+        && let Some(pwd) = auth.pwd(username, protocol).await?
     {
-        match auth.pwd(username, protocol).await? {
-            Some(pwd) => {
-                req.retvalue = pwd;
+        let username = username.clone();
 
-                Ok(true)
-            }
-            None => Ok(false),
-        }
+        req.retvalue = pwd;
+        req.kv.insert("caller".into(), username);
+
+        Ok(true)
     } else if req.name == "user.register"
         && let Some(username) = req.kv.get("username")
         && let Some(expires) = req.kv.get("expires")
