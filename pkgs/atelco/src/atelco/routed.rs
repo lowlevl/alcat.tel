@@ -75,20 +75,18 @@ async fn process(
     if req.name == "call.preroute"
         && let Some(module) = req.kv.get("module")
         && let Some(address) = req.kv.get("address")
+        && let Some(caller) = router.preroute(module, address).await?
     {
-        match router.preroute(module, address).await? {
-            None => Ok(false),
-            Some(caller) => {
-                req.kv.insert("caller".into(), caller);
+        req.kv.insert("caller".into(), caller);
 
-                Ok(true)
-            }
-        }
+        Ok(true)
     } else if req.name == "call.route"
         && let Some(called) = req.kv.get("called")
     {
         match router.route(called).await? {
             Route::NotFound => Ok(false),
+
+            // Deny routing to itself, because it might just timeout
             Route::Routed(module, address)
                 if Some(&module) == req.kv.get("module")
                     && Some(&address) == req.kv.get("address") =>
@@ -97,11 +95,13 @@ async fn process(
 
                 Ok(true)
             }
+
             Route::Routed(module, address) => {
                 req.retvalue = format!("{module}/{address}");
 
                 Ok(true)
             }
+
             Route::Alias(called) => {
                 let noloop = req.kv.get("noloop");
 
@@ -131,12 +131,14 @@ async fn process(
                     Ok(processed)
                 }
             }
+
             Route::Offline => {
                 req.retvalue = "-".into();
                 req.kv.insert("error".into(), "offline".into());
 
                 Ok(true)
             }
+
             Route::Reserved => {
                 req.retvalue = "-".into();
 
