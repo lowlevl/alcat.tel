@@ -247,7 +247,7 @@ in {
       };
 
       echocanceller = lib.mkOption {
-        type = types.nullOr (types.enum ["hwec" "mg2" "kb1" "sec2" "sec"]);
+        type = types.nullOr (types.enum ["hwec" "mg2" "kb1" "sec2" "sec" "oslec"]);
         description = ''
           DAHDI uses modular echo cancellers that are configured per channel. The echo
           cancellers are compiled and installed as part of the dahdi-linux package.

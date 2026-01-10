@@ -59,6 +59,9 @@
     dahdi-fw-a4b.sha256 = "4Dmvi+w2QHt04d2evdSboHdGntp51OYJNyHtKDbUU28=";
   };
 
+  wanpipe.version = "7.0.38";
+  wanpipe.sha256 = "lSZu3YO9i7Qn9H96OTZXlZNqzA1uLjoeSCvQFbupD6I=";
+
   version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
   hash = "sha256-G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
 in
@@ -77,6 +80,10 @@ in
           repo = "dahdi-linux";
           rev = "${version}";
           inherit hash;
+        })
+        (builtins.fetchurl {
+          url = "https://ftp.sangoma.com/linux/current_wanpipe/wanpipe-${wanpipe.version}.tgz";
+          inherit (wanpipe) sha256;
         })
       ]
       #-- Additionnal tarballs required by dahdi-linux's Makefiles
@@ -98,6 +105,11 @@ in
     '';
     postUnpack = ''
       mv *.tar.gz "$sourceRoot/drivers/dahdi/firmware"
+
+      install -d "$sourceRoot/drivers/staging"
+      tar xvf wanpipe-*.tgz "wanpipe-${wanpipe.version}/OSLEC/echo" --strip-components=2
+      mv -v echo "$sourceRoot/drivers/staging"
+
       patchShebangs --build "$sourceRoot"
     '';
 
