@@ -82,6 +82,9 @@
         type = "FXS";
         offset = 0;
         voicechans = "1-4";
+
+        echotaps = 256;
+        echotrain = 800;
       };
     };
     modules.analog = {

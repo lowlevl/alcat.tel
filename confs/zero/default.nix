@@ -21,8 +21,9 @@
     enable = true;
     modules = ["wctdm24xxp"];
 
-    channels."1-4".signaling = "fxoks";
     defaultzone = "fr";
+    channels."1-4".signaling = "fxoks";
+    channels."1-4".echocanceller = "mg2";
   };
   users.users.yate.extraGroups = ["telecom"]; # give access to `yate` to telephony cards
 
