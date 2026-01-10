@@ -84,16 +84,19 @@
         voicechans = "1-4";
 
         echotaps = 256;
-        echotrain = 800;
       };
     };
     modules.analog = {
+      general = {
+        echocancel = true;
+        call-ended-playtime = 10;
+      };
+
       "local-fxs" = {
         type = "FXS";
         spans = "tdm410:0:1-4";
 
         ringback = true;
-        call-ended-playtime = 10;
       };
     };
 

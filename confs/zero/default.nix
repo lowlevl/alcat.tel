@@ -23,7 +23,7 @@
 
     defaultzone = "fr";
     channels."1-4".signaling = "fxoks";
-    channels."1-4".echocanceller = "mg2";
+    channels."1-4".echocanceller = "oslec";
   };
   users.users.yate.extraGroups = ["telecom"]; # give access to `yate` to telephony cards
 
