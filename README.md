@@ -15,8 +15,9 @@ Some fun with classic "Télécommunication" infrastructure.
 - Call-a-CD jukebox using the CD/DVD player on the machine.
 - Callback service at specific time, for reminders.
 - An infoline service.
-- Transfer calls using _hook flash_ (`F`).
 - `WHOAMI` number to tell the caller's number.
+- Transfer calls using _hook flash_ (`F`) with wait tone.
+- Add call groups with a group table using `fork` & `lateroute` modules.
 
 ### Some inspirations, documentation and reference.
 
