@@ -6,6 +6,9 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -16,6 +19,7 @@
   outputs = inputs @ {
     flake-parts,
     nixpkgs,
+    treefmt-nix,
     sops-nix,
     disko,
     self,
@@ -25,7 +29,7 @@
       systems = ["x86_64-linux"];
 
       perSystem = {pkgs, ...}: {
-        formatter = pkgs.alejandra;
+        formatter = (treefmt-nix.lib.evalModule pkgs ./treefmt.nix).config.build.wrapper;
         packages = self.overlays.default {} pkgs;
 
         devShells.default = pkgs.callPackage ./shell.nix {};
