@@ -92,6 +92,8 @@ impl Router<'_> {
             r#"
             INSERT INTO location(number, data, expiry)
             VALUES (?, ?, UNIXEPOCH() + ?)
+            ON CONFLICT DO UPDATE
+            SET expiry = excluded.expiry
             "#,
             number,
             data,

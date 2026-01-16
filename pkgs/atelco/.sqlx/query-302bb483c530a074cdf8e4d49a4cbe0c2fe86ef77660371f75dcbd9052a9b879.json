@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO location(number, data, expiry)\n            VALUES (?, ?, UNIXEPOCH() + ?)\n            ON CONFLICT DO UPDATE\n            SET expiry = excluded.expiry\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "302bb483c530a074cdf8e4d49a4cbe0c2fe86ef77660371f75dcbd9052a9b879"
+}
