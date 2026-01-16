@@ -10,6 +10,9 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
         #[tabled(display("display::option", "(none)"))]
         ringback: Option<String>,
 
+        #[tabled(display("display::bool", "✔", "✘"))]
+        password: bool,
+
         locations: String,
     }
 
@@ -63,6 +66,7 @@ pub async fn exec(database: SqlitePool) -> anyhow::Result<()> {
             anyhow::Ok(Ext {
                 number: extension.number,
                 ringback: extension.ringback,
+                password: extension.password.is_some(),
                 locations,
             })
         })

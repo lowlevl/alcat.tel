@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT number\n        FROM extension\n        WHERE extension.number = ?\n        ",
+  "query": "\n        UPDATE extension\n        SET password = ?\n        WHERE extension.number = ?\n        RETURNING extension.number\n        ",
   "describe": {
     "columns": [
       {
@@ -16,11 +16,11 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 2
     },
     "nullable": [
       false
     ]
   },
-  "hash": "6f1b0b95296c70f1c3de980ebf930c0c2bc74e1d9ba7d9d0fab4a8fe2d573044"
+  "hash": "be8ce0bcf04207849f1ae70908c7ebf65489a1166c9924cfc3fb56b80fe1842a"
 }

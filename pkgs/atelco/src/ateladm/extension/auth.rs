@@ -31,43 +31,28 @@ fn generate(words: NonZeroUsize) -> String {
 }
 
 pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
-    let mut tx = database.begin().await?;
+    let password = args.password.unwrap_or_else(|| {
+        let generated = generate(args.words);
 
-    let extension = sqlx::query!(
+        println!("Generated a {} word passphrase: {generated}", args.words);
+
+        generated
+    });
+
+    sqlx::query!(
         r#"
-        SELECT number
-        FROM extension
+        UPDATE extension
+        SET password = ?
         WHERE extension.number = ?
+        RETURNING extension.number
         "#,
-        args.number
+        password,
+        args.number,
     )
-    .fetch_optional(tx.as_mut())
+    .fetch_one(&database)
     .await?;
 
-    match extension {
-        None => eprintln!("Extension `{}` not found", args.number),
-        Some(_) => {
-            let password = args.password.unwrap_or_else(|| generate(args.words));
-
-            sqlx::query!(
-                r#"
-                INSERT INTO auth
-                    (number, password)
-                VALUES (?, ?)
-                    ON CONFLICT DO UPDATE SET password = ?
-                "#,
-                args.number,
-                password,
-                password
-            )
-            .execute(tx.as_mut())
-            .await?;
-
-            tx.commit().await?;
-
-            println!("Successfully set password for `{}`.", args.number);
-        }
-    }
+    println!("Successfully set password for `{}`.", args.number);
 
     Ok(())
 }

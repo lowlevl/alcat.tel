@@ -2,6 +2,7 @@
 CREATE TABLE extension (
   number TEXT NOT NULL,
   ringback TEXT,
+  password TEXT,
 
   PRIMARY KEY(number)
 );
@@ -17,16 +18,3 @@ CREATE TABLE location (
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
-
--- Authentication for extension (mainly for SIP)
-CREATE TABLE auth (
-  number TEXT NOT NULL,
-  password TEXT NOT NULL,
-
-  PRIMARY KEY(number),
-  FOREIGN KEY(number)
-    REFERENCES extension(number)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-);
-

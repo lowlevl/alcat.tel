@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use atelco::auth::Auth;
+use atelco::router::Router;
 use clap::Parser;
 use futures::TryStreamExt;
 use sqlx::SqlitePool;
@@ -60,15 +60,16 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
 }
 
 async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
-    let auth = Auth(database);
+    let router = Router(database);
 
     if req.name == "user.auth"
         && let Some(username) = req.kv.get("username")
-        && let Some(pwd) = auth.pwd(username).await?
+        && let Some(extension) = router.extension(username).await?
+        && let Some(password) = extension.password
     {
         let username = username.clone();
 
-        req.retvalue = pwd;
+        req.retvalue = password;
         req.kv.insert("caller".into(), username);
 
         Ok(true)
@@ -77,7 +78,8 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         && let Some(data) = req.kv.get("data")
         && let Some(expires) = req.kv.get("expires")
     {
-        auth.register(username, data, expires.parse().unwrap_or(60))
+        router
+            .register(username, data, expires.parse().unwrap_or(60))
             .await?;
 
         Ok(true)
@@ -85,7 +87,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         && let Some(username) = req.kv.get("username")
         && let Some(data) = req.kv.get("data")
     {
-        auth.unregister(username, data).await
+        router.unregister(username, data).await
     } else {
         Ok(false)
     }

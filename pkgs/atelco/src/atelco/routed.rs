@@ -81,6 +81,8 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     {
         let locations = router.route(called).await?;
 
+        // FIXME: add loop protection
+
         if locations.is_empty() {
             req.retvalue = "-".into();
             req.kv.insert("error".into(), "offline".into());
