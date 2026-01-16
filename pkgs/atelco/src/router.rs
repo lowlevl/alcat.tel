@@ -42,7 +42,8 @@ impl Router<'_> {
             SELECT data
             FROM location
             WHERE location.number = ?
-                AND location.expiry > UNIXEPOCH()
+                AND (location.expiry IS NULL
+                    OR location.expiry > UNIXEPOCH())
             "#,
             number
         )

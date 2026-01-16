@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT data\n            FROM location\n            WHERE location.number = ?\n                AND location.expiry > UNIXEPOCH()\n            ",
+  "query": "\n            SELECT data\n            FROM location\n            WHERE location.number = ?\n                AND (location.expiry IS NULL\n                    OR location.expiry > UNIXEPOCH())\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "cb175240e5c472f541667325cf15b2ad6d8ff7074f7736b86f69b6e4515712a7"
+  "hash": "56aad9c5f79d4a2d3b1d245e78121caf3f351d51596b73606a736c488a302cff"
 }
