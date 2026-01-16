@@ -73,9 +73,6 @@ impl Extension {
             #[tabled(display("display::option", "(none)"))]
             ringback: Option<String>,
 
-            #[tabled(display("display::bool", "✔", "✘"))]
-            password: bool,
-
             locations: String,
         }
 
@@ -89,7 +86,7 @@ impl Extension {
         .await?;
 
         let data = futures::stream::iter(extensions)
-            .then(async |extension| {
+            .then(async |mut extension| {
                 let locations = sqlx::query!(
                     r#"
                     SELECT
@@ -126,10 +123,13 @@ impl Extension {
                     locations += "(offline)";
                 }
 
+                if extension.password.is_some() {
+                    extension.number += " 🗝";
+                }
+
                 anyhow::Ok(Ext {
                     number: extension.number,
                     ringback: extension.ringback,
-                    password: extension.password.is_some(),
                     locations,
                 })
             })
