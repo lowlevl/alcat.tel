@@ -75,12 +75,22 @@ impl Router<'_> {
     pub async fn register(&self, number: &str, data: &str, ttl: u32) -> anyhow::Result<()> {
         tracing::trace!("registering `{number}` at `{data}` for {ttl}s");
 
-        // FIXME: expire all the expired locations for `number`
+        // Expire all the expired locations for `number`
+        sqlx::query!(
+            r#"
+            DELETE FROM location
+            WHERE location.number = ?
+                AND location.expiry IS NOT NULL
+                AND location.expiry < UNIXEPOCH()
+            "#,
+            number
+        )
+        .execute(self.0)
+        .await?;
 
         sqlx::query!(
             r#"
-            INSERT INTO
-                location(number, data, expiry)
+            INSERT INTO location(number, data, expiry)
             VALUES (?, ?, UNIXEPOCH() + ?)
             "#,
             number,

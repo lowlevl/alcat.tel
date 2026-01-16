@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            DELETE FROM location\n            WHERE location.number = ?\n                AND location.expiry IS NOT NULL\n                AND location.expiry < UNIXEPOCH()\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "1244ac3c836817b075e3571bba2807e9949863570961ec5a44f46a6fafe62248"
+}

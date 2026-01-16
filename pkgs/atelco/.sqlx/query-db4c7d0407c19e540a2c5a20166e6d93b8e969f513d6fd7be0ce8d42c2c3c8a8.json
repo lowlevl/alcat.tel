@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO location(number, data, expiry)\n            VALUES (?, ?, UNIXEPOCH() + ?)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "db4c7d0407c19e540a2c5a20166e6d93b8e969f513d6fd7be0ce8d42c2c3c8a8"
+}
