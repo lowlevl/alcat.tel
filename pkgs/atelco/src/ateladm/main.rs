@@ -29,7 +29,7 @@ enum Command {
     /// Manage extensions in the telephony system.
     Extension {
         #[clap(subcommand)]
-        args: extension::Args,
+        sub: extension::Extension,
     },
 }
 
@@ -49,21 +49,6 @@ async fn main() -> anyhow::Result<()> {
     let database = atelco::database(&args.database).await?;
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
-
-        Command::Extension {
-            args: extension::Args::Ls,
-        } => extension::ls::exec(database).await,
-        Command::Extension {
-            args: extension::Args::Add(args),
-        } => extension::add::exec(database, args).await,
-        Command::Extension {
-            args: extension::Args::Mod,
-        } => todo!(),
-        Command::Extension {
-            args: extension::Args::Rm(args),
-        } => extension::rm::exec(database, args).await,
-        Command::Extension {
-            args: extension::Args::Auth(args),
-        } => extension::auth::exec(database, args).await,
+        Command::Extension { sub } => sub.exec(database).await,
     }
 }
