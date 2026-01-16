@@ -261,8 +261,8 @@ impl Extension {
                 SET password = ?
                 WHERE extension.number = ?
                 "#,
-                args.number,
-                password
+                password,
+                args.number
             )
             .execute(tx.as_mut())
             .await?;
