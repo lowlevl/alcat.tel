@@ -28,7 +28,6 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
     );
 
     engine.setlocal("trackparam", module_path!()).await?;
-    engine.setlocal("reenter", "true").await?;
 
     if !engine.install(args.priority, "call.preroute", None).await? {
         anyhow::bail!("unable to register `call.preroute` handler");
