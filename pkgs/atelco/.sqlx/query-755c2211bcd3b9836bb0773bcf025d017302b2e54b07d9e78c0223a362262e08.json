@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                UPDATE extension\n                SET password = ?\n                WHERE extension.number = ?\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "755c2211bcd3b9836bb0773bcf025d017302b2e54b07d9e78c0223a362262e08"
+}

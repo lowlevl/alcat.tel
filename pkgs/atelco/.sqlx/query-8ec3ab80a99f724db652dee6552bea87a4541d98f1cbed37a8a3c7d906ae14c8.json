@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        DELETE FROM extension\n        WHERE extension.number = ?\n        RETURNING extension.number\n        ",
+  "query": "\n            DELETE FROM extension\n            WHERE extension.number = ?\n            RETURNING extension.number\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "9b96d0ef4abfe5d191eed3592045235af5d06d64338b5dd824d3413658eab503"
+  "hash": "8ec3ab80a99f724db652dee6552bea87a4541d98f1cbed37a8a3c7d906ae14c8"
 }

@@ -47,7 +47,6 @@ INSERT INTO location VALUES('180', 'lateroute/184', NULL);
 INSERT INTO extension VALUES('F', NULL, NULL);
 INSERT INTO extension VALUES('15', NULL, NULL);
 INSERT INTO extension VALUES('17', NULL, NULL);
-INSERT INTO extension VALUES('18', NULL, NULL);
 
 INSERT INTO extension VALUES('1234', NULL, NULL);
 

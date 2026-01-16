@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n                SELECT\n                    data,\n                    expiry - UNIXEPOCH() as ttl\n                FROM location\n                WHERE location.number = ?\n                ORDER BY ttl DESC\n                ",
+  "query": "\n                    SELECT\n                        data,\n                        expiry - UNIXEPOCH() as \"ttl: i64\"\n                    FROM location\n                    WHERE location.number = ?\n                    ORDER BY \"ttl: i64\" DESC\n                    ",
   "describe": {
     "columns": [
       {
@@ -15,9 +15,9 @@
         }
       },
       {
-        "name": "ttl",
+        "name": "ttl: i64",
         "ordinal": 1,
-        "type_info": "Integer",
+        "type_info": "Null",
         "origin": "Expression"
       }
     ],
@@ -26,8 +26,8 @@
     },
     "nullable": [
       false,
-      true
+      null
     ]
   },
-  "hash": "3ff8dba314eb37a86dbc59adaff26f9385822a4a4fd6289f9bc01eb243ad7273"
+  "hash": "6b1c34c3139a2401d8a716603141732a8dc83745019abc9c4d9d0602e70d4267"
 }

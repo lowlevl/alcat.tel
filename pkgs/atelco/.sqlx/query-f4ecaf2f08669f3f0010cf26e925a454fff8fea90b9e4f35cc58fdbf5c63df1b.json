@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT number\n        FROM extension\n        WHERE ? LIKE extension.number || '%'\n            OR extension.number || '%' LIKE ?\n        ",
+  "query": "\n            SELECT number\n            FROM extension\n            WHERE extension.number = ?\n            ",
   "describe": {
     "columns": [
       {
@@ -16,11 +16,11 @@
       }
     ],
     "parameters": {
-      "Right": 2
+      "Right": 1
     },
     "nullable": [
       false
     ]
   },
-  "hash": "a26d180d115f5a3208444f9923ba7295fcdc91acbb133e2556b3cf7c1fa05ac6"
+  "hash": "f4ecaf2f08669f3f0010cf26e925a454fff8fea90b9e4f35cc58fdbf5c63df1b"
 }

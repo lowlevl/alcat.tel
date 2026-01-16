@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        UPDATE extension\n        SET password = ?\n        WHERE extension.number = ?\n        RETURNING extension.number\n        ",
+  "query": "\n            SELECT number\n            FROM extension\n            WHERE ? LIKE extension.number || '%'\n                OR extension.number || '%' LIKE ?\n            ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "be8ce0bcf04207849f1ae70908c7ebf65489a1166c9924cfc3fb56b80fe1842a"
+  "hash": "3ef608d213fed2a907106650269b4de7c5609d1d92ea7801abf8ca65918c40b8"
 }

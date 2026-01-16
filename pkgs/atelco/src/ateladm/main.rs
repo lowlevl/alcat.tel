@@ -7,6 +7,7 @@ use tracing_subscriber::EnvFilter;
 use url::Url;
 
 mod extension;
+mod location;
 
 // TODO: `alrm` commands with system services monitoring.
 
@@ -31,6 +32,12 @@ enum Command {
         #[clap(subcommand)]
         sub: extension::Extension,
     },
+
+    /// Manage routes in the telephony system.
+    Location {
+        #[clap(subcommand)]
+        sub: location::Location,
+    },
 }
 
 #[apply(main!)]
@@ -50,5 +57,6 @@ async fn main() -> anyhow::Result<()> {
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
         Command::Extension { sub } => sub.exec(database).await,
+        Command::Location { sub } => sub.exec(database).await,
     }
 }

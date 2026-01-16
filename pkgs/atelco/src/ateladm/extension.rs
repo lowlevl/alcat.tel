@@ -94,10 +94,10 @@ impl Extension {
                     r#"
                     SELECT
                         data,
-                        expiry - UNIXEPOCH() as ttl
+                        expiry - UNIXEPOCH() as "ttl: i64"
                     FROM location
                     WHERE location.number = ?
-                    ORDER BY ttl DESC
+                    ORDER BY "ttl: i64" DESC
                     "#,
                     extension.number
                 )
@@ -140,6 +140,49 @@ impl Extension {
         let table = table.with(style::Style::rounded());
 
         println!("{table}");
+
+        Ok(())
+    }
+
+    pub async fn add(database: &SqlitePool, args: Add) -> anyhow::Result<()> {
+        let mut tx = database.begin().await?;
+
+        let colliding = sqlx::query!(
+            r#"
+            SELECT number
+            FROM extension
+            WHERE ? LIKE extension.number || '%'
+                OR extension.number || '%' LIKE ?
+            "#,
+            args.number,
+            args.number
+        )
+        .fetch_optional(tx.as_mut())
+        .await?;
+
+        if let Some(colliding) = colliding {
+            anyhow::bail!(
+                "Extension `{}` collides with `{}`, dial plan must be non-overlapping",
+                args.number,
+                colliding.number
+            );
+        }
+
+        sqlx::query!(
+            r#"
+            INSERT INTO extension
+                (number, ringback)
+            VALUES (?, ?)
+            "#,
+            args.number,
+            args.ringback
+        )
+        .execute(tx.as_mut())
+        .await?;
+
+        tx.commit().await?;
+
+        println!("Successfully added `{}`", args.number);
 
         Ok(())
     }
@@ -228,49 +271,6 @@ impl Extension {
         tx.commit().await?;
 
         println!("Success.");
-
-        Ok(())
-    }
-
-    pub async fn add(database: &SqlitePool, args: Add) -> anyhow::Result<()> {
-        let mut tx = database.begin().await?;
-
-        let colliding = sqlx::query!(
-            r#"
-            SELECT number
-            FROM extension
-            WHERE ? LIKE extension.number || '%'
-                OR extension.number || '%' LIKE ?
-            "#,
-            args.number,
-            args.number
-        )
-        .fetch_optional(tx.as_mut())
-        .await?;
-
-        if let Some(colliding) = colliding {
-            anyhow::bail!(
-                "Extension `{}` collides with `{}`, dial plan must be non-overlapping",
-                args.number,
-                colliding.number
-            );
-        }
-
-        sqlx::query!(
-            r#"
-            INSERT INTO extension
-                (number, ringback)
-            VALUES (?, ?)
-            "#,
-            args.number,
-            args.ringback
-        )
-        .execute(tx.as_mut())
-        .await?;
-
-        tx.commit().await?;
-
-        println!("Successfully added `{}`", args.number);
 
         Ok(())
     }

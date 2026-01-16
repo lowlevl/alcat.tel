@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                UPDATE extension\n                SET ringback = ?\n                WHERE extension.number = ?\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "9b4c2c42bb090c918b963b62a583f6ebc71e8b30ffa4d470fa6636e41efec202"
+}

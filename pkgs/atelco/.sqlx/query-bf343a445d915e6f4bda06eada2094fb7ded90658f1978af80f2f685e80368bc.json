@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT *\n        FROM extension\n        ",
+  "query": "\n            SELECT *\n            FROM extension\n            ",
   "describe": {
     "columns": [
       {
@@ -46,5 +46,5 @@
       true
     ]
   },
-  "hash": "fd6a42e21ebeb80c7f71b8c8e5b61e7ef6c92b9598164a647b03787c11fea6ad"
+  "hash": "bf343a445d915e6f4bda06eada2094fb7ded90658f1978af80f2f685e80368bc"
 }

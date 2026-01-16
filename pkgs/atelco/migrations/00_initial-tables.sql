@@ -13,6 +13,7 @@ CREATE TABLE location (
   data TEXT NOT NULL,
   expiry TIMESTAMP,
 
+  PRIMARY KEY(number, data),
   FOREIGN KEY(number)
     REFERENCES extension(number)
     ON UPDATE CASCADE
