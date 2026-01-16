@@ -131,7 +131,9 @@
       };
     };
 
-    # Routing using `regexroute`
+    # Routing modules
+    modules.callfork = {};
+    modules.lateroute = {};
     modules.regexroute = ''
       [contexts]
 

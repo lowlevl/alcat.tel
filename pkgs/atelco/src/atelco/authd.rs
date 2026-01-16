@@ -64,8 +64,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
 
     if req.name == "user.auth"
         && let Some(username) = req.kv.get("username")
-        && let Some(protocol) = req.kv.get("protocol")
-        && let Some(pwd) = auth.pwd(username, protocol).await?
+        && let Some(pwd) = auth.pwd(username).await?
     {
         let username = username.clone();
 
@@ -75,15 +74,18 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         Ok(true)
     } else if req.name == "user.register"
         && let Some(username) = req.kv.get("username")
+        && let Some(data) = req.kv.get("data")
         && let Some(expires) = req.kv.get("expires")
-        && let Some((_, address)) = req.kv.get("data").and_then(|data| data.split_once('/'))
     {
-        auth.register(username, address, expires.parse().unwrap_or(60))
-            .await
+        auth.register(username, data, expires.parse().unwrap_or(60))
+            .await?;
+
+        Ok(true)
     } else if req.name == "user.unregister"
         && let Some(username) = req.kv.get("username")
+        && let Some(data) = req.kv.get("data")
     {
-        auth.unregister(username).await
+        auth.unregister(username, data).await
     } else {
         Ok(false)
     }

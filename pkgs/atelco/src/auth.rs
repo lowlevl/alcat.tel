@@ -3,60 +3,56 @@ use sqlx::SqlitePool;
 pub struct Auth<'d>(pub &'d SqlitePool);
 
 impl Auth<'_> {
-    pub async fn pwd(&self, username: &str, protocol: &str) -> anyhow::Result<Option<String>> {
-        tracing::trace!("authenticating `{username}` for `{protocol}`");
+    pub async fn pwd(&self, number: &str) -> anyhow::Result<Option<String>> {
+        tracing::trace!("authenticating `{number}`");
 
         let row = sqlx::query!(
             r#"
-            SELECT auth.pwd
+            SELECT auth.password
             FROM auth
-            INNER JOIN route
-                ON route.ext = auth.ext
-                AND route.module = ?
-            WHERE route.ext = ?
+            WHERE auth.number = ?
             "#,
-            protocol,
-            username
+            number
         )
         .fetch_optional(self.0)
         .await?;
 
-        Ok(row.map(|row| row.pwd))
+        Ok(row.map(|row| row.password))
     }
 
-    pub async fn register(&self, ext: &str, address: &str, ttl: u32) -> anyhow::Result<bool> {
-        tracing::trace!("registering `{ext}` at `{address}` for {ttl}s");
+    pub async fn register(&self, number: &str, data: &str, ttl: u32) -> anyhow::Result<()> {
+        tracing::trace!("registering `{number}` at `{data}` for {ttl}s");
 
-        let registered = sqlx::query!(
+        // FIXME: expire all the expired locations for `number`
+
+        sqlx::query!(
             r#"
-            UPDATE route
-            SET address = ?,
-                expiry = UNIXEPOCH() + ?
-            WHERE route.ext = ?
-            RETURNING route.ext
+            INSERT INTO
+                location(number, data, expiry)
+            VALUES (?, ?, UNIXEPOCH() + ?)
             "#,
-            address,
-            ttl,
-            ext
+            number,
+            data,
+            ttl
         )
-        .fetch_optional(self.0)
+        .execute(self.0)
         .await?;
 
-        Ok(registered.is_some())
+        Ok(())
     }
 
-    pub async fn unregister(&self, ext: &str) -> anyhow::Result<bool> {
-        tracing::trace!("unregistering `{ext}`");
+    pub async fn unregister(&self, number: &str, data: &str) -> anyhow::Result<bool> {
+        tracing::trace!("unregistering `{number}` from `{data}`");
 
         let unregistered = sqlx::query!(
             r#"
-            UPDATE route
-            SET address = NULL,
-                expiry = NULL
-            WHERE route.ext = ?
-            RETURNING route.ext
+            DELETE FROM location
+            WHERE location.number = ?
+                AND location.data = ?
+            RETURNING location.number
             "#,
-            ext
+            number,
+            data
         )
         .fetch_optional(self.0)
         .await?;

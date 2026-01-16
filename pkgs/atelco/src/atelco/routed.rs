@@ -1,12 +1,11 @@
 use std::path::PathBuf;
 
-use atelco::router::{Route, Router};
+use atelco::router::Router;
 use clap::Parser;
 use futures::TryStreamExt;
-use smol::net::unix::UnixStream;
 use sqlx::SqlitePool;
 use url::Url;
-use yengine::{Engine, Req};
+use yengine::Req;
 
 #[derive(Debug, Parser)]
 pub struct Args {
@@ -44,7 +43,7 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
             .messages()
             .err_into()
             .try_for_each_concurrent(None, async |mut req| {
-                let processed = process(&engine, &database, &mut req).await?;
+                let processed = process(&database, &mut req).await?;
 
                 Ok(engine.ack(req, processed).await?)
             })
@@ -55,11 +54,7 @@ pub async fn exec(args: Args) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn process(
-    engine: &Engine<UnixStream, UnixStream>,
-    database: &SqlitePool,
-    req: &mut Req,
-) -> anyhow::Result<bool> {
+async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     let router = Router(database);
 
     // Deny unauthenticated calls with `noauth`
@@ -82,69 +77,26 @@ async fn process(
         Ok(true)
     } else if req.name == "call.route"
         && let Some(called) = req.kv.get("called")
+        && let Some(extension) = router.extension(called).await?
     {
-        match router.route(called).await? {
-            Route::NotFound => Ok(false),
+        let locations = router.route(called).await?;
 
-            // Deny routing to itself, because it might just timeout
-            Route::Routed(module, address)
-                if Some(&module) == req.kv.get("module")
-                    && Some(&address) == req.kv.get("address") =>
-            {
-                req.retvalue = "-".into();
+        if locations.is_empty() {
+            req.retvalue = "-".into();
+            req.kv.insert("error".into(), "offline".into());
+        } else {
+            req.retvalue = "fork".into();
 
-                Ok(true)
+            if let Some(ringback) = extension.ringback {
+                req.kv.insert("fork.fake".into(), ringback);
             }
 
-            Route::Routed(module, address) => {
-                req.retvalue = format!("{module}/{address}");
-
-                Ok(true)
-            }
-
-            Route::Alias(called) => {
-                let noloop = req.kv.get("noloop");
-
-                if let Some(noloop) = noloop
-                    && noloop == &called
-                {
-                    tracing::warn!("number `{called}` loops to itself");
-
-                    req.retvalue = "-".into();
-                    req.kv.insert("error".into(), "looping".into());
-
-                    Ok(true)
-                } else {
-                    if noloop.is_none() {
-                        req.kv.insert("noloop".into(), called.clone());
-                    }
-                    req.kv.insert("called".into(), called);
-
-                    // request the engine for a new route
-                    let (processed, retvalue, kv) = engine
-                        .message(&req.name, &req.retvalue, req.kv.clone())
-                        .await?;
-
-                    req.retvalue = retvalue;
-                    req.kv = kv;
-
-                    Ok(processed)
-                }
-            }
-
-            Route::Offline => {
-                req.retvalue = "-".into();
-                req.kv.insert("error".into(), "offline".into());
-
-                Ok(true)
-            }
-
-            Route::Reserved => {
-                req.retvalue = "-".into();
-
-                Ok(true)
+            for (idx, location) in locations.into_iter().enumerate() {
+                req.kv.insert(format!("callto.{}", idx + 1), location);
             }
         }
+
+        Ok(true)
     } else {
         Ok(false)
     }
