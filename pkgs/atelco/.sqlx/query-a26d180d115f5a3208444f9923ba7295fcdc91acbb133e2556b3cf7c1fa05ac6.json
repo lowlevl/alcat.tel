@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT number\n        FROM extension\n        WHERE ? LIKE extension.number || '%'\n            OR extension.number || '%' LIKE ?\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "number",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "extension",
+            "name": "number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a26d180d115f5a3208444f9923ba7295fcdc91acbb133e2556b3cf7c1fa05ac6"
+}

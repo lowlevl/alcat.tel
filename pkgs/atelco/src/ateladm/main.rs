@@ -6,8 +6,9 @@ use smol_macros::main;
 use tracing_subscriber::EnvFilter;
 use url::Url;
 
-mod auth;
-mod route;
+mod extension;
+
+// TODO: `alrm` commands with system services monitoring.
 
 /// Administrate the telecom system.
 #[derive(Debug, Parser)]
@@ -25,16 +26,10 @@ enum Command {
     /// Apply database migrations.
     Migrate,
 
-    /// Manage routes.
-    Route {
+    /// Manage extensions in the telephony system.
+    Extension {
         #[clap(subcommand)]
-        args: route::Args,
-    },
-
-    /// Manage authentication.
-    Auth {
-        #[clap(subcommand)]
-        args: auth::Args,
+        args: extension::Args,
     },
 }
 
@@ -54,18 +49,21 @@ async fn main() -> anyhow::Result<()> {
     let database = atelco::database(&args.database).await?;
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
-        Command::Route {
-            args: route::Args::List,
-        } => route::list::exec(database).await,
-        Command::Route {
-            args: route::Args::Add(args),
-        } => route::add::exec(database, args).await,
-        Command::Route {
-            args: route::Args::Del(args),
-        } => route::del::exec(database, args).await,
-        Command::Auth {
-            args: auth::Args::Generate(args),
-        } => auth::generate::exec(database, args).await,
-        // TODO: `alrm` commands with system services monitoring
+
+        Command::Extension {
+            args: extension::Args::Ls,
+        } => extension::ls::exec(database).await,
+        Command::Extension {
+            args: extension::Args::Add(args),
+        } => extension::add::exec(database, args).await,
+        Command::Extension {
+            args: extension::Args::Mod,
+        } => todo!(),
+        Command::Extension {
+            args: extension::Args::Rm(args),
+        } => extension::rm::exec(database, args).await,
+        Command::Extension {
+            args: extension::Args::Auth(args),
+        } => extension::auth::exec(database, args).await,
     }
 }

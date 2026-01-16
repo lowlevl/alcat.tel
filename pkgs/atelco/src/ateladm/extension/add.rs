@@ -3,54 +3,53 @@ use sqlx::SqlitePool;
 
 #[derive(Debug, Parser)]
 pub struct Args {
-    /// The extension to register.
-    ext: String,
+    /// The extension number to register.
+    number: String,
 
-    /// The `module` of the extension.
+    /// The ringback tone for the extension.
     #[clap(short, long)]
-    module: Option<String>,
-
-    /// The `address` of the extension.
-    #[clap(short, long)]
-    address: Option<String>,
+    ringback: Option<String>,
 }
 
 pub async fn exec(database: SqlitePool, args: Args) -> anyhow::Result<()> {
     let mut tx = database.begin().await?;
 
     let colliding = sqlx::query!(
-        "SELECT ext FROM route WHERE ? LIKE route.ext || '%'",
-        args.ext
+        r#"
+        SELECT number
+        FROM extension
+        WHERE ? LIKE extension.number || '%'
+            OR extension.number || '%' LIKE ?
+        "#,
+        args.number,
+        args.number
     )
     .fetch_optional(tx.as_mut())
     .await?;
 
-    // FIXME: detect reverse prefixing, 18 LIKE 181 or 181 LIKE 18
-
     if let Some(colliding) = colliding {
         anyhow::bail!(
             "Extension `{}` collides with `{}`, dial plan must be non-overlapping",
-            args.ext,
-            colliding.ext
+            args.number,
+            colliding.number
         );
     }
 
     sqlx::query!(
         r#"
-        INSERT INTO route
-            (ext, module, address)
-        VALUES (?, ?, ?)
+        INSERT INTO extension
+            (number, ringback)
+        VALUES (?, ?)
         "#,
-        args.ext,
-        args.module,
-        args.address
+        args.number,
+        args.ringback
     )
     .execute(tx.as_mut())
     .await?;
 
     tx.commit().await?;
 
-    println!("Successfully added `{}`", args.ext);
+    println!("Successfully added `{}`", args.number);
 
     Ok(())
 }

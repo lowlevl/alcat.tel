@@ -36,6 +36,13 @@ INSERT INTO location VALUES('183', 'analog/local-fxs/3', NULL);
 INSERT INTO extension VALUES('184', NULL);
 INSERT INTO location VALUES('184', 'analog/local-fxs/4', NULL);
 
+-- An alias to all analog lines
+INSERT INTO extension VALUES('180', NULL);
+INSERT INTO location VALUES('180', 'lateroute/181', NULL);
+INSERT INTO location VALUES('180', 'lateroute/182', NULL);
+INSERT INTO location VALUES('180', 'lateroute/183', NULL);
+INSERT INTO location VALUES('180', 'lateroute/184', NULL);
+
 -- Reserved extensions
 INSERT INTO extension VALUES('F', NULL);
 INSERT INTO extension VALUES('15', NULL);

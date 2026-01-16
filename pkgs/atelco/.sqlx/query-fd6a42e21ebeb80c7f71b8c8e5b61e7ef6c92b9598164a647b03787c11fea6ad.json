@@ -1,38 +1,38 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT ext, module FROM route WHERE route.ext = ?",
+  "query": "\n        SELECT *\n        FROM extension\n        ",
   "describe": {
     "columns": [
       {
-        "name": "ext",
+        "name": "number",
         "ordinal": 0,
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "route",
-            "name": "ext"
+            "table": "extension",
+            "name": "number"
           }
         }
       },
       {
-        "name": "module",
+        "name": "ringback",
         "ordinal": 1,
         "type_info": "Text",
         "origin": {
           "Table": {
-            "table": "route",
-            "name": "module"
+            "table": "extension",
+            "name": "ringback"
           }
         }
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 0
     },
     "nullable": [
       false,
       true
     ]
   },
-  "hash": "397871b9b76cfe277e8aeb478097fe7469a81c1c86ca75843b09fe4fceeb6aaa"
+  "hash": "fd6a42e21ebeb80c7f71b8c8e5b61e7ef6c92b9598164a647b03787c11fea6ad"
 }

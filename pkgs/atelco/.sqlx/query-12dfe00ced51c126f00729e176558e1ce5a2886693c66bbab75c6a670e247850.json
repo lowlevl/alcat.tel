@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            DELETE FROM location\n            WHERE location.number = ?\n                AND location.data = ?\n            RETURNING location.number\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "number",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "location",
+            "name": "number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "12dfe00ced51c126f00729e176558e1ce5a2886693c66bbab75c6a670e247850"
+}

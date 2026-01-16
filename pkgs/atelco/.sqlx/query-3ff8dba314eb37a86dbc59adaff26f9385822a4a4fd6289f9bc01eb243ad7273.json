@@ -1,0 +1,33 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                SELECT\n                    data,\n                    expiry - UNIXEPOCH() as ttl\n                FROM location\n                WHERE location.number = ?\n                ORDER BY ttl DESC\n                ",
+  "describe": {
+    "columns": [
+      {
+        "name": "data",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "location",
+            "name": "data"
+          }
+        }
+      },
+      {
+        "name": "ttl",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "3ff8dba314eb37a86dbc59adaff26f9385822a4a4fd6289f9bc01eb243ad7273"
+}

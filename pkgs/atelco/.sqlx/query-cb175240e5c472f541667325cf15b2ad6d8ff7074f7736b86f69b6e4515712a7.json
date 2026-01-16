@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT data\n            FROM location\n            WHERE location.number = ?\n                AND location.expiry > UNIXEPOCH()\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "data",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "location",
+            "name": "data"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "cb175240e5c472f541667325cf15b2ad6d8ff7074f7736b86f69b6e4515712a7"
+}
