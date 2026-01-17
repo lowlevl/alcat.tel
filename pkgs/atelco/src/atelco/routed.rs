@@ -112,8 +112,6 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
                 req.retvalue = "fork".into();
                 req.kv.insert("fork.stop".into(), "rejected".into());
 
-                // FIXME: also stop forks on `busy`
-
                 if let Some(ringback) = extension.ringback {
                     req.kv.insert("fork.fake".into(), ringback);
                 }
