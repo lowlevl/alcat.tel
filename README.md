@@ -17,7 +17,6 @@ Some fun with classic "Télécommunication" infrastructure.
 - An infoline service.
 - `WHOAMI` number to tell the caller's number.
 - Transfer calls using _hook flash_ (`F`) with wait tone.
-- Add call groups with a group table using `fork` & `lateroute` modules.
 
 ### Some inspirations, documentation and reference.
 
