@@ -1,20 +1,11 @@
 {
   lib,
-  rustPlatform,
-  llvmPackages,
+  naersk',
   ...
 }:
-rustPlatform.buildRustPackage {
-  pname = "atelco";
-  version = "0.0.0-devel";
-
-  nativeBuildInputs = [llvmPackages.bintools];
-  enableParallelBuilding = true;
-
+naersk'.buildPackage {
   src = ./.;
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-  };
+  enableParallelBuilding = true;
 
   SQLX_OFFLINE = true; # use cached compile-time checking.
 
