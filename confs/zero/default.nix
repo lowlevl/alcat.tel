@@ -1,11 +1,15 @@
 {pkgs, ...}: {
   imports = [
+    # Base stuff
     ./hardware-configuration.nix
     ./disk-config.nix
 
+    # Telephony stuff
+    ./dahdi.nix
     ./yate.nix
     ./atelco.nix
 
+    # Misc stuff
     ./httpd.nix
   ];
 
@@ -15,17 +19,6 @@
   # Secrets management outside of the Nix store
   sops.defaultSopsFile = ../../secrets.yaml;
   sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
-
-  # Drivers and configuration for telephony cards
-  services.dahdi = {
-    enable = true;
-    modules = ["wctdm24xxp"];
-
-    defaultzone = "fr";
-    channels."1-4".signaling = "fxoks";
-    channels."1-4".echocanceller = "oslec";
-  };
-  users.users.yate.extraGroups = ["telecom"]; # give access to `yate` to telephony cards
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

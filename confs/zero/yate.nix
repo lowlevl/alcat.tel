@@ -4,6 +4,7 @@
   atel,
   ...
 }: {
+  # Set up secrets for Yate
   sops = {
     ## SSL certificate and key for SIP over SSL
     secrets."ssl/cert" = {
@@ -40,9 +41,10 @@
     };
   };
 
+  # The Yate service
+  users.users.yate.extraGroups = ["telecom"]; # give access to `yate` to telephony cards
   networking.firewall.allowedUDPPorts = [5060]; # open firewall for SIP listener
 
-  # The Yate telephony engine service
   services.yate = {
     enable = true;
 
