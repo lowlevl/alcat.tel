@@ -80,20 +80,34 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     {
         let locations = router.route(called).await?;
 
+        // FIXME: no selfroute if no `fork`
         // FIXME: add loop protection
+        // FIXME: stop forking on rejection
 
-        if locations.is_empty() {
-            req.retvalue = "-".into();
-            req.kv.insert("error".into(), "offline".into());
-        } else {
-            req.retvalue = "fork".into();
-
-            if let Some(ringback) = extension.ringback {
-                req.kv.insert("fork.fake".into(), ringback);
+        match &locations[..] {
+            // Extension is offline
+            [] => {
+                req.retvalue = "-".into();
+                req.kv.insert("error".into(), "offline".into());
             }
 
-            for (idx, location) in locations.into_iter().enumerate() {
-                req.kv.insert(format!("callto.{}", idx + 1), location);
+            // Extension has a single location and has no ringback
+            [location] if extension.ringback.is_none() => {
+                req.retvalue = location.into();
+            }
+
+            // Otherwise, ringback or multiple locations, it's a fork !
+            locations => {
+                req.retvalue = "fork".into();
+
+                if let Some(ringback) = extension.ringback {
+                    req.kv.insert("fork.fake".into(), ringback);
+                }
+
+                for (idx, location) in locations.iter().enumerate() {
+                    req.kv
+                        .insert(format!("callto.{}", idx + 1), location.into());
+                }
             }
         }
 
