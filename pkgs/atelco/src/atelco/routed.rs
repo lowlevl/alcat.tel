@@ -82,7 +82,6 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
 
         // FIXME: no selfroute if no `fork`
         // FIXME: add loop protection
-        // FIXME: stop forking on rejection
 
         match &locations[..] {
             // Extension is offline
@@ -99,6 +98,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
             // Otherwise, ringback or multiple locations, it's a fork !
             locations => {
                 req.retvalue = "fork".into();
+                req.kv.insert("fork.stop".into(), "rejected".into());
 
                 if let Some(ringback) = extension.ringback {
                     req.kv.insert("fork.fake".into(), ringback);
