@@ -80,7 +80,6 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
     {
         let locations = router.route(called).await?;
 
-        // FIXME: no selfroute if no `fork`
         // FIXME: add loop protection
 
         match &locations[..] {
@@ -88,6 +87,19 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
             [] => {
                 req.retvalue = "-".into();
                 req.kv.insert("error".into(), "offline".into());
+            }
+
+            // Call route-backs to itself
+            [location]
+                if location.split_once("/")
+                    == req
+                        .kv
+                        .get("module")
+                        .map(String::as_str)
+                        .zip(req.kv.get("address").map(String::as_str)) =>
+            {
+                req.retvalue = "-".into();
+                req.kv.insert("error".into(), "busy".into());
             }
 
             // Extension has a single location and has no ringback
