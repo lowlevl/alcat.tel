@@ -8,9 +8,6 @@
     ./dahdi.nix
     ./yate.nix
     ./atelco.nix
-
-    # Misc stuff
-    ./httpd.nix
   ];
 
   networking.hostName = "zero";
