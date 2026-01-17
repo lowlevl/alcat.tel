@@ -83,13 +83,13 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         // FIXME: add loop protection
 
         match &locations[..] {
-            // Extension is offline
+            // Extension is `offline`
             [] => {
                 req.retvalue = "-".into();
                 req.kv.insert("error".into(), "offline".into());
             }
 
-            // Call route-backs to itself
+            // Call routes to the caller, deny with `busy`
             [location]
                 if location.split_once("/")
                     == req
@@ -107,10 +107,12 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
                 req.retvalue = location.into();
             }
 
-            // Otherwise, ringback or multiple locations, it's a fork !
+            // Otherwise, ringback or multiple locations, it's a `fork` !
             locations => {
                 req.retvalue = "fork".into();
                 req.kv.insert("fork.stop".into(), "rejected".into());
+
+                // FIXME: also stop forks on `busy`
 
                 if let Some(ringback) = extension.ringback {
                     req.kv.insert("fork.fake".into(), ringback);
