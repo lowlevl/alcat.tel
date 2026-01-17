@@ -27,7 +27,7 @@
       configuration = "/etc/nixos";
     in {
       n = "cd '${configuration}'";
-      pull-switch = "sudo sh -c '${lib.getExe pkgs.git} -C ${configuration} pull --rebase && nixos-rebuild switch'";
+      pull-switch = "time sudo sh -c '${lib.getExe pkgs.git} -C ${configuration} pull --rebase && nixos-rebuild switch -L'";
     };
 
     systemPackages = with pkgs; [
