@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{...}: {
   imports = [
     # Base stuff
     ./hardware-configuration.nix
@@ -11,7 +11,6 @@
   ];
 
   networking.hostName = "zero";
-  environment.systemPackages = [pkgs.dahdi-tools pkgs.rmanager];
 
   # Secrets management outside of the Nix store
   sops.defaultSopsFile = ../../secrets.yaml;

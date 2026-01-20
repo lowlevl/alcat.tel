@@ -4,6 +4,8 @@
   atel,
   ...
 }: {
+  environment.systemPackages = [pkgs.rmanager];
+
   # Set up secrets for Yate
   sops = {
     ## SSL certificate and key for SIP over SSL
