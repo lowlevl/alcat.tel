@@ -81,6 +81,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         let locations = router.route(called).await?;
 
         // FIXME: add loop protection
+        // FIXME: fix double forking issues
 
         match &locations[..] {
             // Extension is `offline`
