@@ -76,12 +76,16 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
         Ok(true)
     } else if req.name == "call.route"
         && let Some(called) = req.kv.get("called")
-        && let Some(extension) = router.extension(called).await?
+        && let Some(mut extension) = router.extension(called).await?
     {
         let locations = router.route(called).await?;
 
+        // `ringback` only works when we're at toplevel
+        let ringback = extension
+            .ringback
+            .take_if(|_| !req.kv.contains_key("fork.master"));
+
         // FIXME: add loop protection
-        // FIXME: fix double forking issues
 
         match &locations[..] {
             // Extension is `offline`
@@ -104,7 +108,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
             }
 
             // Extension has a single location and has no ringback
-            [location] if extension.ringback.is_none() => {
+            [location] if ringback.is_none() => {
                 req.retvalue = location.into();
             }
 
@@ -113,7 +117,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
                 req.retvalue = "fork".into();
                 req.kv.insert("fork.stop".into(), "rejected".into());
 
-                if let Some(ringback) = extension.ringback {
+                if let Some(ringback) = ringback {
                     req.kv.insert("fork.fake".into(), ringback);
                     req.kv.insert("fork.fake.autorepeat".into(), "true".into());
                 }
