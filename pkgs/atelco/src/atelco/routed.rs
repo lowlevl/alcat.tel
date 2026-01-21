@@ -114,6 +114,7 @@ async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
 
                 if let Some(ringback) = extension.ringback {
                     req.kv.insert("fork.fake".into(), ringback);
+                    req.kv.insert("fork.fake.autorepeat".into(), "true".into());
                 }
 
                 for (idx, location) in locations.iter().enumerate() {
