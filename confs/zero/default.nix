@@ -4,6 +4,9 @@
     ./hardware-configuration.nix
     ./disk-config.nix
 
+    # Misc stuff
+    ./wave.nix
+
     # Telephony stuff
     ./dahdi.nix
     ./yate.nix
