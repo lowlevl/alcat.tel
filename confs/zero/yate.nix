@@ -53,10 +53,6 @@
     # Default configuration and debugging
     config.general.modload = "disable";
     config.configuration.warnings = true;
-    config.ygi = {
-      sndpath = "${pkgs.atel-resources}/wave";
-      sndformats = "slin";
-    };
 
     modules.rmanager = {
       general.addr = "127.0.0.1";
@@ -72,7 +68,7 @@
       general.lang = config.services.dahdi.defaultzone;
     };
     modules.extmodule = {
-      general.scripts_dir = "${pkgs.atel-resources}/scripts/";
+      general.scripts_dir = pkgs.ascripts;
 
       "listener ctrl" = {
         type = "unix";

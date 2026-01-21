@@ -14,7 +14,7 @@
   };
 in
   stdenv.mkDerivation {
-    name = "atel-resources";
+    name = "ascripts";
 
     nativeBuildInputs = [];
     buildInputs = [php tcl];
@@ -22,14 +22,14 @@ in
     sourceRoot = ".";
     srcs = [
       ./scripts
-      ./wave
     ];
 
     dontBuild = true;
     installPhase = ''
       runHook preInstall
-      install -m 0755 -D scripts/* -t $out/scripts/
-      mkdir -p $out/wave/ && cp -vr wave/* $out/wave/
+
+      install -m 0755 -D scripts/* -t $out/
+
       runHook postInstall
     '';
     postInstall = let
@@ -50,7 +50,7 @@ in
       ];
     in
       builtins.concatStringsSep "\n" (
-        builtins.map (path: "ln -v -s ${path} $out/scripts/$(basename ${path})") links
+        builtins.map (path: "ln -v -s ${path} $out/$(basename ${path})") links
       );
 
     meta = {
