@@ -66,6 +66,8 @@
     modules.wavefile = null;
     modules.tonegen = pkgs.yate.mkConfigExt {
       general.lang = config.services.dahdi.defaultzone;
+
+      fr.callwaiting = "440/300,0/10000"; # forgotten alias
     };
     modules.extmodule = {
       general.scripts_dir = pkgs.ascripts;
