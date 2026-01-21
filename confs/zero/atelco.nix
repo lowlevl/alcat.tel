@@ -39,7 +39,7 @@ in {
 
       environment.RUST_LOG = "warn,atelco=trace";
 
-      startLimitBurst = 10;
+      startLimitBurst = 15;
       startLimitIntervalSec = 30;
 
       serviceConfig = {
@@ -50,7 +50,7 @@ in {
         Group = config.users.users.atelco.group;
 
         Restart = "always";
-        RestartSteps = "10";
+        RestartSteps = "5";
         RestartMaxDelaySec = "10";
 
         ExecStartPre = [
