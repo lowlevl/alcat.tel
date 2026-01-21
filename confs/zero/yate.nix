@@ -159,19 +159,6 @@
       ^09.\{4\}$=line/\0;line=epvpn0
 
       ;
-      ; :: Reserved phone numbers with vanity ::
-
-      ; [INFO]: The infoline service
-      ^4636$=external/nodata/infoline.tcl
-
-      ;
-      ; :: Automated services ::
-
-      ^811$=wave/play/${pkgs.atel-resources}/wave/music/rick-roll.slin
-      ^812$=wave/play/${pkgs.atel-resources}/wave/music/woop-woop.slin
-      ^813$=wave/play/${pkgs.atel-resources}/wave/le-temps-des-tempetes.slin
-
-      ;
       ; :: `off-hook` calls handler using `overlapped.php`
 
       ''${overlapped}yes=goto overlapped
