@@ -6,7 +6,7 @@
     };
 
     "/wave/static".L = {
-      argument = builtins.toString ./wave;
+      argument = "${./wave}";
     };
   };
 }
