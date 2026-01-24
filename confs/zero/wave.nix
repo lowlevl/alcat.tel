@@ -5,8 +5,8 @@
       mode = "775";
     };
 
-    "/wave/static".L = {
-      argument = builtins.toString ./wave;
+    "/wave/static"."L+" = {
+      argument = "${./wave}";
     };
   };
 }
