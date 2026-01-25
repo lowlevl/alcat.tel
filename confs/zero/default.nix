@@ -11,6 +11,7 @@
     ./dahdi.nix
     ./yate.nix
     ./atelco.nix
+    ./sipdect.nix
   ];
 
   networking.hostName = "zero";
