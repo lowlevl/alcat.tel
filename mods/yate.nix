@@ -84,6 +84,7 @@ in {
         Nice = -4;
 
         RuntimeDirectory = "yate"; # populate `/run/yate` for sockets
+        UMask = 0007; # make sockets available to the `yate` group
 
         ExecReload = "${lib.getExe' pkgs.util-linux "kill"} -HUP $MAINPID";
         ExecStart = "${lib.getExe cfg.package} -c /etc/yate -F -N ${cfg.nodename}";

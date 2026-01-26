@@ -26,7 +26,6 @@ in {
   users.users.atelco = {
     isSystemUser = true;
     group = "atelco";
-    extraGroups = ["yate"];
   };
 
   systemd.services =
@@ -43,18 +42,18 @@ in {
       startLimitIntervalSec = 30;
 
       serviceConfig = {
-        StateDirectory = "atelco";
-        StateDirectoryMode = "0775";
-
         User = config.users.users.atelco.name;
         Group = config.users.users.atelco.group;
+        SupplementaryGroups = ["yate"];
+
+        StateDirectory = "atelco";
+        StateDirectoryMode = "0775";
 
         Restart = "always";
         RestartSteps = "5";
         RestartMaxDelaySec = "10";
 
         ExecStartPre = [
-          "+${lib.getExe' pkgs.coreutils "chmod"} g+w ${socket}" # set-up yate's socket
           "${lib.getExe' pkgs.execline "umask"} 0007 ${lib.getExe' pkgs.coreutils "touch"} ${database}" # create database file if required
         ];
         ExecStart = value;
