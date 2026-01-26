@@ -70,6 +70,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     boot.extraModulePackages = [cfg.kpackage];
+    environment.systemPackages = [cfg.package];
 
     users.groups.telecom = {};
 

@@ -1,6 +1,4 @@
-{pkgs, ...}: {
-  environment.systemPackages = [pkgs.dahdi-tools];
-
+{...}: {
   # Drivers and configuration for telephony cards
   services.dahdi = {
     enable = true;

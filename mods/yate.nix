@@ -25,6 +25,13 @@ in {
     enable = lib.mkEnableOption config.systemd.service.yate.description;
     package = lib.mkPackageOption pkgs "yate" {};
 
+    extraGroups = lib.mkOption {
+      type = types.listOf types.str;
+      description = "Extra groups to add the systemd service";
+      example = ["telephony"];
+      default = [];
+    };
+
     nodename = lib.mkOption {
       type = types.str;
       description = "The name of the node in clustered configuation";
@@ -49,6 +56,8 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = [cfg.package.rmanager];
+
     users.groups.yate = {};
     users.users.yate = {
       isSystemUser = true;
@@ -70,6 +79,7 @@ in {
       serviceConfig = {
         User = config.users.users.yate.name;
         Group = config.users.users.yate.group;
+        SupplementaryGroups = cfg.extraGroups;
         Restart = "always";
         Nice = -4;
 
