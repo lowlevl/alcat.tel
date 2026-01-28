@@ -56,6 +56,7 @@
           common = import ./mods/common;
           dahdi = import ./mods/dahdi;
           yate = import ./mods/yate.nix;
+          atelco = import ./mods/atelco.nix;
         };
 
         nixosConfigurations."zero" = nixpkgs.lib.nixosSystem rec {
@@ -80,6 +81,7 @@
             self.nixosModules.common
             self.nixosModules.dahdi
             self.nixosModules.yate
+            self.nixosModules.atelco
 
             sops-nix.nixosModules.default
             disko.nixosModules.default

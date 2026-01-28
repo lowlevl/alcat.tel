@@ -68,11 +68,6 @@
     };
     modules.extmodule = {
       general.scripts_dir = pkgs.ascripts;
-
-      "listener ctrl" = {
-        type = "unix";
-        path = "/run/yate/ctrl.sock";
-      };
     };
 
     # Hardware configuration
