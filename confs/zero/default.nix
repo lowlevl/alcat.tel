@@ -15,6 +15,9 @@
 
   networking.hostName = "zero";
 
+  # Give `technician` access to `ateladm`
+  users.users.technician.extraGroups = ["atelco"];
+
   # Secrets management outside of the Nix store
   sops.defaultSopsFile = ../../secrets.yaml;
   sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];

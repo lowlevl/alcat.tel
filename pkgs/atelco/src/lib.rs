@@ -49,6 +49,7 @@ pub async fn database(url: &Url) -> anyhow::Result<SqlitePool> {
         .acquire_slow_threshold(Duration::from_millis(250))
         .min_connections(4)
         .connect_with(
+            // NOTE: could use `with_regexp()` to enable REGEXP SQL keyword
             SqliteConnectOptions::from_url(url)?
                 .log_slow_statements("warn".parse()?, Duration::from_millis(100))
                 .optimize_on_close(true, None)
