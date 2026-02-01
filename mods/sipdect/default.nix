@@ -5,6 +5,7 @@
 }: let
   inherit (lib) types;
 
+  options = import ./options.nix {inherit lib;};
   cfg = config.services.sipdect;
 in {
   options.services.sipdect = {
@@ -32,14 +33,20 @@ in {
       description = "The subnet mask on the bridged interface";
     };
 
+    ntpd = lib.mkOption {
+      type = options.syslogd;
+      description = "The configuration of the NTP service";
+      default = {};
+    };
+
     syslogd = lib.mkOption {
-      type = types.any;
-      description = "The configuration of the syslogd service";
+      type = options.syslogd;
+      description = "The configuration of the `syslog` service";
       default = {};
     };
 
     rfp = lib.mkOption {
-      type = types.attrsOf types.any;
+      type = types.attrsOf options.rfp;
       description = "Configuration of individual RFPs, indexed by their MAC address";
       default = {};
     };

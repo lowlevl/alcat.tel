@@ -6,6 +6,7 @@
     address = "10.127.0.254";
     mask = 24;
 
+    ntpd.enable = true;
     syslogd.enable = true;
 
     rfp."00304222ADE9" = {
