@@ -7,18 +7,6 @@ in {
         type = types.str;
         description = "The address to be assigned to the RFP";
       };
-
-      omm1 = lib.mkOption {
-        type = types.bool;
-        description = "Set the RFP to operate as `omm1` (main-OMM)";
-        default = false;
-      };
-
-      omm2 = lib.mkOption {
-        type = types.bool;
-        description = "Set the RFP to operate as `omm2` (standby-OMM)";
-        default = false;
-      };
     };
   };
 
@@ -31,6 +19,17 @@ in {
   syslogd = types.submodule {
     options = {
       enable = lib.mkEnableOption "Syslogd support for RFPs";
+
+      address = lib.mkOption {
+        type = types.nullOr types.str;
+        description = "The address of the syslogd server, or if `null` start a local server";
+        default = null;
+      };
+      port = lib.mkOption {
+        type = types.int;
+        description = "The port of the syslogd server";
+        default = 514;
+      };
     };
   };
 }
