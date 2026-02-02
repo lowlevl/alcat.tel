@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   lib,
   ...
 }: let
@@ -10,6 +11,12 @@
 in {
   options.services.sipdect = {
     enable = lib.mkEnableOption "Mitel SIP-DECT support";
+
+    openFirewall = lib.mkOption {
+      type = types.bool;
+      description = "Whether to open ports in the firewall for Mitel SIP-DECT services";
+      default = false;
+    };
 
     interfaces = lib.mkOption {
       type = types.listOf types.str;
@@ -59,9 +66,9 @@ in {
       default = {};
     };
 
-    config = lib.mkOption {
-      type = types.lines;
-      description = "Configuration for the OMM and RFPs that produces `ipdect.cfg`";
+    provisioning = lib.mkOption {
+      type = types.attrsOf types.path;
+      description = "Files on the provisioning TFTP server";
       default = {};
     };
   };
@@ -77,10 +84,12 @@ in {
         prefixLength = cfg.mask;
       };
 
-      firewall.allowedUDPPorts =
+      firewall.allowedUDPPorts = lib.optionals cfg.openFirewall (
         [67]
+        ++ lib.optional (cfg.provisioning != {}) 69
         ++ lib.optional cfg.ntpd.enable 123
-        ++ lib.optional (cfg.syslogd.enable && cfg.syslogd.address == null) cfg.syslogd.port;
+        ++ lib.optional (cfg.syslogd.enable && cfg.syslogd.address == null) cfg.syslogd.port
+      );
     };
 
     services.openntpd = lib.mkIf cfg.ntpd.enable {
@@ -97,6 +106,18 @@ in {
       extraConfig = ''
         module(load="imudp")
         input(type="imudp" port="${builtins.toString cfg.syslogd.port}" address="${cfg.address}")
+      '';
+    };
+
+    services.atftpd = lib.mkIf (cfg.provisioning != {}) {
+      enable = true;
+
+      extraOptions = lib.singleton "--bind-address ${cfg.address}";
+      root = pkgs.runCommand "provisioning-files" {} ''
+        mkdir -v $out
+        ${lib.concatMapAttrsStringSep "\n"
+          (destination: source: "ln -vs ${source} $out/${destination}")
+          cfg.provisioning}
       '';
     };
 
@@ -155,10 +176,6 @@ in {
               data = "OpenMobility";
             }
             {
-              name = "tftp-server-name";
-              data = "tftp://${cfg.address}";
-            }
-            {
               space = "vendor-encapsulated-options-space";
               name = "omm-ip1";
               data =
@@ -171,6 +188,10 @@ in {
             space = "vendor-encapsulated-options-space";
             name = "omm-ip2";
             data = cfg.ommip2;
+          }
+          ++ lib.optional (cfg.provisioning != {}) {
+            name = "tftp-server-name";
+            data = "tftp://${cfg.address}";
           }
           ++ lib.optional cfg.ntpd.enable {
             name = "ntp-servers";
