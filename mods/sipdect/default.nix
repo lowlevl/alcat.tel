@@ -92,14 +92,6 @@ in {
       );
     };
 
-    services.openntpd = lib.mkIf cfg.ntpd.enable {
-      enable = true;
-
-      extraConfig = ''
-        listen on ${cfg.address}
-      '';
-    };
-
     services.rsyslogd = lib.mkIf (cfg.syslogd.enable && cfg.syslogd.address == null) {
       enable = true;
 
@@ -109,119 +101,58 @@ in {
       '';
     };
 
-    services.atftpd = lib.mkIf (cfg.provisioning != {}) {
+    services.openntpd = lib.mkIf cfg.ntpd.enable {
       enable = true;
 
-      extraOptions = lib.singleton "--bind-address ${cfg.address}";
-      root = pkgs.runCommand "provisioning-files" {} ''
-        mkdir -v $out
-        ${lib.concatMapAttrsStringSep "\n"
-          (destination: source: "ln -vs ${source} $out/${destination}")
-          cfg.provisioning}
+      extraConfig = ''
+        listen on ${cfg.address}
       '';
     };
 
-    services.kea.dhcp4 = {
+    services.dnsmasq = {
       enable = true;
 
+      resolveLocalQueries = lib.mkDefault false;
       settings = {
-        interfaces-config = {
-          interfaces = lib.singleton cfg.interface;
-          service-sockets-require-all = true;
-        };
+        interface = cfg.interface;
+        port = 0; # disable DNS server
 
-        lease-database = {
-          type = "memfile";
-          name = "/var/lib/kea/dhcp4.leases";
-          persist = true;
-        };
+        dhcp-authoritative = true;
+        dhcp-range = "${cfg.address},static";
+        dhcp-host = lib.mapAttrsToList (mac: rfp: "${mac},${rfp.address}") cfg.rfp;
 
-        option-def = [
-          {
-            code = 224;
-            name = "magic-str";
-            type = "string";
-          }
-          {
-            code = 10;
-            space = "vendor-encapsulated-options-space";
-            name = "omm-ip1";
-            type = "ipv4-address";
-          }
-          {
-            code = 19;
-            space = "vendor-encapsulated-options-space";
-            name = "omm-ip2";
-            type = "ipv4-address";
-          }
-          {
-            code = 14;
-            space = "vendor-encapsulated-options-space";
-            name = "syslog-ip";
-            type = "ipv4-address";
-          }
-          {
-            code = 15;
-            space = "vendor-encapsulated-options-space";
-            name = "syslog-port";
-            type = "uint16";
-          }
-        ];
+        dhcp-option = let
+          ommip1 =
+            if cfg.ommip1 != null
+            then cfg.ommip1
+            else lib.elemAt (lib.mapAttrsToList (mac: rfp: rfp.address) cfg.rfp) 0;
 
-        option-data =
+          syslogip =
+            if cfg.syslogd.address != null
+            then cfg.syslogd.address
+            else cfg.address;
+          syslogport = builtins.toString cfg.syslogd.port;
+        in
           [
-            {name = "vendor-encapsulated-options";}
-            {
-              name = "magic-str";
-              data = "OpenMobility";
-            }
-            {
-              space = "vendor-encapsulated-options-space";
-              name = "omm-ip1";
-              data =
-                if cfg.ommip1 != null
-                then cfg.ommip1
-                else lib.elemAt (lib.mapAttrsToList (mac: rfp: rfp.address) cfg.rfp) 0;
-            }
+            "224,OpenMobility"
+            "vendor:OpenMobility,10,${ommip1}"
           ]
-          ++ lib.optional (cfg.ommip2 != null) {
-            space = "vendor-encapsulated-options-space";
-            name = "omm-ip2";
-            data = cfg.ommip2;
-          }
-          ++ lib.optional (cfg.provisioning != {}) {
-            name = "tftp-server-name";
-            data = "tftp://${cfg.address}";
-          }
-          ++ lib.optional cfg.ntpd.enable {
-            name = "ntp-servers";
-            data = cfg.address;
-          }
-          ++ lib.optional cfg.syslogd.enable {
-            space = "vendor-encapsulated-options-space";
-            name = "syslog-ip";
-            data =
-              if cfg.syslogd.address != null
-              then cfg.syslogd.address
-              else cfg.address;
-          }
-          ++ lib.optional cfg.syslogd.enable {
-            space = "vendor-encapsulated-options-space";
-            name = "syslog-port";
-            data = builtins.toString cfg.syslogd.port;
-          };
+          ++ lib.optional (cfg.ommip2 != null) "vendor:OpenMobility,19,${cfg.ommip2}"
+          ++ lib.optional cfg.syslogd.enable "vendor:OpenMobility,14,${syslogip}"
+          ++ lib.optional cfg.syslogd.enable "vendor:OpenMobility,15,${syslogport}"
+          ++ lib.optional (cfg.provisioning != {}) "66,tftp://${cfg.address}"
+          ++ lib.optional cfg.ntpd.enable "42,${cfg.address}";
 
-        subnet4 = lib.singleton {
-          id = 127;
-          subnet = "${cfg.address}/${builtins.toString cfg.mask}";
-
-          reservations =
-            lib.mapAttrsToList (mac: rfp: {
-              hw-address = mac;
-              ip-address = rfp.address;
-            })
-            cfg.rfp;
-        };
+        enable-tftp = cfg.provisioning != {};
+        tftp-root = let
+          drv = pkgs.runCommand "provisioning-files" {} ''
+            mkdir -v $out
+            ${lib.concatMapAttrsStringSep "\n"
+              (destination: source: "ln -vs ${source} $out/${destination}")
+              cfg.provisioning}
+          '';
+        in
+          builtins.toString drv;
       };
     };
   };
