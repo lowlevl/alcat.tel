@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   # NOTE: forward `syslog` to `journald`
   services.rsyslogd.defaultConfig = ''
     $OmitLocalLogging on # disable using syslog socket from `journald`
@@ -19,7 +23,7 @@
     action(type="omjournal" template="journal")
   '';
 
-  # FIXME: NTP
+  # FIXME: NTPd still does not work
 
   services.sipdect = {
     enable = true;
@@ -38,6 +42,9 @@
       "ipdect.cfg" = pkgs.writeText "ipdect.cfg" ''
         <SetEULAConfirm confirm="1" />
 
+        # set PARK from PARK service
+        <SetPARK park="1F102A7158" />
+
         <SetSysToneScheme toneScheme="FR" />
         <SetDECTRegDomain regDomain="EMEA" />
         # reduce power to 100mW rather than 250mW
@@ -46,7 +53,24 @@
         <SetDECTEncryption enable="0" />
         <SetDECTAuthCode ac="0000" />
 
-        <SetDevAutoCreate enable="1" />
+        <SetBasicSIP
+          transportProt="UDP"
+          proxyServer="${config.services.sipdect.address}" proxyPort="5060"
+          regServer="${config.services.sipdect.address}" regPort="5060" regPeriod="3600" />
+
+        <CreateFixedPP>
+          <user num="1" />
+          <pp ipei="" />
+        </CreateFixedPP>
+        <CreateFixedPP>
+          <user num="2" />
+          <pp ipei="" />
+        </CreateFixedPP>
+        <CreateFixedPP>
+          <user num="3" />
+          <pp ipei="" />
+        </CreateFixedPP>
+
         <SetDECTSubscriptionMode mode="Wildcard" timeout="60" />
       '';
     };
