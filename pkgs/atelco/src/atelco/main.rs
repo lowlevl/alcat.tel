@@ -1,5 +1,6 @@
 use std::io;
 
+use atelco::router::Router;
 use clap::Parser;
 use macro_rules_attribute::apply;
 use smol_macros::main;
@@ -8,19 +9,11 @@ use tracing_subscriber::EnvFilter;
 mod authd;
 mod routed;
 
-/// Core telecom functionalities.
-#[derive(Debug, Parser)]
-enum Args {
-    /// Handle `call.preroute` and `call.route` messages.
-    Routed(routed::Args),
-
-    /// Handle `user.auth`, `user.register` and `user.unregister` messages.
-    Authd(authd::Args),
-}
+mod args;
 
 #[apply(main!)]
 async fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let args = args::Args::parse();
 
     tracing_subscriber::fmt()
         .with_writer(io::stderr)
@@ -32,8 +25,28 @@ async fn main() -> anyhow::Result<()> {
         .without_time()
         .init();
 
-    match args {
-        Args::Routed(args) => routed::exec(args).await,
-        Args::Authd(args) => authd::exec(args).await,
+    let (engine, database) = (
+        atelco::engine(&args.socket).await?,
+        atelco::database(&args.database).await?,
+    );
+
+    match args.command {
+        args::Command::Routed { priority } => {
+            let module = routed::Routed {
+                priority,
+                router: Router(&database),
+            };
+
+            engine.attach(module).await
+        }
+
+        args::Command::Authd { priority } => {
+            let module = authd::Authd {
+                priority,
+                router: Router(&database),
+            };
+
+            engine.attach(module).await
+        }
     }
 }

@@ -22,7 +22,7 @@ macro_rules_attribute = "0.2.2"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 
-rand = "0.9.2"
+rand = "0.10.0"
 diceware_wordlists = "1.2.3"
 
 url = "2.5.7"
@@ -30,7 +30,7 @@ clap = { version = "4.5.53", features = ["derive", "env"] }
 anyhow = "1.0.100"
 
 sqlx = { version = "0.9.0-alpha.1", features = ["runtime-smol", "sqlite"] }
-yengine = "0.0.6"
+yengine = "0.0.8"
 # yengine = { path = "../../../yengine" }
 
 tabled = "0.20.0"

@@ -1,136 +1,120 @@
-use std::path::PathBuf;
-
 use atelco::router::Router;
-use clap::Parser;
-use futures::TryStreamExt;
-use sqlx::SqlitePool;
-use url::Url;
-use yengine::Req;
+use futures::{AsyncRead, AsyncWrite};
+use yengine::engine::{Engine, Request};
 
-#[derive(Debug, Parser)]
-pub struct Args {
-    /// Path to yate's control socket.
-    socket: PathBuf,
-
-    /// The path to the `sqlite` database.
-    #[arg(short, long)]
-    database: Url,
-
-    /// The priority for `call.preroute` and `call.route` handlers.
-    #[arg(short, long, default_value = "95")]
-    priority: u64,
+pub struct Routed<'r> {
+    pub priority: u64,
+    pub router: Router<'r>,
 }
 
-pub async fn exec(args: Args) -> anyhow::Result<()> {
-    let (engine, database) = (
-        atelco::engine(&args.socket).await?,
-        atelco::database(&args.database).await?,
-    );
+impl yengine::Module for Routed<'_> {
+    type Error = anyhow::Error;
 
-    engine.setlocal("trackparam", module_path!()).await?;
-
-    if !engine.install(args.priority, "call.preroute", None).await? {
-        anyhow::bail!("unable to register `call.preroute` handler");
-    }
-    if !engine.install(args.priority, "call.route", None).await? {
-        anyhow::bail!("unable to register `call.route` handler");
-    }
-
-    futures::try_join!(
-        atelco::sigterm(&engine),
-        engine
-            .messages()
-            .err_into()
-            .try_for_each_concurrent(None, async |mut req| {
-                let processed = process(&database, &mut req).await?;
-
-                Ok(engine.ack(req, processed).await?)
-            })
-    )?;
-
-    tracing::info!("processed all incoming messages, exiting");
-
-    Ok(())
-}
-
-async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
-    let router = Router(database);
-
-    // Deny unauthenticated calls with `noauth`
-    if req.kv.get("module").map(String::as_str) != Some("analog")
-        && !req.kv.contains_key("username")
+    async fn install<I, O>(&self, engine: &Engine<I, O>) -> Result<(), Self::Error>
+    where
+        I: AsyncRead + Send + Unpin,
+        O: AsyncWrite + Send + Unpin,
     {
-        req.retvalue = "-".into();
-        req.kv.insert("error".into(), "noauth".into());
+        engine.setlocal("trackparam", module_path!()).await?;
 
-        return Ok(true);
-    }
-
-    if req.name == "call.preroute"
-        && let Some(module) = req.kv.get("module")
-        && let Some(address) = req.kv.get("address")
-        && let Some(caller) = router.preroute(module, address).await?
-    {
-        req.kv.insert("caller".into(), caller);
-
-        Ok(true)
-    } else if req.name == "call.route"
-        && let Some(called) = req.kv.get("called")
-        && let Some(mut extension) = router.extension(called).await?
-    {
-        let locations = router.route(called).await?;
-
-        // `ringback` only works when we're at toplevel
-        let ringback = extension
-            .ringback
-            .take_if(|_| !req.kv.contains_key("fork.master"));
-
-        // FIXME: add loop protection
-
-        match &locations[..] {
-            // Extension is `offline`
-            [] => {
-                req.retvalue = "-".into();
-                req.kv.insert("error".into(), "offline".into());
-            }
-
-            // Call routes to the caller, deny with `busy`
-            [location]
-                if location.split_once("/")
-                    == req
-                        .kv
-                        .get("module")
-                        .map(String::as_str)
-                        .zip(req.kv.get("address").map(String::as_str)) =>
-            {
-                req.retvalue = "-".into();
-                req.kv.insert("error".into(), "busy".into());
-            }
-
-            // Extension has a single location and has no ringback
-            [location] if ringback.is_none() => {
-                req.retvalue = location.into();
-            }
-
-            // Otherwise, ringback or multiple locations, it's a `fork` !
-            locations => {
-                req.retvalue = "fork".into();
-                req.kv.insert("fork.stop".into(), "rejected".into());
-
-                if let Some(ringback) = ringback {
-                    req.kv.insert("fork.fake".into(), ringback);
-                    req.kv.insert("fork.fake.autorepeat".into(), "true".into());
-                }
-
-                for (idx, location) in locations.iter().enumerate() {
-                    req.kv
-                        .insert(format!("callto.{}", idx + 1), location.into());
-                }
-            }
+        if !engine.install(self.priority, "call.preroute", None).await? {
+            anyhow::bail!("unable to register `call.preroute` handler");
+        }
+        if !engine.install(self.priority, "call.route", None).await? {
+            anyhow::bail!("unable to register `call.route` handler");
         }
 
-        Ok(true)
-    } else {
-        Ok(false)
+        atelco::sigterm(engine).await
+    }
+
+    async fn on_message<I, O>(
+        &self,
+        _: &Engine<I, O>,
+        request: &mut Request,
+    ) -> Result<bool, Self::Error>
+    where
+        I: AsyncRead + Send + Unpin,
+        O: AsyncWrite + Send + Unpin,
+    {
+        // Deny unauthenticated calls with `noauth`
+        if request.kv.get("module").map(String::as_str) != Some("analog")
+            && !request.kv.contains_key("username")
+        {
+            request.retvalue = "-".into();
+            request.kv.insert("error".into(), "noauth".into());
+
+            return Ok(true);
+        }
+
+        if request.name == "call.preroute"
+            && let Some(module) = request.kv.get("module")
+            && let Some(address) = request.kv.get("address")
+            && let Some(caller) = self.router.reverse(module, address).await?
+        {
+            request.kv.insert("caller".into(), caller);
+
+            Ok(true)
+        } else if request.name == "call.route"
+            && let Some(called) = request.kv.get("called")
+            && let Some(mut extension) = self.router.extension(called).await?
+        {
+            let locations = self.router.route(called).await?;
+
+            // `ringback` only works when we're at toplevel
+            let ringback = extension
+                .ringback
+                .take_if(|_| !request.kv.contains_key("fork.master"));
+
+            // FIXME: add loop protection
+
+            match &locations[..] {
+                // Extension is `offline`
+                [] => {
+                    request.retvalue = "-".into();
+                    request.kv.insert("error".into(), "offline".into());
+                }
+
+                // Call routes to the caller, deny with `busy`
+                [location]
+                    if location.split_once("/")
+                        == request
+                            .kv
+                            .get("module")
+                            .map(String::as_str)
+                            .zip(request.kv.get("address").map(String::as_str)) =>
+                {
+                    request.retvalue = "-".into();
+                    request.kv.insert("error".into(), "busy".into());
+                }
+
+                // Extension has a single location and has no ringback
+                [location] if ringback.is_none() => {
+                    request.retvalue = location.into();
+                }
+
+                // Otherwise, ringback or multiple locations, it's a `fork` !
+                locations => {
+                    request.retvalue = "fork".into();
+                    request.kv.insert("fork.stop".into(), "rejected".into());
+
+                    if let Some(ringback) = ringback {
+                        request.kv.insert("fork.fake".into(), ringback);
+                        request
+                            .kv
+                            .insert("fork.fake.autorepeat".into(), "true".into());
+                    }
+
+                    for (idx, location) in locations.iter().enumerate() {
+                        request
+                            .kv
+                            .insert(format!("callto.{}", idx + 1), location.into());
+                    }
+                }
+            }
+
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 }

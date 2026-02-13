@@ -2,7 +2,7 @@ use std::{path::Path, time::Duration};
 
 use anyhow::Context;
 use async_signal::{Signal, Signals};
-use futures::TryStreamExt;
+use futures::{AsyncRead, AsyncWrite, TryStreamExt};
 use smol::net::unix::UnixStream;
 use sqlx::{
     ConnectOptions, SqlitePool,
@@ -21,7 +21,7 @@ pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream
     let engine = Engine::from_io(socket.clone(), socket);
 
     engine
-        .connect(yengine::format::ConnectRole::Global, None)
+        .connect(yengine::wire::ConnectRole::Global, None)
         .await?;
 
     tracing::info!(
@@ -35,7 +35,11 @@ pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream
     Ok(engine)
 }
 
-pub async fn sigterm(engine: &Engine<UnixStream, UnixStream>) -> anyhow::Result<()> {
+pub async fn sigterm<I, O>(engine: &Engine<I, O>) -> anyhow::Result<()>
+where
+    I: AsyncRead + Send + Unpin,
+    O: AsyncWrite + Send + Unpin,
+{
     Signals::new([Signal::Term])?.try_next().await?;
 
     tracing::info!("received `SIGTERM`, sending quit message to engine..");

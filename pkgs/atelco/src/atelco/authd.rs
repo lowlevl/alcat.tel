@@ -1,94 +1,78 @@
-use std::path::PathBuf;
-
 use atelco::router::Router;
-use clap::Parser;
-use futures::TryStreamExt;
-use sqlx::SqlitePool;
-use url::Url;
-use yengine::Req;
+use futures::{AsyncRead, AsyncWrite};
+use yengine::engine::{Engine, Request};
 
-#[derive(Debug, Parser)]
-pub struct Args {
-    /// Path to yate's control socket.
-    socket: PathBuf,
-
-    /// The path to the `sqlite` database.
-    #[arg(short, long)]
-    database: Url,
-
-    /// The priority for `user.auth`, `user.register` and `user.unregister` handlers.
-    #[arg(short, long, default_value = "95")]
-    priority: u64,
+pub struct Authd<'r> {
+    pub priority: u64,
+    pub router: Router<'r>,
 }
 
-pub async fn exec(args: Args) -> anyhow::Result<()> {
-    let (engine, database) = (
-        atelco::engine(&args.socket).await?,
-        atelco::database(&args.database).await?,
-    );
+impl yengine::Module for Authd<'_> {
+    type Error = anyhow::Error;
 
-    engine.setlocal("trackparam", module_path!()).await?;
+    async fn install<I, O>(&self, engine: &Engine<I, O>) -> Result<(), Self::Error>
+    where
+        I: AsyncRead + Send + Unpin,
+        O: AsyncWrite + Send + Unpin,
+    {
+        engine.setlocal("trackparam", module_path!()).await?;
 
-    if !engine.install(args.priority, "user.auth", None).await? {
-        anyhow::bail!("unable to register `user.auth` handler");
+        if !engine.install(self.priority, "user.auth", None).await? {
+            anyhow::bail!("unable to register `user.auth` handler");
+        }
+        if !engine.install(self.priority, "user.register", None).await? {
+            anyhow::bail!("unable to register `user.register` handler");
+        }
+        if !engine
+            .install(self.priority, "user.unregister", None)
+            .await?
+        {
+            anyhow::bail!("unable to register `user.unregister` handler");
+        }
+
+        atelco::sigterm(engine).await
     }
-    if !engine.install(args.priority, "user.register", None).await? {
-        anyhow::bail!("unable to register `user.register` handler");
-    }
-    if !engine
-        .install(args.priority, "user.unregister", None)
-        .await?
+
+    async fn on_message<I, O>(
+        &self,
+        _: &Engine<I, O>,
+        request: &mut Request,
+    ) -> Result<bool, Self::Error>
+    where
+        I: AsyncRead + Send + Unpin,
+        O: AsyncWrite + Send + Unpin,
     {
-        anyhow::bail!("unable to register `user.unregister` handler");
-    }
+        if request.name == "user.auth"
+            && let Some(username) = request.kv.get("username")
+            && let Some(password) = self
+                .router
+                .extension(username)
+                .await?
+                .and_then(|extension| extension.password)
+        {
+            let username = username.clone();
 
-    futures::try_join!(
-        atelco::sigterm(&engine),
-        engine
-            .messages()
-            .err_into()
-            .try_for_each_concurrent(None, async |mut req| {
-                let processed = process(&database, &mut req).await?;
+            request.retvalue = password;
+            request.kv.insert("caller".into(), username);
 
-                Ok(engine.ack(req, processed).await?)
-            })
-    )?;
+            Ok(true)
+        } else if request.name == "user.register"
+            && let Some(username) = request.kv.get("username")
+            && let Some(expires) = request.kv.get("expires")
+            && let Some(data) = request.kv.get("data")
+        {
+            self.router
+                .register(username, data, expires.parse().unwrap_or(60))
+                .await?;
 
-    tracing::info!("processed all incoming messages, exiting");
-
-    Ok(())
-}
-
-async fn process(database: &SqlitePool, req: &mut Req) -> anyhow::Result<bool> {
-    let router = Router(database);
-
-    if req.name == "user.auth"
-        && let Some(username) = req.kv.get("username")
-        && let Some(extension) = router.extension(username).await?
-        && let Some(password) = extension.password
-    {
-        let username = username.clone();
-
-        req.retvalue = password;
-        req.kv.insert("caller".into(), username);
-
-        Ok(true)
-    } else if req.name == "user.register"
-        && let Some(username) = req.kv.get("username")
-        && let Some(data) = req.kv.get("data")
-        && let Some(expires) = req.kv.get("expires")
-    {
-        router
-            .register(username, data, expires.parse().unwrap_or(60))
-            .await?;
-
-        Ok(true)
-    } else if req.name == "user.unregister"
-        && let Some(username) = req.kv.get("username")
-        && let Some(data) = req.kv.get("data")
-    {
-        router.unregister(username, data).await
-    } else {
-        Ok(false)
+            Ok(true)
+        } else if request.name == "user.unregister"
+            && let Some(username) = request.kv.get("username")
+            && let Some(data) = request.kv.get("data")
+        {
+            self.router.unregister(username, data).await
+        } else {
+            Ok(false)
+        }
     }
 }

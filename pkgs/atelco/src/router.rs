@@ -10,7 +10,7 @@ pub struct Extension {
 }
 
 impl Router<'_> {
-    pub async fn preroute(&self, module: &str, address: &str) -> anyhow::Result<Option<String>> {
+    pub async fn reverse(&self, module: &str, address: &str) -> anyhow::Result<Option<String>> {
         tracing::trace!("preroute from `{module}/{address}`");
 
         if let Some(row) = sqlx::query!(

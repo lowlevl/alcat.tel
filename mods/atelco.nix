@@ -87,7 +87,7 @@ in {
 
           # Create database file with `group` access
           ExecStartPre = "${lib.getExe' pkgs.execline "umask"} 0007 ${lib.getExe' pkgs.coreutils "touch"} ${cfg.database}";
-          ExecStart = "${lib.getExe cfg.package} ${name} --database sqlite://${cfg.database} ${socket} ${mkFlags value}";
+          ExecStart = "${lib.getExe cfg.package} --socket ${socket} --database sqlite://${cfg.database} ${name} ${mkFlags value}";
         };
       })
     cfg.daemons;
