@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }: {
   # NOTE: forward `syslog` to `journald`
@@ -58,18 +59,18 @@
           proxyServer="${config.services.sipdect.address}" proxyPort="5060"
           regServer="${config.services.sipdect.address}" regPort="5060" regPeriod="3600" />
 
-        <CreateFixedPP>
-          <user num="1" />
-          <pp ipei="" />
-        </CreateFixedPP>
-        <CreateFixedPP>
-          <user num="2" />
-          <pp ipei="" />
-        </CreateFixedPP>
-        <CreateFixedPP>
-          <user num="3" />
-          <pp ipei="" />
-        </CreateFixedPP>
+        # populate users for wildcard association
+        ${lib.join "\n" (builtins.genList (
+            id: ''
+              <CreateFixedPP>
+                <user
+                  uid="${builtins.toString (id + 1)}"
+                  num="pp${builtins.toString (id + 1)}" />
+                <pp ipei="" />
+              </CreateFixedPP>
+            ''
+          )
+          25)}
 
         <SetDECTSubscriptionMode mode="Wildcard" timeout="60" />
       '';
