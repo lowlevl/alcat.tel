@@ -35,6 +35,28 @@
             "name": "password"
           }
         }
+      },
+      {
+        "name": "dectcode",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "extension",
+            "name": "dectcode"
+          }
+        }
+      },
+      {
+        "name": "dectpp",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "extension",
+            "name": "dectpp"
+          }
+        }
       }
     ],
     "parameters": {
@@ -42,6 +64,8 @@
     },
     "nullable": [
       false,
+      true,
+      true,
       true,
       true
     ]

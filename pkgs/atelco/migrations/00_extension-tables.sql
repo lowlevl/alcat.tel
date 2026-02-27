@@ -4,6 +4,9 @@ CREATE TABLE extension (
   ringback TEXT,
   password TEXT,
 
+  dectcode TEXT UNIQUE,
+  dectpp TEXT UNIQUE,
+
   PRIMARY KEY(number)
 );
 

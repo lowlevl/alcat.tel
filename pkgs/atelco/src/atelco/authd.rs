@@ -1,13 +1,14 @@
-use atelco::router::Router;
+use atelco::ext::DataExt;
 use futures::{AsyncRead, AsyncWrite};
+use sqlx::SqlitePool;
 use yengine::engine::{Engine, Request};
 
-pub struct Authd<'r> {
+pub struct Authd {
+    pub database: SqlitePool,
     pub priority: u64,
-    pub router: Router<'r>,
 }
 
-impl yengine::Module for Authd<'_> {
+impl yengine::Module for Authd {
     type Error = anyhow::Error;
 
     async fn install<I, O>(&self, engine: &Engine<I, O>) -> Result<(), Self::Error>
@@ -45,7 +46,7 @@ impl yengine::Module for Authd<'_> {
         if request.name == "user.auth"
             && let Some(username) = request.kv.get("username")
             && let Some(password) = self
-                .router
+                .database
                 .extension(username)
                 .await?
                 .and_then(|extension| extension.password)
@@ -61,7 +62,7 @@ impl yengine::Module for Authd<'_> {
             && let Some(expires) = request.kv.get("expires")
             && let Some(data) = request.kv.get("data")
         {
-            self.router
+            self.database
                 .register(username, data, expires.parse().unwrap_or(60))
                 .await?;
 
@@ -70,7 +71,7 @@ impl yengine::Module for Authd<'_> {
             && let Some(username) = request.kv.get("username")
             && let Some(data) = request.kv.get("data")
         {
-            self.router.unregister(username, data).await
+            self.database.unregister(username, data).await
         } else {
             Ok(false)
         }

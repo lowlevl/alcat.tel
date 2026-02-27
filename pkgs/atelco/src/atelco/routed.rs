@@ -1,13 +1,14 @@
-use atelco::router::Router;
+use atelco::ext::DataExt;
 use futures::{AsyncRead, AsyncWrite};
+use sqlx::SqlitePool;
 use yengine::engine::{Engine, Request};
 
-pub struct Routed<'r> {
+pub struct Routed {
+    pub database: SqlitePool,
     pub priority: u64,
-    pub router: Router<'r>,
 }
 
-impl yengine::Module for Routed<'_> {
+impl yengine::Module for Routed {
     type Error = anyhow::Error;
 
     async fn install<I, O>(&self, engine: &Engine<I, O>) -> Result<(), Self::Error>
@@ -47,18 +48,19 @@ impl yengine::Module for Routed<'_> {
         }
 
         if request.name == "call.preroute"
+            && !request.kv.contains_key("caller")
             && let Some(module) = request.kv.get("module")
             && let Some(address) = request.kv.get("address")
-            && let Some(caller) = self.router.reverse(module, address).await?
+            && let Some(caller) = self.database.reverse(module, address).await?
         {
             request.kv.insert("caller".into(), caller);
 
             Ok(true)
         } else if request.name == "call.route"
             && let Some(called) = request.kv.get("called")
-            && let Some(mut extension) = self.router.extension(called).await?
+            && let Some(mut extension) = self.database.extension(called).await?
         {
-            let locations = self.router.route(called).await?;
+            let locations = self.database.route(called).await?;
 
             // `ringback` only works when we're at toplevel
             let ringback = extension
