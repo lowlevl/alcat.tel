@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            DELETE FROM location\n            WHERE location.number = ?\n                AND location.data = ?\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "772540b4d6f516793231cb07865c04467340729718b7eb65732e8c6e8f42c85b"
+}

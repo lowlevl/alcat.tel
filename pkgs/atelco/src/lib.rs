@@ -12,7 +12,20 @@ use sqlx::{
 use url::Url;
 use yengine::Engine;
 
-pub mod router;
+pub mod ext;
+
+pub async fn sigterm<I, O>(engine: &Engine<I, O>) -> anyhow::Result<()>
+where
+    I: AsyncRead + Send + Unpin,
+    O: AsyncWrite + Send + Unpin,
+{
+    Signals::new([Signal::Term])?.try_next().await?;
+
+    tracing::info!("received `SIGTERM`, sending quit message to engine..");
+    engine.quit().await?;
+
+    Ok(())
+}
 
 pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream>> {
     let socket = UnixStream::connect(path)
@@ -33,19 +46,6 @@ pub async fn engine(path: &Path) -> anyhow::Result<Engine<UnixStream, UnixStream
     );
 
     Ok(engine)
-}
-
-pub async fn sigterm<I, O>(engine: &Engine<I, O>) -> anyhow::Result<()>
-where
-    I: AsyncRead + Send + Unpin,
-    O: AsyncWrite + Send + Unpin,
-{
-    Signals::new([Signal::Term])?.try_next().await?;
-
-    tracing::info!("received `SIGTERM`, sending quit message to engine..");
-    engine.quit().await?;
-
-    Ok(())
 }
 
 pub async fn database(url: &Url) -> anyhow::Result<SqlitePool> {
