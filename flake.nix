@@ -46,6 +46,7 @@
         in rec {
           dahdi-linux = prev.linuxPackages.callPackage ./pkgs/dahdi-linux {};
           dahdi-tools = prev.callPackage ./pkgs/dahdi-tools {inherit dahdi-linux;};
+          wanpipe = prev.linuxPackages.callPackage ./pkgs/wanpipe {};
           yate = prev.callPackage ./pkgs/yate {inherit dahdi-linux;};
           ascripts = prev.callPackage ./pkgs/ascripts {inherit yate;};
           atelco = prev.callPackage ./pkgs/atelco {inherit naersk';};
