@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                UPDATE extension\n                SET dectcode = ?\n                WHERE extension.number = ?\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "cd32c09064ed13cb83b21499fa230b10583b6f752dbd448c0183705022f36af1"
+}

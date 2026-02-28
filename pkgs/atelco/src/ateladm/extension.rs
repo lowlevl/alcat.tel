@@ -2,7 +2,7 @@ use std::num::NonZeroUsize;
 
 use clap::{Parser, Subcommand};
 use futures::{StreamExt, TryStreamExt};
-use rand::seq::IndexedRandom;
+use rand::seq::{IndexedRandom, IteratorRandom};
 use sqlx::SqlitePool;
 use tabled::{Tabled, derive::display, settings::style};
 
@@ -44,9 +44,17 @@ pub struct Modify {
     #[arg(short, long)]
     password: Option<String>,
 
-    /// Generate a random passphrase of the provided word count.
+    /// The dectcode to set, or `-` to unset.
     #[arg(short, long)]
+    dectcode: Option<String>,
+
+    /// Generate a random passphrase of the provided word count.
+    #[arg(long)]
     generate_password: Option<NonZeroUsize>,
+
+    /// Generate a random dectcode of the provided digit count.
+    #[arg(long)]
+    generate_dectcode: Option<NonZeroUsize>,
 }
 
 #[derive(Debug, Parser)]
@@ -86,7 +94,7 @@ impl Extension {
         .await?;
 
         let data = futures::stream::iter(extensions)
-            .then(async |mut extension| {
+            .then(async |extension| {
                 let locations = sqlx::query!(
                     r#"
                     SELECT
@@ -123,12 +131,26 @@ impl Extension {
                     locations += "(offline)";
                 }
 
+                let mut flags = String::new();
+
                 if extension.password.is_some() {
-                    extension.number += " 🗝";
+                    flags += "🗝";
+                }
+
+                if extension.dectcode.is_some() {
+                    flags += "∗";
+                }
+
+                if extension.dectpp.is_some() {
+                    flags += "↭";
                 }
 
                 anyhow::Ok(Ext {
-                    number: extension.number,
+                    number: if flags.is_empty() {
+                        extension.number
+                    } else {
+                        format!("{} {flags}", extension.number)
+                    },
                     ringback: extension.ringback,
                     locations,
                 })
@@ -241,6 +263,24 @@ impl Extension {
             .await?;
         }
 
+        if let Some(dectcode) = args.dectcode {
+            sqlx::query!(
+                r#"
+                UPDATE extension
+                SET dectcode = ?
+                WHERE extension.number = ?
+                "#,
+                if dectcode == "-" {
+                    None
+                } else {
+                    Some(dectcode)
+                },
+                args.number
+            )
+            .execute(tx.as_mut())
+            .await?;
+        }
+
         if let Some(words) = args.generate_password {
             let mut rng = rand::rng();
 
@@ -262,6 +302,28 @@ impl Extension {
                 WHERE extension.number = ?
                 "#,
                 password,
+                args.number
+            )
+            .execute(tx.as_mut())
+            .await?;
+        }
+
+        if let Some(digits) = args.generate_dectcode {
+            let mut rng = rand::rng();
+
+            let dectcode = (0..digits.get())
+                .map(|_| ('0'..='9').choose(&mut rng).expect("empty digits iterator"))
+                .collect::<String>();
+
+            println!("Generated dectcode: {dectcode}");
+
+            sqlx::query!(
+                r#"
+                UPDATE extension
+                SET dectcode = ?
+                WHERE extension.number = ?
+                "#,
+                dectcode,
                 args.number
             )
             .execute(tx.as_mut())
