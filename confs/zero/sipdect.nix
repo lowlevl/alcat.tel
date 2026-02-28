@@ -57,7 +57,7 @@
         <SetBasicSIP
           transportProt="UDP"
           proxyServer="${config.services.sipdect.address}" proxyPort="5060"
-          regServer="${config.services.sipdect.address}" regPort="5060" regPeriod="3600" />
+          regServer="${config.services.sipdect.address}" regPort="5060" regPeriod="60" />
 
         # populate users for wildcard association
         ${lib.join "\n" (builtins.genList (
