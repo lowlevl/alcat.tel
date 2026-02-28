@@ -50,9 +50,9 @@ in {
     };
 
     ommip1 = lib.mkOption {
-      type = types.nullOr types.str;
-      description = "The IP of the main OpenMobility Manager, if `null` the first RFP is selected";
-      default = null;
+      type = types.str;
+      description = "The IP of the main OpenMobility Manager";
+      default = lib.elemAt (lib.mapAttrsToList (mac: rfp: rfp.address) cfg.rfp) 0;
     };
     ommip2 = lib.mkOption {
       type = types.nullOr types.str;
@@ -122,11 +122,6 @@ in {
         dhcp-host = lib.mapAttrsToList (mac: rfp: "${mac},${rfp.address}") cfg.rfp;
 
         dhcp-option = let
-          ommip1 =
-            if cfg.ommip1 != null
-            then cfg.ommip1
-            else lib.elemAt (lib.mapAttrsToList (mac: rfp: rfp.address) cfg.rfp) 0;
-
           syslogip =
             if cfg.syslogd.address != null
             then cfg.syslogd.address
@@ -135,7 +130,7 @@ in {
         in
           [
             "224,OpenMobility"
-            "vendor:OpenMobility,10,${ommip1}"
+            "vendor:OpenMobility,10,${cfg.ommip1}"
           ]
           ++ lib.optional (cfg.ommip2 != null) "vendor:OpenMobility,19,${cfg.ommip2}"
           ++ lib.optional cfg.syslogd.enable "vendor:OpenMobility,14,${syslogip}"
