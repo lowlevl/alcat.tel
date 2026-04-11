@@ -107,7 +107,9 @@
         secure = true;
       };
     };
-    modules.yrtpchan = {};
+    modules.yrtpchan = {
+      general.drillhole = true;
+    };
     modules.accfile = {
       pstn0 = {
         enabled = true;
