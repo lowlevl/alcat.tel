@@ -59,18 +59,20 @@ impl yengine::Module for Dectd {
         // We can trust the `caller` argument since we trust the
         // source party for giving us a fixed `caller` for each DECT.
 
+        // FIXME: registration does not work (401)
+        // FIXME: repairing/unpairing does not work (`caller` is changed)
+
         if request.name == "user.auth"
-            && let Some(pp) = request.kv.get("caller")
+            && let Some(pp) = request.kv.get("username")
             && let Some(registered) = self.database.lookup(pp).await?
         {
-            request.kv.insert("username".into(), registered.clone());
             request.kv.insert("caller".into(), registered);
 
             Ok(true)
         } else if (request.name == "call.preroute" || request.name == "call.route")
-            && let Some(pp) = request.kv.get("caller")
             && let Some(called) = request.kv.get("called")
             && let Some(code) = called.strip_prefix(&self.prefix)
+            && let Some(pp) = request.kv.get("username").or(request.kv.get("caller"))
         {
             if request.name == "call.preroute" {
                 // Always unpair the `pp` before attempting pairing,

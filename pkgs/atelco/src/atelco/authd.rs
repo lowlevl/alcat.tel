@@ -58,20 +58,20 @@ impl yengine::Module for Authd {
 
             Ok(true)
         } else if request.name == "user.register"
-            && let Some(username) = request.kv.get("username")
+            && let Some(caller) = request.kv.get("caller")
             && let Some(expires) = request.kv.get("expires")
             && let Some(data) = request.kv.get("data")
         {
             self.database
-                .register(username, data, expires.parse().unwrap_or(60))
+                .register(caller, data, expires.parse().unwrap_or(60))
                 .await?;
 
             Ok(true)
         } else if request.name == "user.unregister"
-            && let Some(username) = request.kv.get("username")
+            && let Some(caller) = request.kv.get("caller")
             && let Some(data) = request.kv.get("data")
         {
-            self.database.unregister(username, data).await
+            self.database.unregister(caller, data).await
         } else {
             Ok(false)
         }
