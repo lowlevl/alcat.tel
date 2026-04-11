@@ -34,6 +34,12 @@ impl yengine::Module for Authd {
         atelco::sigterm(engine).await
     }
 
+    #[tracing::instrument(
+        name = "req",
+        level = "trace",
+        skip_all,
+        fields(name = request.name)
+    )]
     async fn on_message<I, O>(
         &self,
         _: &Engine<I, O>,
@@ -53,6 +59,8 @@ impl yengine::Module for Authd {
         {
             let username = username.clone();
 
+            tracing::debug!("<{username}> has a password, attempting authentication");
+
             request.retvalue = password;
             request.kv.insert("caller".into(), username);
 
@@ -62,16 +70,22 @@ impl yengine::Module for Authd {
             && let Some(expires) = request.kv.get("expires")
             && let Some(data) = request.kv.get("data")
         {
-            self.database
-                .register(caller, data, expires.parse().unwrap_or(60))
-                .await?;
+            let ttl = expires.parse().unwrap_or(60);
+            self.database.register(caller, data, ttl).await?;
+
+            tracing::debug!("registered location <{data}> as {caller} for {ttl}s");
 
             Ok(true)
         } else if request.name == "user.unregister"
             && let Some(caller) = request.kv.get("caller")
             && let Some(data) = request.kv.get("data")
         {
-            self.database.unregister(caller, data).await
+            let unregistered = self.database.unregister(caller, data).await?;
+            if unregistered {
+                tracing::debug!("unregistered location <{data}> from {caller}");
+            }
+
+            Ok(unregistered)
         } else {
             Ok(false)
         }

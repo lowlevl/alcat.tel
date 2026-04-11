@@ -37,6 +37,12 @@ impl yengine::Module for Dectd {
         atelco::sigterm(engine).await
     }
 
+    #[tracing::instrument(
+        name = "req",
+        level = "trace",
+        skip_all,
+        fields(name = request.name)
+    )]
     async fn on_message<I, O>(
         &self,
         _: &Engine<I, O>,
@@ -59,13 +65,12 @@ impl yengine::Module for Dectd {
         // We can trust the `caller` argument since we trust the
         // source party for giving us a fixed `caller` for each DECT.
 
-        // FIXME: registration does not work (401)
-        // FIXME: repairing/unpairing does not work (`caller` is changed)
-
         if request.name == "user.auth"
             && let Some(pp) = request.kv.get("username")
             && let Some(registered) = self.database.lookup(pp).await?
         {
+            tracing::debug!("successfully authenticated <{pp}> as {registered}");
+
             request.kv.insert("caller".into(), registered);
 
             Ok(true)
@@ -79,11 +84,17 @@ impl yengine::Module for Dectd {
                 // this also allows self-service unpairing.
                 self.database.unpair(pp).await?;
 
+                tracing::debug!("unpaired <{pp}>");
+
                 Ok(true) // Let the `call.preroute` flow as `call.route`
             } else {
                 request.retvalue = if self.database.pair(pp, code).await? {
+                    tracing::debug!("paired <{pp}> using {code}");
+
                     self.success.clone()
                 } else {
+                    tracing::debug!("failed to pair <{pp}> using {code}");
+
                     "-".into()
                 };
 

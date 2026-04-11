@@ -51,6 +51,8 @@ async fn main() -> anyhow::Result<()> {
                 .with_default_directive(tracing::Level::WARN.into())
                 .from_env_lossy(),
         )
+        .without_time()
+        .compact()
         .init();
 
     let database = atelco::database(&args.database).await?;

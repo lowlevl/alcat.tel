@@ -1,4 +1,4 @@
-use futures::TryStreamExt;
+use futures::{TryFutureExt, TryStreamExt};
 use sqlx::SqlitePool;
 
 pub struct Extension {
@@ -15,9 +15,7 @@ where
     for<'e> &'e Self: sqlx::Executor<'e, Database = sqlx::Sqlite>,
 {
     async fn reverse(&self, module: &str, address: &str) -> anyhow::Result<Option<String>> {
-        tracing::trace!("preroute from `{module}/{address}`");
-
-        if let Some(row) = sqlx::query!(
+        sqlx::query!(
             r#"
             SELECT number
             FROM location
@@ -27,21 +25,13 @@ where
             address
         )
         .fetch_optional(self)
-        .await?
-        {
-            let number = row.number;
-            tracing::trace!("caller is at `{number}`");
-
-            Ok(Some(number))
-        } else {
-            Ok(None)
-        }
+        .err_into()
+        .map_ok(|opt| opt.map(|row| row.number))
+        .await
     }
 
     async fn route(&self, number: &str) -> anyhow::Result<Vec<String>> {
-        tracing::trace!("route to `{number}`");
-
-        let locations = sqlx::query!(
+        sqlx::query!(
             r#"
             SELECT data
             FROM location
@@ -52,13 +42,10 @@ where
             number
         )
         .fetch(self)
+        .err_into()
         .map_ok(|row| row.data)
         .try_collect()
-        .await?;
-
-        tracing::trace!("number is at `{locations:?}`");
-
-        Ok(locations)
+        .await
     }
 
     async fn extension(&self, number: &str) -> anyhow::Result<Option<Extension>> {
@@ -72,13 +59,11 @@ where
             number
         )
         .fetch_optional(self)
+        .err_into()
         .await
-        .map_err(Into::into)
     }
 
     async fn register(&self, number: &str, data: &str, ttl: u32) -> anyhow::Result<()> {
-        tracing::trace!("registering `{number}` at `{data}` for {ttl}s");
-
         // Expire all the expired locations for `number`
         sqlx::query!(
             r#"
@@ -110,8 +95,6 @@ where
     }
 
     async fn unregister(&self, number: &str, data: &str) -> anyhow::Result<bool> {
-        tracing::trace!("unregistering `{number}` from `{data}`");
-
         let res = sqlx::query!(
             r#"
             DELETE FROM location
@@ -127,9 +110,22 @@ where
         Ok(res.rows_affected() > 0)
     }
 
-    async fn pair(&self, pp: &str, code: &str) -> anyhow::Result<bool> {
-        tracing::trace!("pairing `{pp}` using `{code}`");
+    async fn lookup(&self, pp: &str) -> anyhow::Result<Option<String>> {
+        sqlx::query!(
+            r#"
+            SELECT number
+            FROM extension
+            WHERE extension.dectpp = ?
+            "#,
+            pp
+        )
+        .fetch_optional(self)
+        .err_into()
+        .map_ok(|opt| opt.map(|row| row.number))
+        .await
+    }
 
+    async fn pair(&self, pp: &str, code: &str) -> anyhow::Result<bool> {
         let res = sqlx::query!(
             r#"
             UPDATE extension
@@ -147,7 +143,7 @@ where
     }
 
     async fn unpair(&self, pp: &str) -> anyhow::Result<()> {
-        tracing::trace!("unpairing `{pp}`");
+        // FIXME: potentially unregister locations at unpairing
 
         sqlx::query!(
             r#"
@@ -161,26 +157,6 @@ where
         .await?;
 
         Ok(())
-    }
-
-    async fn lookup(&self, pp: &str) -> anyhow::Result<Option<String>> {
-        tracing::trace!("looking up `{pp}` in database");
-
-        let caller = sqlx::query!(
-            r#"
-            SELECT number
-            FROM extension
-            WHERE extension.dectpp = ?
-            "#,
-            pp
-        )
-        .fetch_optional(self)
-        .await?
-        .map(|row| row.number);
-
-        tracing::trace!("`{pp}` is at {caller:?}");
-
-        Ok(caller)
     }
 }
 

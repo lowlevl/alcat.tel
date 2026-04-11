@@ -28,6 +28,12 @@ impl yengine::Module for Routed {
         atelco::sigterm(engine).await
     }
 
+    #[tracing::instrument(
+        name = "req",
+        level = "trace",
+        skip_all,
+        fields(name = request.name)
+    )]
     async fn on_message<I, O>(
         &self,
         _: &Engine<I, O>,
@@ -41,6 +47,8 @@ impl yengine::Module for Routed {
         if request.kv.get("module").map(String::as_str) != Some("analog")
             && !request.kv.contains_key("username")
         {
+            tracing::debug!("couldn't authentify call, denying");
+
             request.retvalue = "-".into();
             request.kv.insert("error".into(), "noauth".into());
 
@@ -53,6 +61,8 @@ impl yengine::Module for Routed {
             && let Some(address) = request.kv.get("address")
             && let Some(caller) = self.database.reverse(module, address).await?
         {
+            tracing::debug!("setting caller as {caller} for <{module}/{address}>");
+
             request.kv.insert("caller".into(), caller);
 
             Ok(true)
@@ -72,6 +82,8 @@ impl yengine::Module for Routed {
             match &locations[..] {
                 // Extension is `offline`
                 [] => {
+                    tracing::debug!("found {called} is offline");
+
                     request.retvalue = "-".into();
                     request.kv.insert("error".into(), "offline".into());
                 }
@@ -85,21 +97,29 @@ impl yengine::Module for Routed {
                             .map(String::as_str)
                             .zip(request.kv.get("address").map(String::as_str)) =>
                 {
+                    tracing::debug!("denying self-call for {called}");
+
                     request.retvalue = "-".into();
                     request.kv.insert("error".into(), "busy".into());
                 }
 
                 // Extension has a single location and has no ringback
                 [location] if ringback.is_none() => {
+                    tracing::debug!("found {called} at <{location}>");
+
                     request.retvalue = location.into();
                 }
 
                 // Otherwise, ringback or multiple locations, it's a `fork` !
                 locations => {
+                    tracing::debug!("found {called} at <{locations:?}>");
+
                     request.retvalue = "fork".into();
                     request.kv.insert("fork.stop".into(), "rejected".into());
 
                     if let Some(ringback) = ringback {
+                        tracing::debug!("set-up ringback as <{ringback}>");
+
                         request.kv.insert("fork.fake".into(), ringback);
                         request
                             .kv
