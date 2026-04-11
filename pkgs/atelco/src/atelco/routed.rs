@@ -56,7 +56,10 @@ impl yengine::Module for Routed {
         }
 
         if request.name == "call.preroute"
-            && !request.kv.contains_key("caller")
+            && request
+                .kv
+                .get("caller")
+                .is_none_or(|caller| caller == "unknown")
             && let Some(module) = request.kv.get("module")
             && let Some(address) = request.kv.get("address")
             && let Some(caller) = self.database.reverse(module, address).await?
