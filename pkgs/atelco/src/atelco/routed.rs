@@ -43,8 +43,10 @@ impl yengine::Module for Routed {
         I: AsyncRead + Send + Unpin,
         O: AsyncWrite + Send + Unpin,
     {
-        // Deny unauthenticated calls with `noauth`
+        // Deny unauthenticated calls with `noauth`,
+        // but allow call divert and `analog` phones.
         if request.kv.get("module").map(String::as_str) != Some("analog")
+            && !request.kv.contains_key("diverter")
             && !request.kv.contains_key("username")
         {
             tracing::debug!("couldn't authentify call, denying");
