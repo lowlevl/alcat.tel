@@ -1,0 +1,26 @@
+diff --git a/Makefile b/Makefile
+index 88d777f..dc641e9 100755
+--- a/Makefile
++++ b/Makefile
+@@ -572,7 +572,7 @@ all_util:  all_lib
+ 	$(MAKE) -C util all EXTRA_FLAGS="$(EXTRA_UTIL_FLAGS)" SYSINC="$(PWD)/$(WINCLUDE) -I $(PWD)/api/libsangoma/include" CC=$(CC) \
+ 	PREFIX=$(INSTALLPREFIX) HOSTCFLAGS="$(EXTRA_UTIL_FLAGS)" ARCH=$(WARCH) 
+ 	$(MAKE) -C util all_wancfg EXTRA_FLAGS="$(EXTRA_UTIL_FLAGS)" SYSINC="$(PWD)/$(WINCLUDE) -I$(PWD)/api/libsangoma/include" CC=$(CC)  \
+-	PREFIX=$(INSTALLPREFIX) HOSTCFLAGS="$(EXTRA_UTIL_FLAGS)" HOSTCFLAGS="$(EXTRA_UTIL_FLAGS)" ARCH=$(WARCH) 2> /dev/null
++	PREFIX=$(INSTALLPREFIX) HOSTCFLAGS="$(EXTRA_UTIL_FLAGS)" HOSTCFLAGS="$(EXTRA_UTIL_FLAGS)" ARCH=$(WARCH)
+ 
+ all_lib:
+ 	@if [ ! -f api/libsangoma/Makefile ] ; then \
+diff --git a/util/Makefile b/util/Makefile
+index 165edc7..1d71424 100644
+--- a/util/Makefile
++++ b/util/Makefile
+@@ -29,7 +29,7 @@ all:
+ 	make -C wan_aftup all CC=$(CC) SYSINC=$(SYSINC) PROTOCOL_DEFS="$(PROTOCOL_DEFS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" ARCH=$(ARCH)
+ 
+ all_wancfg:
+-	make -C wancfg all CC=$(CC) SYSINC=$(SYSINC) PROTOCOL_DEFS="$(PROTOCOL_DEFS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" ARCH=$(ARCH) 2> /dev/null
++	make -C wancfg all CC=$(CC) SYSINC=$(SYSINC) PROTOCOL_DEFS="$(PROTOCOL_DEFS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" ARCH=$(ARCH)
+ 
+ install:
+ 	@if [ ! -e $(WAN_VIRTUAL)/etc/wanpipe ]; then \
