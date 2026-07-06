@@ -128,6 +128,7 @@
     };
 
     # Routing modules
+    modules.pbx = {};
     modules.callfork = {};
     modules.lateroute = {};
     modules.regexroute = ''

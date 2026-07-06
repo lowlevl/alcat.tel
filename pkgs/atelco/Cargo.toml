@@ -34,4 +34,5 @@ yengine = "0.0.8"
 # yengine = { path = "../../../yengine" }
 
 tabled = "0.21.0"
+maplit = "1.0.2"
 

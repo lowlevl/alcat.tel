@@ -8,6 +8,7 @@ use url::Url;
 
 mod authd;
 mod dectd;
+mod divertd;
 mod routed;
 
 /// Core telecom functionalities.
@@ -59,6 +60,17 @@ enum Command {
         #[arg(short, long, default_value = "95")]
         priority: u64,
     },
+
+    /// Call divertion for analog telephones.
+    Divertd {
+        /// The target to play on diverted leg.
+        #[arg(short, long, default_value = "tone/callwaiting")]
+        callwait: String,
+
+        /// The target to play on diverter leg.
+        #[arg(short, long, default_value = "tone/specdial")]
+        specdial: String,
+    },
 }
 
 #[apply(main!)]
@@ -99,5 +111,10 @@ async fn main() -> anyhow::Result<()> {
         }
         Command::Authd { priority } => engine.attach(authd::Authd { database, priority }).await,
         Command::Routed { priority } => engine.attach(routed::Routed { database, priority }).await,
+        Command::Divertd { callwait, specdial } => {
+            engine
+                .attach(divertd::Divertd::new(callwait, specdial))
+                .await
+        }
     }
 }
