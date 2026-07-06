@@ -1,0 +1,14 @@
+--- source/drivers/staging/echo/bit_operations.h
++++ source/drivers/staging/echo/bit_operations.h
+@@ -196,9 +196,11 @@
+
++#if 0
+ /*! \brief Find the parity of a byte.
+     \param x The byte to be checked.
+     \return 1 for odd, or 0 for even. */
+ static __inline__ int parity8(uint8_t x)
+ {
+ 	x = (x ^ (x >> 4)) & 0x0F;
+ 	return (0x6996 >> x) & 1;
+ }
++#endif

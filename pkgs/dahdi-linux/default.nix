@@ -22,9 +22,6 @@
     dahdi-fw-tc400m.version = "MR6.12";
     dahdi-fw-tc400m.sha256 = "Ed2NAJgJ5B/Jo6NnZvWf9z0pB17t5bhyQzHZpuUll3Q=";
 
-    dahdi-fwload-vpmadt032.version = "1.25.0";
-    dahdi-fwload-vpmadt032.sha256 = "P/Js+AVV/XRwtDqHxR0DwdsqdavNRWHXn2m2xIKY5KE=";
-
     dahdi-fw-hx8.version = "2.06";
     dahdi-fw-hx8.sha256 = "RJqz/QPVXYCOmZ77dnfNBN4gK5LJ/LA5U5p+SKOagPU=";
 
@@ -62,8 +59,8 @@
   wanpipe.version = "7.0.38";
   wanpipe.sha256 = "lSZu3YO9i7Qn9H96OTZXlZNqzA1uLjoeSCvQFbupD6I=";
 
-  version = "d1c842a35f8e4c08172cf30231bb99d746a5bc33";
-  hash = "sha256-SM0CbcNpt15irENMfbNeiSxKJDUru3+m2SkZJ4fvO0c=";
+  version = "8f5b56adaf1a69674eb0f1e69bd22b06c068d6e6";
+  hash = "sha256-LkSilPGK53gB7Gxm5ZpcAGSqEqDLDr/UYEj2uPna+Hc=";
 in
   stdenv.mkDerivation {
     name = "dahdi-linux-${version}-${kernel.version}";
@@ -115,11 +112,15 @@ in
 
     patches = [
       ./00-revert-tdm410-tdm800-disable.patch
+      ./01-prevent-parity8-redefinition.patch
     ];
 
     makeFlags = [
       "KVERS=${kernel.modDirVersion}"
       "KSRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+
+      # disable `fwload-vpmadt032` module, since it doesn't build with newer kernels
+      "FWLOADERS="
     ];
 
     outputs = [
