@@ -1,21 +1,27 @@
 # - common/services: common services on all machines
-{atel, ...}: {
+{
+  atel,
+  pkgs,
+  ...
+}: {
   networking.firewall.enable = true;
 
   services.openssh = {
     enable = true;
     startWhenNeeded = true;
 
-    banner = ''
-      ${atel.banner}
-
-      [!!] This realm is the property of `alcat.tel`.
-    '';
-
     openFirewall = true;
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
+
+      Banner = let
+        file = pkgs.writeText "banner.txt" ''
+          ${atel.banner}
+
+          [!!] This realm is the property of `alcat.tel`.
+        '';
+      in "${file}";
     };
   };
 }

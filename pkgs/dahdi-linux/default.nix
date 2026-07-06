@@ -62,8 +62,8 @@
   wanpipe.version = "7.0.38";
   wanpipe.sha256 = "lSZu3YO9i7Qn9H96OTZXlZNqzA1uLjoeSCvQFbupD6I=";
 
-  version = "648016d6b3a06f7ec75c17ef94ffa17be59eebcf";
-  hash = "sha256-G9mEhZeWNOujWXoCejWeuV0msdhodAAFR8LY8zaBTLQ=";
+  version = "d1c842a35f8e4c08172cf30231bb99d746a5bc33";
+  hash = "sha256-SM0CbcNpt15irENMfbNeiSxKJDUru3+m2SkZJ4fvO0c=";
 in
   stdenv.mkDerivation {
     name = "dahdi-linux-${version}-${kernel.version}";
