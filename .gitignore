@@ -10,3 +10,6 @@
 
 # Cached direnv shell
 /.direnv
+
+# Rust-analyzer artifacts
+/target

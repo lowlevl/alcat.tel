@@ -12,36 +12,22 @@ mod routed;
 
 /// Core telecom functionalities.
 #[derive(Debug, Parser)]
-pub struct Args {
+struct Args {
     /// Path to yate's control socket.
     #[arg(short, long)]
-    pub socket: PathBuf,
+    socket: PathBuf,
 
     /// The path to the `sqlite` database.
     #[arg(short, long)]
-    pub database: Url,
+    database: Url,
 
     #[clap(subcommand)]
-    pub command: Command,
+    command: Command,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum Command {
-    /// Pre-route/route calls.
-    Routed {
-        /// The priority of `call.preroute` and `call.route` handlers.
-        #[arg(short, long, default_value = "95")]
-        priority: u64,
-    },
-
-    /// Authenticate calls from remote parties.
-    Authd {
-        /// The priority of `user.auth`, `user.register` and `user.unregister` handlers.
-        #[arg(short, long, default_value = "95")]
-        priority: u64,
-    },
-
-    /// Handle self-service registrations of DECTs.
+enum Command {
+    /// Self-service registrations of DECTs.
     Dectd {
         /// The priority of `call.preroute`, `call.route` & `user.auth` handlers.
         #[arg(short, long, default_value = "90")]
@@ -58,6 +44,20 @@ pub enum Command {
         /// The target to play on pairing success.
         #[arg(short, long, default_value = "tone/info")]
         success: String,
+    },
+
+    /// Authenticate calls from remote parties.
+    Authd {
+        /// The priority of `user.auth`, `user.register` and `user.unregister` handlers.
+        #[arg(short, long, default_value = "95")]
+        priority: u64,
+    },
+
+    /// Pre-route/route calls.
+    Routed {
+        /// The priority of `call.preroute` and `call.route` handlers.
+        #[arg(short, long, default_value = "95")]
+        priority: u64,
     },
 }
 
@@ -81,8 +81,6 @@ async fn main() -> anyhow::Result<()> {
     );
 
     match args.command {
-        Command::Routed { priority } => engine.attach(routed::Routed { database, priority }).await,
-        Command::Authd { priority } => engine.attach(authd::Authd { database, priority }).await,
         Command::Dectd {
             priority,
             prefix,
@@ -99,5 +97,7 @@ async fn main() -> anyhow::Result<()> {
                 })
                 .await
         }
+        Command::Authd { priority } => engine.attach(authd::Authd { database, priority }).await,
+        Command::Routed { priority } => engine.attach(routed::Routed { database, priority }).await,
     }
 }
