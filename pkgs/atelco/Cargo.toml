@@ -33,5 +33,5 @@ sqlx = { version = "0.9.0-alpha.1", features = ["runtime-smol", "sqlite"] }
 yengine = "0.0.8"
 # yengine = { path = "../../../yengine" }
 
-tabled = "0.20.0"
+tabled = "0.21.0"
 
