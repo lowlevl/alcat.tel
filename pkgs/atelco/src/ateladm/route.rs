@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Subcommand)]
-pub enum Location {
+pub enum Route {
     /// Add a location to an extension.
     Add(Add),
 
@@ -28,7 +28,7 @@ pub struct Rm {
     location: String,
 }
 
-impl Location {
+impl Route {
     pub async fn exec(self, database: SqlitePool) -> anyhow::Result<()> {
         match self {
             Self::Add(args) => Self::add(&database, args).await,

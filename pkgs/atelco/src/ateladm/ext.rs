@@ -15,7 +15,7 @@ pub enum Extension {
     Add(Add),
 
     /// Modify an extension in the system.
-    Modify(Modify),
+    Mod(Mod),
 
     /// Remove an extension from the system.
     Rm(Rm),
@@ -32,7 +32,7 @@ pub struct Add {
 }
 
 #[derive(Debug, Parser)]
-pub struct Modify {
+pub struct Mod {
     /// The extension number to modify.
     number: String,
 
@@ -68,7 +68,7 @@ impl Extension {
         match self {
             Self::Ls => Self::ls(&database).await,
             Self::Add(args) => Self::add(&database, args).await,
-            Self::Modify(args) => Self::modify(&database, args).await,
+            Self::Mod(args) => Self::modify(&database, args).await,
             Self::Rm(args) => Self::rm(&database, args).await,
         }
     }
@@ -209,7 +209,7 @@ impl Extension {
         Ok(())
     }
 
-    pub async fn modify(database: &SqlitePool, args: Modify) -> anyhow::Result<()> {
+    pub async fn modify(database: &SqlitePool, args: Mod) -> anyhow::Result<()> {
         let mut tx = database.begin().await?;
 
         if sqlx::query!(

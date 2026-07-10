@@ -6,8 +6,8 @@ use smol_macros::main;
 use tracing_subscriber::EnvFilter;
 use url::Url;
 
-mod extension;
-mod location;
+mod ext;
+mod route;
 
 // TODO: `alrm` commands with system services monitoring.
 
@@ -28,15 +28,15 @@ enum Command {
     Migrate,
 
     /// Manage extensions in the telephony system.
-    Extension {
+    Ext {
         #[clap(subcommand)]
-        sub: extension::Extension,
+        sub: ext::Extension,
     },
 
     /// Manage routes in the telephony system.
-    Location {
+    Route {
         #[clap(subcommand)]
-        sub: location::Location,
+        sub: route::Route,
     },
 }
 
@@ -58,7 +58,7 @@ async fn main() -> anyhow::Result<()> {
     let database = atelco::database(&args.database).await?;
     match args.command {
         Command::Migrate => sqlx::migrate!().run(&database).await.map_err(Into::into),
-        Command::Extension { sub } => sub.exec(database).await,
-        Command::Location { sub } => sub.exec(database).await,
+        Command::Ext { sub } => sub.exec(database).await,
+        Command::Route { sub } => sub.exec(database).await,
     }
 }
