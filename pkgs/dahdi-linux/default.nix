@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchgit,
   kernel,
   perl,
 }: let
@@ -56,11 +57,11 @@
     dahdi-fw-a4b.sha256 = "4Dmvi+w2QHt04d2evdSboHdGntp51OYJNyHtKDbUU28=";
   };
 
-  wanpipe.version = "7.0.38";
-  wanpipe.sha256 = "lSZu3YO9i7Qn9H96OTZXlZNqzA1uLjoeSCvQFbupD6I=";
-
   version = "8f5b56adaf1a69674eb0f1e69bd22b06c068d6e6";
   hash = "sha256-LkSilPGK53gB7Gxm5ZpcAGSqEqDLDr/UYEj2uPna+Hc=";
+
+  extra-version = "0343810f314e7d934aaa7dde1e2e6d3ea6777251";
+  extra-hash = "sha256-pFHbXeVgon8ECi5fnJWn4BAqsDewS9SBYqdeKF0kTLc=";
 in
   stdenv.mkDerivation {
     name = "dahdi-linux-${version}-${kernel.version}";
@@ -78,9 +79,10 @@ in
           rev = "${version}";
           inherit hash;
         })
-        (builtins.fetchurl {
-          url = "https://ftp.sangoma.com/linux/current_wanpipe/wanpipe-${wanpipe.version}.tgz";
-          inherit (wanpipe) sha256;
+        (fetchgit {
+          url = "http://git.tzafrir.org.il/cgit/dahdi-extra.git";
+          rev = extra-version;
+          hash = extra-hash;
         })
       ]
       #-- Additionnal tarballs required by dahdi-linux's Makefiles
@@ -104,15 +106,15 @@ in
       mv *.tar.gz "$sourceRoot/drivers/dahdi/firmware"
 
       install -d "$sourceRoot/drivers/staging"
-      tar xvf wanpipe-*.tgz "wanpipe-${wanpipe.version}/OSLEC/echo" --strip-components=2
-      mv -v echo "$sourceRoot/drivers/staging"
+
+      chmod 755 $(find dahdi-extra-* -type d)
+      mv -v dahdi-extra-*/drivers/staging/echo "$sourceRoot/drivers/staging"
 
       patchShebangs --build "$sourceRoot"
     '';
 
     patches = [
       ./00-revert-tdm410-tdm800-disable.patch
-      ./01-prevent-parity8-redefinition.patch
     ];
 
     makeFlags = [
