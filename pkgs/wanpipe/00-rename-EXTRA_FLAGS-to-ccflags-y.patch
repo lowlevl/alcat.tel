@@ -1,0 +1,13 @@
+--- a/Makefile
++++ b/Makefile
+@@ -443,8 +443,8 @@
+ 
+ #Build only kernel modules
+ all_kmod_dahdi:  _checkzap _checksrc _cleanoldwanpipe _check_kver
+-	$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_MODPOST_WARN=$(KBUILD_MODPOST_WARN) -C $(KDIR) M=$(WAN_DIR) EXTRA_FLAGS="$(EXTRA_CFLAGS) $(DAHDI_CFLAGS) $(shell cat ./patches/kfeatures)" ZAPDIR=$(ZAPDIR_PRIV) ZAPHDLC=$(ZAPHDLC_PRIV) HOMEDIR=$(PWD) modules  
++	$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_MODPOST_WARN=$(KBUILD_MODPOST_WARN) -C $(KDIR) M=$(WAN_DIR) ccflags-y="$(EXTRA_CFLAGS) $(DAHDI_CFLAGS) $(shell cat ./patches/kfeatures)" ZAPDIR=$(ZAPDIR_PRIV) ZAPHDLC=$(ZAPHDLC_PRIV) HOMEDIR=$(PWD) modules  
+ 
+ all_kmod:  _checksrc _cleanoldwanpipe _check_kver
+-	$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_MODPOST_WARN=$(KBUILD_MODPOST_WARN) -C $(KDIR) M=$(WAN_DIR) EXTRA_FLAGS="$(EXTRA_CFLAGS) $(shell cat ./patches/kfeatures)" ZAPDIR= ZAPHDLC= HOMEDIR=$(PWD) modules  
++	$(MAKE) KBUILD_VERBOSE=$(KBUILD_VERBOSE) KBUILD_MODPOST_WARN=$(KBUILD_MODPOST_WARN) -C $(KDIR) M=$(WAN_DIR) ccflags-y="$(EXTRA_CFLAGS) $(shell cat ./patches/kfeatures)" ZAPDIR= ZAPHDLC= HOMEDIR=$(PWD) modules  
+ 
