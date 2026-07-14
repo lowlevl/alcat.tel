@@ -88,6 +88,7 @@ impl Extension {
             r#"
             SELECT *
             FROM extension
+            ORDER BY number ASC
             "#
         )
         .fetch_all(database)

@@ -17,7 +17,7 @@
       {
         "name": "ttl: i64",
         "ordinal": 1,
-        "type_info": "Null",
+        "type_info": "Datetime",
         "origin": "Expression"
       }
     ],
@@ -26,7 +26,7 @@
     },
     "nullable": [
       false,
-      null
+      true
     ]
   },
   "hash": "6b1c34c3139a2401d8a716603141732a8dc83745019abc9c4d9d0602e70d4267"
