@@ -137,8 +137,8 @@
       ;
       ; :: Incoming calls pre-routing ::
 
-      ''${in_line}^pstn0$=;called=180
-      ''${in_line}^epvpn0$=;called=180
+      ''${in_line}^pstn0$=;called=4636
+      ''${in_line}^epvpn0$=;called=4636
 
       [default]
 
