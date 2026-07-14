@@ -49,7 +49,7 @@
         <SetSysToneScheme toneScheme="FR" />
         <SetDECTRegDomain regDomain="EMEA" />
         # reduce power to 100mW rather than 250mW
-        <SetDECTPowerLimit enable="1" />
+        # <SetDECTPowerLimit enable="1" />
         # remove encryption for now
         <SetDECTEncryption enable="0" />
         <SetDECTAuthCode ac="0000" />
