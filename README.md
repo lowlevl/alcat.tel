@@ -10,13 +10,14 @@ Some fun with classic "Télécommunication" infrastructure.
 
 - Contribute back with the yate fixes to `eventphone/yate` or `yatevoip/yate`.
 
-- A _voyance_ service from randomly selected phrases.
-- Call-a-keygen jukebox using `keygen.tk` music library.
-- Call-a-CD jukebox using the CD/DVD player on the machine.
-- Callback service at specific time, for reminders.
-- An infoline service.
-- `WHOAMI` number to tell the caller's number.
-- Transfer calls using _hook flash_ (`F`) with wait tone.
+- [ ] A _voyance_ service from randomly selected phrases.
+- [ ] Call-a-keygen jukebox using `keygen.tk` music library.
+- [ ] Call-a-CD jukebox using the CD/DVD player on the machine.
+- [ ] Callback service at specific time, for reminders.
+- [ ] An infoline service.
+- [ ] A ear-a-message, record-a-message service.
+- [ ] `WHOAMI` number to tell the caller's number.
+- [ ] Transfer calls using _hook flash_ (`F`) with wait tone.
 
 ### Some inspirations, documentation and reference.
 
