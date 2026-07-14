@@ -122,19 +122,37 @@ impl yengine::Module for Routed {
                     request.retvalue = "fork".into();
                     request.kv.insert("fork.stop".into(), "rejected".into());
 
+                    let mut forkid = 1;
+
                     if let Some(ringback) = ringback {
                         tracing::debug!("set-up ringback as <{ringback}>");
 
-                        request.kv.insert("fork.fake".into(), ringback);
+                        request.kv.insert("callto.1".into(), ringback);
                         request
                             .kv
-                            .insert("fork.fake.autorepeat".into(), "true".into());
+                            .insert("callto.1.autorepeat".into(), "true".into());
+                        request
+                            .kv
+                            .insert("callto.1.fork.calltype".into(), "persistent".into());
+                        // request
+                        //     .kv
+                        //     .insert("callto.1.fork.ringer".into(), "true".into());
+                        request
+                            .kv
+                            .insert("callto.1.fork.autoring".into(), "true".into());
+                        // request
+                        //     .kv
+                        //     .insert("callto.1.fork.automessage".into(), "call.progress".into());
+
+                        forkid += 1;
                     }
 
-                    for (idx, location) in locations.iter().enumerate() {
+                    for location in locations {
                         request
                             .kv
-                            .insert(format!("callto.{}", idx + 1), location.into());
+                            .insert(format!("callto.{}", forkid), location.into());
+
+                        forkid += 1;
                     }
                 }
             }
