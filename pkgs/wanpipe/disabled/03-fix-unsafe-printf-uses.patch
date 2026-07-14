@@ -1,0 +1,260 @@
+--- a/api/libsangoma/libsangoma-pvt.h
++++ b/api/libsangoma/libsangoma-pvt.h
+@@ -139,7 +139,7 @@ static void libsng_dbg(const char * fmt, ...)
+ #if defined(__WINDOWS__)
+ 	OutputDebugString(buf);
+ #else
+-	printf(buf);
++	printf("%s", buf);
+ #endif
+ 	va_end(args);
+ }
+--- a/util/wanconfig/wanconfig.c
++++ b/util/wanconfig/wanconfig.c
+@@ -713,7 +713,7 @@ void show_help(void) {
+  * Show usage text
+  */
+ void show_usage(void) {
+-	fprintf(stderr, usagetext);
++	fprintf(stderr, "%s", usagetext);
+ 	exit(1);
+ }
+ 
+@@ -765,7 +765,7 @@ int gencat (char *filename)
+ 	}
+ 	
+ 	while(fgets(buf, sizeof(buf) -1, file)) {
+-		printf(buf);
++		printf("%s", buf);
+ 	}	
+ 
+ 	fclose(file);
+@@ -3864,7 +3864,7 @@ void update_adsl_vci_vpi_list(wan_adsl_vcivpi_t* vcivpi_list, unsigned short vci
+ 		if (buf[0] != '#'){
+ 			break;
+ 		}else{
+-			fprintf(tmp_file, buf);
++			fprintf(tmp_file, "%s", buf);
+ 		}
+ 	}	
+ 	for(x = 0; x < vcivpi_num; x++){
+--- a/util/lxdialog/lxdialog.c
++++ b/util/lxdialog/lxdialog.c
+@@ -240,7 +240,7 @@ j_inputbox (const char *t, int ac, const char * const * av)
+     int ret = dialog_inputbox (t, av[2], atoi (av[3]), atoi (av[4]),
+                             ac == 6 ? av[5] : (char *) NULL);
+     if (ret == 0)
+-        fprintf(stderr, (char*)dialog_input_result);
++        fprintf(stderr, "%s", (char*)dialog_input_result);
+     return ret;
+ }
+ 
+--- a/util/wanpipemon/prot_trace.c
++++ b/util/wanpipemon/prot_trace.c
+@@ -1805,7 +1805,7 @@ static int decode_ppp(wp_trace_output_iface_t *trace_iface,
+ 		break;
+ 	}
+ 
+-	printf(outstr);
++	printf("%s", outstr);
+ 	printf("\n\n");
+ 	return inf_frame;
+ }
+--- a/util/wanpipemon/wanpipemon.c
++++ b/util/wanpipemon/wanpipemon.c
+@@ -1179,7 +1179,7 @@ static int init(int argc, char *argv[], char* command)
+ 				exit(1);
+ 			}
+ 
+-			snprintf(pcap_output_file_name, sizeof(pcap_output_file_name), argv[i+1]);
++			snprintf(pcap_output_file_name, sizeof(pcap_output_file_name), "%s", argv[i+1]);
+ 		}else if (!strcmp(argv[i], "-fe_lcode")){
+ 			if (i+1 > argc-1){
+ 				printf("ERROR: Invalid Command!\n");
+--- a/util/wanpipemon_legacy/prot_trace.c
++++ b/util/wanpipemon_legacy/prot_trace.c
+@@ -1731,7 +1731,7 @@ static int decode_ppp(wp_trace_output_iface_t *trace_iface,
+ 		break;
+ 	}
+ 
+-	printf(outstr);
++	printf("%s", outstr);
+ 	printf("\n\n");
+ 	return inf_frame;
+ }
+--- a/util/wan_aftup/wan_aftup.c
++++ b/util/wan_aftup/wan_aftup.c
+@@ -1232,7 +1232,7 @@ static int wan_aftup_parse_hwprobe(wan_cmd_api_t *api_cmd)
+ 		}
+ 		memset(aft,0,sizeof(wan_aftup_t));
+ 		aft->cpld.private = aft;
+-		sprintf(aft->hwinfo, tmp);
++		sprintf(aft->hwinfo, "%s", tmp);
+ 		
+ 		if (aft_prev == NULL){
+ 			WAN_LIST_INSERT_HEAD(
+@@ -1264,7 +1264,7 @@ static int wan_aftup_parse_hwprobe(wan_cmd_api_t *api_cmd)
+ 	
+ 	while(aft){
+ 		/* Use api_cmd structure to parse hwprobe info */
+-		sprintf((char*)api_cmd->data, aft->hwinfo);
++		sprintf((char*)api_cmd->data, "%s", aft->hwinfo);
+ 	
+ 		tmp = strtok((char*)api_cmd->data, ":");
+ 		if (tmp == NULL){
+@@ -1282,7 +1282,7 @@ static int wan_aftup_parse_hwprobe(wan_cmd_api_t *api_cmd)
+ 		}
+ 		
+ 		/* got interface name */
+-		sprintf(aft->if_name, tmp);
++		sprintf(aft->if_name, "%s", tmp);
+ 
+ 		tmp = strtok(NULL, ":");
+ 		while(*tmp == ' ') tmp++;
+--- a/util/wancfg/conf_file_reader.cpp
++++ b/util/wancfg/conf_file_reader.cpp
+@@ -1627,7 +1627,7 @@ int conf_file_reader::read_interfaces_section(
+ 
+     //use copy of the name because 'strstr()' inserts nulls and it
+     //will break things.
+-    snprintf(dev_name_backup, LEN_OF_DBG_BUFF, token[0]); 
++    snprintf(dev_name_backup, LEN_OF_DBG_BUFF, "%s", token[0]); 
+     
+     if(parent_dev_name != NULL){
+ 	    
+@@ -1664,8 +1664,8 @@ int conf_file_reader::read_interfaces_section(
+     chandef = &list_el_chan_def->data;
+     chanconf = chandef->chanconf;
+ 
+-    snprintf(chandef->name, WAN_IFNAME_SZ, token[0]);
+-    snprintf(chandef->addr, MAX_ADDR_STR_LEN, token[2]);
++    snprintf(chandef->name, WAN_IFNAME_SZ, "%s", token[0]);
++    snprintf(chandef->addr, MAX_ADDR_STR_LEN, "%s", token[2]);
+    
+     //NOTE: 'atoi()' returns zero if it failes AND if number
+     //is actually zero.
+@@ -1876,7 +1876,7 @@ int conf_file_reader::set_conf_param (char* key, char* val, key_word_t* dtab,
+ 
+     if(strcmp(key, "FIRMWARE") == 0){
+       Debug(DBG_CONF_FILE_READER, ("file name: %s\n", val));
+-      snprintf(lnks_def->firmware_file_path, MAX_PATH_LENGTH, val);
++      snprintf(lnks_def->firmware_file_path, MAX_PATH_LENGTH, "%s", val);
+     }
+     return 0;
+   }
+--- a/util/wancfg/text_box_help.h
++++ b/util/wancfg/text_box_help.h
+@@ -43,7 +43,7 @@ public:
+   {
+     Debug(DBG_TEXT_BOX_HELP, ("text_box_help::text_box_help()\n"));
+ 
+-    snprintf(this->lxdialog_path, MAX_PATH_LENGTH, lxdialog_path);
++    snprintf(this->lxdialog_path, MAX_PATH_LENGTH, "%s", lxdialog_path);
+     this->help_text_type = help_text_type;
+   }
+ 
+--- a/util/wancfg/cpp_string.cpp
++++ b/util/wancfg/cpp_string.cpp
+@@ -37,7 +37,7 @@ cpp_string::cpp_string(char* param)
+ {
+   Debug(DBG_CPP_STR, ("cpp_string::cpp_string(char* param)\n"));
+ 
+-  snprintf(cstr, MAX_STR, param);
++  snprintf(cstr, MAX_STR, "%s", param);
+ }
+ 
+ 
+@@ -54,7 +54,7 @@ void cpp_string::operator= (char* param)
+ 
+   char tmp[MAX_STR];
+ 
+-  snprintf(tmp, MAX_STR, param);
++  snprintf(tmp, MAX_STR, "%s", param);
+   strlcpy(cstr, tmp, MAX_STR);
+ 
+   Debug(DBG_CPP_STR, ("end of 'operator=' cstr: %s\n", cstr));
+@@ -67,7 +67,7 @@ void cpp_string::operator= (const char* param)
+   Debug(DBG_CPP_STR, ("strlen(cstr): %d\n", strlen(cstr)));
+ 
+ //  *this = (char*)param;
+-  snprintf(cstr, MAX_STR, (char*)param);
++  snprintf(cstr, MAX_STR, "%s", (char*)param);
+ 
+   Debug(DBG_CPP_STR, ("end of 'operator=' cstr: %s\n", cstr));
+ }
+@@ -79,7 +79,7 @@ char* cpp_string::operator+ (char* param)
+   Debug(DBG_CPP_STR, ("strlen(param): %d\n", strlen(param)));
+   Debug(DBG_CPP_STR, ("strlen(cstr): %d\n", strlen(cstr)));
+ 
+-  snprintf(&cstr[strlen(cstr)], MAX_STR - strlen(cstr), param);
++  snprintf(&cstr[strlen(cstr)], MAX_STR - strlen(cstr), "%s", param);
+ 
+   Debug(DBG_CPP_STR, ("end of 'operator+' cstr: %s\n", cstr));
+ 
+@@ -120,7 +120,7 @@ char* cpp_string::operator+= (cpp_string& param)
+ 
+   char tmp[MAX_STR];
+ 
+-  snprintf(tmp, MAX_STR, param.c_str());
++  snprintf(tmp, MAX_STR, "%s", param.c_str());
+ 
+   *this = *this + tmp;
+ 
+--- a/util/wanctl/text_box_help.h
++++ b/util/wanctl/text_box_help.h
+@@ -43,7 +43,7 @@ public:
+   {
+     Debug(DBG_TEXT_BOX_HELP, ("text_box_help::text_box_help()\n"));
+ 
+-    snprintf(this->lxdialog_path, MAX_PATH_LENGTH, lxdialog_path);
++    snprintf(this->lxdialog_path, MAX_PATH_LENGTH, "%s", lxdialog_path);
+     this->help_text_type = help_text_type;
+   }
+ 
+--- a/util/wanctl/cpp_string.cpp
++++ b/util/wanctl/cpp_string.cpp
+@@ -37,7 +37,7 @@ cpp_string::cpp_string(char* param)
+ {
+   Debug(DBG_CPP_STR, ("cpp_string::cpp_string(char* param)\n"));
+ 
+-  snprintf(cstr, MAX_STR, param);
++  snprintf(cstr, MAX_STR, "%s", param);
+ }
+ 
+ 
+@@ -54,7 +54,7 @@ void cpp_string::operator= (char* param)
+ 
+   char tmp[MAX_STR];
+ 
+-  snprintf(tmp, MAX_STR, param);
++  snprintf(tmp, MAX_STR, "%s", param);
+   strcpy(cstr, tmp);
+ 
+   Debug(DBG_CPP_STR, ("end of 'operator=' cstr: %s\n", cstr));
+@@ -67,7 +67,7 @@ void cpp_string::operator= (const char* param)
+   Debug(DBG_CPP_STR, ("strlen(cstr): %d\n", strlen(cstr)));
+ 
+ //  *this = (char*)param;
+-  snprintf(cstr, MAX_STR, (char*)param);
++  snprintf(cstr, MAX_STR, "%s", (char*)param);
+ 
+   Debug(DBG_CPP_STR, ("end of 'operator=' cstr: %s\n", cstr));
+ }
+@@ -79,7 +79,7 @@ char* cpp_string::operator+ (char* param)
+   Debug(DBG_CPP_STR, ("strlen(param): %d\n", strlen(param)));
+   Debug(DBG_CPP_STR, ("strlen(cstr): %d\n", strlen(cstr)));
+ 
+-  snprintf(&cstr[strlen(cstr)], MAX_STR - strlen(cstr), param);
++  snprintf(&cstr[strlen(cstr)], MAX_STR - strlen(cstr), "%s", param);
+ 
+   Debug(DBG_CPP_STR, ("end of 'operator+' cstr: %s\n", cstr));
+ 
+@@ -120,7 +120,7 @@ char* cpp_string::operator+= (cpp_string& param)
+ 
+   char tmp[MAX_STR];
+ 
+-  snprintf(tmp, MAX_STR, param.c_str());
++  snprintf(tmp, MAX_STR, "%s", param.c_str());
+ 
+   *this = *this + tmp;
+ 

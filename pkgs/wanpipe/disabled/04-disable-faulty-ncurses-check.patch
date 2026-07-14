@@ -1,0 +1,12 @@
+--- a/util/lxdialog/Makefile
++++ b/util/lxdialog/Makefile
+@@ -29,8 +29,7 @@ OBJS = checklist.o menubox.o textbox.o yesno.o inputbox.o \
+ SRCS = $(OBJS:.o=.c)
+ 
+ 
+-all: 	ncurses \
+-	lxdialog
++all:	lxdialog
+ 	@echo "Ok."
+ 
+ lxdialog: $(OBJS)

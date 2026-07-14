@@ -1,0 +1,36 @@
+--- a/patches/kdrivers/src/net/sdla_ec_dev.c
++++ b/patches/kdrivers/src/net/sdla_ec_dev.c
+@@ -64,6 +64,9 @@
+ #endif
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,0)
++#  define class_create(_ignored, name) (class_create(name))
++# endif
+ static struct class *wp_ecdev_class = NULL;
+ #else
+ static struct class_simple *wp_ecdev_class = NULL;
+--- a/patches/kdrivers/src/net/wanpipe_cdev_linux.c
++++ b/patches/kdrivers/src/net/wanpipe_cdev_linux.c
+@@ -39,6 +39,9 @@
+ # endif
+ 
+ # if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
++#  if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,0)
++#   define class_create(_ignored, name) (class_create(name))
++#  endif
+ static struct class *wp_cdev_class = NULL;
+ # else
+ static struct class_simple *wp_cdev_class = NULL;
+--- a/patches/kdrivers/wanec/wanec_dev.c
++++ b/patches/kdrivers/wanec/wanec_dev.c
+@@ -66,6 +66,9 @@
+ #endif
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,0)
++#  define class_create(_ignored, name) (class_create(name))
++# endif
+ static struct class *wanec_dev_class = NULL;
+ static struct cdev wanec_cdev = {
+ #ifndef LINUX_FEAT_2624
