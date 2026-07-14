@@ -128,6 +128,7 @@
     };
 
     # Routing modules
+    modules.conference = {};
     modules.callfork = {};
     modules.lateroute = {};
     modules.regexroute = ''
